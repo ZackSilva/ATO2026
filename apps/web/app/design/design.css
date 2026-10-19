@@ -1,0 +1,90 @@
+.design-guide { display: block; padding: 64px 0 0; min-height: 0; }
+.ds-back { color: var(--muted); text-decoration: none; font-size: 12px; }
+.ds-back:hover { color: var(--ink); }
+.ds-intro { padding: 24px 0 56px; }
+.ds-kicker { font-size: 12px; color: var(--muted); margin: 0 0 24px; }
+.ds-intro h1 { font-size: clamp(44px, 6vw, 76px); line-height: 1.03; letter-spacing: -3px; font-weight: 450; }
+.ds-intro > p:last-child { font-size: 16px; line-height: 1.7; margin: 28px 0 0; }
+.ds-nav { display: flex; gap: 32px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 22px; }
+.ds-nav a { text-decoration: none; color: var(--muted); font-size: 13px; padding: 8px 0; }
+.ds-nav a:hover { color: var(--ink); }
+.ds-section { padding: 64px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 24px; }
+.ds-section-heading { display: grid; grid-template-columns: 44px minmax(0, 640px); gap: 24px; margin-bottom: 40px; }
+.ds-number { color: var(--quiet); font-family: var(--font-mono); font-size: 12px; padding-top: 8px; }
+.ds-section h2 { font-size: 28px; letter-spacing: -.9px; font-weight: 450; line-height: 1.2; margin: 0; }
+.ds-section-heading p { margin: 14px 0 0; font-size: 14px; }
+.ds-section h3 { font-size: 14px; font-weight: 500; margin: 0 0 24px; }
+.ds-brand-stage { padding: 32px 0 48px 68px; }
+.ds-lockup { width: fit-content; gap: 24px; font-size: clamp(48px, 6vw, 76px); letter-spacing: -3px; line-height: 1; }
+.ds-stage-note { display: block; color: var(--muted); font-size: 12px; margin: 28px 0 0; }
+.ds-brand-details { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-left: 68px; }
+.ds-brand-details p { font-size: 13px; margin: 0; max-width: 440px; }
+.ds-mark-sizes { display: flex; align-items: flex-end; gap: 36px; }
+.ds-mark-sizes > div { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.ds-mark-sizes span { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.ds-palette { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 24px; padding-left: 68px; }
+.ds-swatch-color { height: 64px; border: 1px solid var(--line); margin-bottom: 14px; }
+.ds-swatch strong { display: block; font-size: 13px; font-weight: 450; }
+.ds-swatch code { display: block; margin-top: 8px; font-size: 11px; color: var(--muted); }
+.ds-swatch > span { display: block; margin-top: 4px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); overflow-wrap: anywhere; }
+.ds-note { color: var(--muted); font-size: 12px; line-height: 1.7; margin: 28px 0 0; max-width: 740px; }
+.ds-section > .ds-note { margin-left: 68px; }
+.ds-type-sample { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 24px; padding: 24px 0 24px 68px; align-items: baseline; }
+.ds-type-sample > span { font-size: 11px; color: var(--muted); }
+.ds-page-type { font-size: 32px; font-weight: 450; line-height: 1.2; letter-spacing: -1px; }
+.ds-section-type { font-size: 24px; font-weight: 450; letter-spacing: -.6px; }
+.ds-type-sample p { font-size: 15px; margin: 0; color: var(--ink); max-width: 480px; }
+.ds-numerals { display: flex; flex-wrap: wrap; gap: 32px; font-size: 26px; font-variant-numeric: tabular-nums; font-weight: 400; }
+.ds-numerals span { color: var(--muted); }
+.ds-layout-example { padding-left: 68px; }
+.ds-example-label { color: var(--muted); font-size: 11px; }
+.ds-layout-example .stats-grid { margin: 28px 0 40px; }
+.ds-spacing { padding-left: 68px; }
+.ds-spacing > div { display: flex; flex-wrap: wrap; gap: 24px; }
+.ds-space { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.ds-space span { height: 4px; background: var(--accent); display: block; }
+.ds-space code { color: var(--muted); font-size: 11px; }
+.ds-components { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-left: 68px; }
+.ds-playground input { margin-bottom: 18px; }
+.ds-button-examples { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ds-button-examples .primary { margin: 0; }
+.ds-button-examples .secondary { width: auto; }
+.ds-badges { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
+.ds-reference-badge { font-size: 10px; color: var(--muted); padding: 6px 0; letter-spacing: .6px; }
+.ds-state-line { display: flex; gap: 14px; align-items: baseline; margin: 24px 0 0; }
+.ds-state-line > span { font-size: 13px; width: 14px; }
+.ds-state-line strong { font-size: 13px; font-weight: 500; }
+.ds-state-line p { font-size: 12px; margin: 6px 0 0; }
+.ds-saved > span, .ds-saved strong { color: var(--success-ink); }
+.ds-warning > span, .ds-warning strong { color: var(--warning-ink); }
+.ds-failure > span, .ds-failure strong { color: var(--error-ink); }
+.ds-principle { display: flex; gap: 22px; align-items: center; padding: 64px 0; }
+.ds-principle p { font-size: 22px; font-weight: 400; line-height: 1.4; letter-spacing: -.5px; margin: 0; color: var(--ink); }
+.ds-principle p span { color: var(--muted); }
+@media (max-width: 900px) { .ds-brand-details, .ds-components { gap: 32px; } .ds-type-sample { grid-template-columns: 180px minmax(0, 1fr); } }
+@media (max-width: 680px) {
+  .design-guide { padding-top: 24px; }
+  .ds-back { max-width: 105px; text-align: right; font-size: 11px; line-height: 1.5; }
+  .ds-intro { padding: 20px 0 32px; }
+  .ds-intro h1 { font-size: 48px; letter-spacing: -2px; }
+  .ds-intro > p:last-child { font-size: 14px; }
+  .ds-nav { gap: 8px 22px; }
+  .ds-section { padding: 40px 0; }
+  .ds-section-heading { grid-template-columns: 24px minmax(0, 1fr); gap: 12px; margin-bottom: 28px; }
+  .ds-section h2 { font-size: 24px; }
+  .ds-section-heading p { font-size: 13px; }
+  .ds-brand-stage { padding: 12px 0 32px; }
+  .ds-lockup { gap: 16px; font-size: 48px; letter-spacing: -2px; }
+  .ds-lockup .slab-mark { height: 48px; width: 36px; }
+  .ds-brand-details, .ds-components { grid-template-columns: 1fr; padding-left: 0; gap: 36px; }
+  .ds-mark-sizes { gap: 32px; }
+  .ds-palette { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-left: 0; gap: 24px 18px; }
+  .ds-section > .ds-note { margin-left: 0; }
+  .ds-type-sample { grid-template-columns: 1fr; padding-left: 0; gap: 12px; }
+  .ds-page-type { font-size: 26px; }
+  .ds-section-type { font-size: 22px; }
+  .ds-numerals { font-size: 24px; gap: 16px; }
+  .ds-layout-example, .ds-spacing { padding-left: 0; }
+  .ds-principle { padding: 40px 0; }
+  .ds-principle p { font-size: 20px; }
+}

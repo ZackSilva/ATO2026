@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+.venv/
+node_modules/
+.next/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.DS_Store
+.vercel/
+backups/

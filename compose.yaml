@@ -1,0 +1,55 @@
+services:
+  db:
+    build:
+      context: ./infra
+      dockerfile: Dockerfile.db
+    environment:
+      POSTGRES_DB: slabtrak
+      POSTGRES_USER: slabtrak_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run python3 scripts/setup_local.py first}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Run python3 scripts/setup_local.py first}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slabtrak_admin -d slabtrak"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  api:
+    build: ./apps/api
+    volumes:
+      - photos:/data/photos
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Run python3 scripts/setup_local.py first}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+    restart: unless-stopped
+  web:
+    build: ./apps/web
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+  migrate:
+    build: ./apps/api
+    profiles: ["tools"]
+    environment:
+      MIGRATION_DATABASE_URL: ${MIGRATION_DATABASE_URL:?Run python3 scripts/setup_local.py first}
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  postgres_data:
+  photos:

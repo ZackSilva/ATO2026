@@ -1,0 +1,48 @@
+/* SlabTrak v1: semantic values shared by the app and /design reference. */
+:root {
+  color-scheme: dark;
+  --bg: #000000;
+  --panel: #0a0a0a;
+  --surface-raised: #111111;
+  --surface-hover: #151515;
+  --ink: #f5f5f3;
+  --muted: #a3a3a0;
+  --quiet: #767674;
+  --line: #262626;
+  --control-border: #616161;
+  --accent: #c6e5b1;
+  --accent-hover: #daf0cc;
+  --accent-ink: #10150d;
+  --focus: #e5c17a;
+  --error-bg: #1c1010;
+  --error-line: #8b5147;
+  --error-ink: #ffcabf;
+  --success-bg: #0b170f;
+  --success-line: #3d6446;
+  --success-ink: #c6e5b1;
+  --warning-bg: #1d180d;
+  --warning-ink: #e5c17a;
+  --badge-bg: #141414;
+  --badge-ink: #dfdfdb;
+  --graded-bg: #111a13;
+  --graded-ink: #c6e5b1;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-sm: 4px;
+  --radius-control: 8px;
+  --radius-dialog: 12px;
+  --text-caption: 12px;
+  --text-body: 14px;
+  --text-reading: 16px;
+  --text-section: 24px;
+  --text-page: 32px;
+  --font-wordmark: Arial, Helvetica, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --duration-fast: 120ms;
+}

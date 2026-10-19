@@ -1,0 +1,15 @@
+/* Native disclosure keeps account actions out of the collection workspace. */
+.account-menu { position: relative; margin-left: auto; flex-shrink: 0; }
+.account-trigger { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 0 4px 8px; cursor: pointer; list-style: none; border-radius: var(--radius-control); font-size: 13px; color: var(--muted); }
+.account-trigger::-webkit-details-marker { display: none; }
+.account-trigger:hover, .account-menu[open] .account-trigger { color: var(--ink); }
+.account-avatar { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--control-border); border-radius: 50%; font-size: 12px; color: var(--ink); font-weight: 500; }
+.account-name { display: block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-trigger > svg { margin-left: 2px; flex-shrink: 0; }
+.account-menu[open] .account-trigger > svg { transform: rotate(180deg); }
+.account-dropdown { position: absolute; z-index: 10; top: calc(100% + 12px); right: 0; width: min(248px, calc(100vw - 40px)); padding: 16px; border: 1px solid var(--control-border); border-radius: var(--radius-control); background: var(--surface-raised); }
+.account-dropdown p { margin: 0 0 14px; padding: 0 0 14px; border-bottom: 1px solid var(--line); font-size: 11px; line-height: 1.5; }
+.account-dropdown strong { display: block; margin-top: 5px; font-size: 14px; color: var(--ink); font-weight: 500; overflow-wrap: anywhere; }
+.account-sign-out { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 10px; text-align: left; font-size: 13px; font-weight: 450; background: transparent; border: 0; color: var(--ink); }
+.account-sign-out:hover:not(:disabled) { background: var(--surface-hover); }
+@media (max-width: 680px) { .account-name { display: none; } .account-trigger { gap: 8px; } }

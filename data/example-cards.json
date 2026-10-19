@@ -1,0 +1,46 @@
+[
+  {
+    "subject": "Michael Jordan",
+    "year": 1986,
+    "sport": "Basketball",
+    "manufacturer": "Fleer",
+    "set_name": "Fleer",
+    "card_number": "57",
+    "source_url": "https://www.psacard.com/cardfacts/basketball-cards/1986-fleer/michael-jordan-57/5003",
+    "image_url": "https://i.ebayimg.com/images/g/ZXQAAeSw-RFnrkJz/s-l1200.jpg",
+    "image_source_url": "https://www.ebay.com/itm/297300297176"
+  },
+  {
+    "subject": "Charles Barkley",
+    "year": 1986,
+    "sport": "Basketball",
+    "manufacturer": "Fleer",
+    "set_name": "Fleer",
+    "card_number": "7",
+    "source_url": "https://www.psacard.com/cardfacts/basketball-cards/1986-fleer/charles-barkley-7/4953/",
+    "image_url": "https://i.ebayimg.com/images/g/P74AAOSwPQ5mUqD1/s-l1200.jpg",
+    "image_source_url": "https://www.ebay.com/itm/204804574707"
+  },
+  {
+    "subject": "Tom Brady",
+    "year": 2000,
+    "sport": "Football",
+    "manufacturer": "Bowman",
+    "set_name": "Bowman",
+    "card_number": "236",
+    "source_url": "https://www.psacard.com/cert/21310879/psa",
+    "image_url": "https://i.ebayimg.com/images/g/6QkAAOSwzphjbwNK/s-l1600.jpg",
+    "image_source_url": "https://www.sportscardinvestor.com/cards/tom-brady-football/2000-bowman-base-236"
+  },
+  {
+    "subject": "Barry Sanders",
+    "year": 1989,
+    "sport": "Football",
+    "manufacturer": "Score",
+    "set_name": "Score",
+    "card_number": "257",
+    "source_url": "https://www.psacard.com/cardfacts/football-cards/1989-score/barry-sanders-257/13033",
+    "image_url": "https://i.ebayimg.com/images/g/RvEAAeSwro9oROkh/s-l1600.jpg",
+    "image_source_url": "https://www.ebay.com/itm/197408226893"
+  }
+]
