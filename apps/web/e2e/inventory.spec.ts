@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openCollectionFilters } from "./collection-helpers";
 
 const username = process.env.SLABTRAK_TEST_USERNAME;
 const password = process.env.SLABTRAK_TEST_PASSWORD;
@@ -63,8 +64,10 @@ test("add, find, edit, archive, restore and deliberately delete a persistent gra
   await expect(editor).toBeHidden();
   await page.getByLabel("Search collection").fill(note);
   await expect(page.getByText("1 card found", { exact: true })).toBeVisible();
+  await openCollectionFilters(page);
   await page.getByRole("combobox", { name: "Condition", exact: true }).selectOption("raw");
   await expect(page.getByRole("heading", { name: "No matching cards." })).toBeVisible();
+  await openCollectionFilters(page);
   await page.getByRole("combobox", { name: "Condition", exact: true }).selectOption("graded");
   await expect(record).toBeVisible();
   await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
@@ -73,11 +76,13 @@ test("add, find, edit, archive, restore and deliberately delete a persistent gra
   await editor.getByRole("button", { name: "Archive card", exact: true }).click();
   await expect(editor).toBeHidden();
   await expect(page.getByRole("heading", { name: "No matching cards." })).toBeVisible();
+  await openCollectionFilters(page);
   await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("archived");
   await expect(record).toContainText("ARCHIVED");
   await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
   await page.getByRole("button", { name: "Restore to collection", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeHidden();
+  await openCollectionFilters(page);
   await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("active");
   await expect(record).toBeVisible();
   await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();

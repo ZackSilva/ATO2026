@@ -1,4 +1,5 @@
 .market-overview { margin-bottom: 32px; }
+.market-overview .market-snapshot-note { font-size: 12px; margin: 10px 0 0; }
 .market-currency { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; font-size: 12px; margin-top: 24px; }
 .market-currency select { min-height: 44px; padding: 8px 32px 8px 12px; font-size: 13px; }
 .market-headline { margin-top: 24px; }
@@ -6,6 +7,20 @@
 .market-headline > strong { display: block; font-size: clamp(24px, 3vw, 38px); font-weight: 450; letter-spacing: -1px; margin-top: 10px; overflow-wrap: anywhere; }
 .market-headline p, .market-explanation { font-size: 13px; line-height: 1.7; }
 .market-links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.market-summary { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(230px, 1fr); align-items: center; gap: 24px 48px; padding: 24px 0 12px; }
+.market-summary .market-headline { margin-top: 0; }
+.market-summary .market-source-note { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+.market-coverage p { margin: 0 0 12px; font-size: 13px; }
+.market-coverage p strong { color: var(--ink); font-weight: 500; }
+.market-coverage progress { display: block; appearance: none; width: 100%; height: 4px; border: 0; background: var(--line); accent-color: var(--accent); border-radius: 2px; }
+.market-coverage progress::-webkit-progress-bar { background: var(--line); border-radius: 2px; }
+.market-coverage progress::-webkit-progress-value { background: var(--accent); border-radius: 2px; }
+.market-coverage progress::-moz-progress-bar { background: var(--accent); border-radius: 2px; }
+.market-coverage > span { display: block; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.market-coverage .market-currency { margin: 0 0 16px; }
+.market-method-details { margin: 10px 0 4px; color: var(--muted); font-size: 13px; max-width: 760px; }
+.market-method-details summary { cursor: pointer; padding: 10px 0; min-height: 44px; }
+.market-method-details p { margin: 8px 0 12px; font-size: 13px; line-height: 1.7; }
 .row-estimate-context, .row-market-insufficient { font-size: 12px; color: var(--muted); line-height: 1.6; }
 .inventory-row .row-value .market-unavailable { font-size: 14px; line-height: 1.5; letter-spacing: 0; }
 .market-detail-note { font-size: 12px; line-height: 1.7; }
@@ -23,6 +38,7 @@
 .market-data-heading { margin-top: 32px; }
 .market-method { max-width: 760px; font-size: 13px; }
 @media (max-width: 680px) {
+  .market-summary { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 20px; }
   .market-form-grid { grid-template-columns: minmax(0, 1fr); }
   .market-comparables li { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .market-comparables button { justify-self: start; }

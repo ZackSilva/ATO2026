@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { openCollectionFilters } from "./collection-helpers";
 
 const username = process.env.SLABTRAK_TEST_USERNAME;
 const password = process.env.SLABTRAK_TEST_PASSWORD;
@@ -26,6 +27,7 @@ async function deleteTestCard(page: Page, subject: string) {
     const close = page.getByRole("button", { name, exact: true });
     if (await close.isVisible()) await close.click();
   }
+  await openCollectionFilters(page);
   await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("all");
   await page.getByLabel("Search collection", { exact: true }).fill(subject);
   const record = recordFor(page, subject);
@@ -91,6 +93,7 @@ test("PSA grading and private photos survive a sale, fee correction and return t
     await expect(homeCount).toHaveText(String(initialActive));
 
     await page.getByRole("navigation", { name: "Workspace", exact: true }).getByRole("link", { name: "My Collection", exact: true }).click();
+    await openCollectionFilters(page);
     await show.selectOption("sold");
     await expect(record).toContainText("SOLD");
     await expect(record.locator(".row-value")).toContainText(/(?:USD|\$)\s*135\.00/);
@@ -109,6 +112,7 @@ test("PSA grading and private photos survive a sale, fee correction and return t
     await testInfo.attach("Recorded PSA 9 sale and profit", { body: await page.screenshot({ path: testInfo.outputPath("sold-card-details.png") }), contentType: "image/png" });
     await details.getByRole("button", { name: "Close card details", exact: true }).click();
     await page.reload();
+    await openCollectionFilters(page);
     await show.selectOption("sold");
     await expect(record).toContainText("PSA 9");
     await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
@@ -126,6 +130,7 @@ test("PSA grading and private photos survive a sale, fee correction and return t
     await editor.getByRole("button", { name: "Save changes", exact: true }).click();
     await expect(editor).toBeHidden();
     await expect(record).toBeHidden();
+    await openCollectionFilters(page);
     await show.selectOption("active");
     await expect(record.locator(".condition-badge")).toHaveText("PSA 9");
     await expect(counts).toHaveText(`${initialActive + 1} active · ${initialSold} sold · ${initialArchived} archived`);
@@ -157,6 +162,7 @@ test("zero sale fees remain distinct from unknown purchase costs and recorded lo
   const record = recordFor(page, subject);
   const details = page.getByRole("dialog", { name: subject, exact: true });
   try {
+    await openCollectionFilters(page);
     await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("sold");
     await record.getByRole("button", { name: `View card for ${subject}`, exact: true }).click();
     await expect(field(details, "Sale fees")).toHaveText(/(?:USD|\$)\s*0\.00/);
@@ -172,6 +178,7 @@ test("zero sale fees remain distinct from unknown purchase costs and recorded lo
     await expect(field(details, "Profit after all acquisition costs")).toHaveText("Unknown");
     await details.getByRole("button", { name: "Close card details", exact: true }).click();
     await page.reload();
+    await openCollectionFilters(page);
     await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("sold");
     await record.getByRole("button", { name: `View card for ${subject}`, exact: true }).click();
     await expect(field(details, "Profit vs purchase price")).toHaveText(/[−-](?:USD|\$)\s*30\.00/);

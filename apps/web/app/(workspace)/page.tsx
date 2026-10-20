@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../../lib/api";
 import type { Inventory } from "../../lib/cards";
-import type { ValueRange } from "../../lib/demo-values";
+import type { ValueRange } from "../../lib/collection-values";
 import CollectionValueChart from "../value-chart";
 import { useWorkspace } from "../workspace-shell";
 import MarketOverview from "../market-overview";

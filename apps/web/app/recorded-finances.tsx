@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { api, ApiError } from "../lib/api";
 import { coverage, eventPosition, financeDate, financeMoney, FINANCE_METRICS, FINANCE_RANGES, type CurrencyFinances, type FinanceMetric, type FinanceMetricKey, type FinanceRange, type Finances, type RecordedAmount } from "../lib/finances";
@@ -22,6 +23,7 @@ function ActivityChart({ group, data, metric, onMetricChange, expanded, onToggle
   const points = group.series.filter(point => point.metrics[metric].total_count > 0);
   const index = Math.min(cursor ?? Math.max(0, points.length - 1), Math.max(0, points.length - 1));
   const selected = points[index];
+  const total = group.metrics[metric];
   const label = FINANCE_METRICS.find(item => item.value === metric)!.label;
   const start = data.start_date ?? points[0]?.date ?? data.end_date;
   const end = data.end_date;
@@ -49,25 +51,28 @@ function ActivityChart({ group, data, metric, onMetricChange, expanded, onToggle
   return <div className={`finance-activity ${expanded ? "finance-chart-expanded" : ""}`}>
     <button type="button" className="finance-chart-toggle" aria-expanded={expanded} aria-controls={chartId} onClick={onToggle}>{expanded ? "Hide financial chart" : "Show financial chart"}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
     <div className="finance-chart-content" id={chartId}>
-      <div className="finance-chart-heading"><h3>Recorded activity</h3><label>Financial chart metric<select aria-label="Financial chart metric" value={metric} onChange={event => { onMetricChange(event.target.value as FinanceMetric); setCursor(null); }}>{FINANCE_METRICS.map(item => <option value={item.value} key={item.value}>{item.label}</option>)}</select></label></div>
+      <div className="finance-chart-heading"><div><h3>Activity over time</h3><p className="finance-chart-total">{total.amount === null ? "Unknown" : financeMoney(total.amount, group.currency)}</p><p className="finance-chart-caption">{label} · selected period{total.known_count < total.total_count || total.complete_count < total.total_count ? " · incomplete" : ""}</p></div><label>Show<select aria-label="Financial chart metric" value={metric} onChange={event => { onMetricChange(event.target.value as FinanceMetric); setCursor(null); }}>{FINANCE_METRICS.map(item => <option value={item.value} key={item.value}>{item.label}</option>)}</select></label></div>
       {selected ? <>
         <p className="finance-inspection" aria-live="polite">{describe(index)}</p>
         <div className="finance-plot" role="slider" tabIndex={0} aria-label="Explore recorded financial activity" aria-valuemin={0} aria-valuemax={points.length - 1} aria-valuenow={index} aria-valuetext={`${label}. ${describe(index)}`} onKeyDown={explore}>
           <svg viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true" onPointerMove={inspect} onPointerDown={event => { event.currentTarget.parentElement?.focus(); inspect(event); }}>
+            <line x1="0" x2="1000" y1="16" y2="16" className="finance-grid" vectorEffect="non-scaling-stroke" />
+            <line x1="0" x2="1000" y1="100" y2="100" className="finance-grid" vectorEffect="non-scaling-stroke" />
             <line x1="0" x2="1000" y1={y(0)} y2={y(0)} className="finance-zero" vectorEffect="non-scaling-stroke" />
             {points.map((point, position) => {
               const amount = point.metrics[metric].amount;
               const positionX = x(point.date);
               if (amount === null) return <path key={point.date} d={`M${positionX - 4},${y(0) - 8}l8,8m-8,0l8,-8`} className="finance-unknown-point" vectorEffect="non-scaling-stroke" />;
               const top = Math.min(y(Number(amount)), y(0));
-              return <rect key={point.date} x={positionX - 3} width={6} y={Number(amount) === 0 ? y(0) - 2 : top} height={Math.max(2, Math.abs(y(Number(amount)) - y(0)))} className={`${Number(amount) < 0 ? "finance-bar-loss" : "finance-bar"} ${position === index ? "finance-bar-selected" : ""}`} />;
+              const width = Math.max(6, Math.min(16, 500 / points.length));
+              return <rect key={point.date} x={positionX - width / 2} width={width} y={Number(amount) === 0 ? y(0) - 2 : top} height={Math.max(2, Math.abs(y(Number(amount)) - y(0)))} className={`${Number(amount) < 0 ? "finance-bar-loss" : "finance-bar"} ${position === index ? "finance-bar-selected" : ""}`} />;
             })}
             <line x1={x(selected.date)} x2={x(selected.date)} y1="8" y2="192" className="finance-cursor" vectorEffect="non-scaling-stroke" />
           </svg>
         </div>
         <div className="finance-chart-dates"><span>{financeDate(start)}</span><span>{financeDate(end)}</span></div>
-        <p className="finance-chart-help">Daily recorded amounts; gaps preserve calendar time. Use arrow keys or touch to inspect. × means an amount is unknown.</p>
-      </> : <p className="finance-no-activity">No dated {label.toLowerCase()} activity in this period.</p>}
+        <p className="finance-chart-help">Daily recorded amounts; calendar spacing. Use arrow keys or touch to inspect. × means unknown.</p>
+      </> : <div className="finance-empty-activity"><p className="finance-no-activity">No dated {label.toLowerCase()} activity in this period.</p><p>Add purchase or sale dates to see activity here. Collection estimates are a current snapshot, not transaction history.</p><Link className="workspace-text-link" href="/collection">Review card records →</Link></div>}
     </div>
   </div>;
 }
@@ -76,7 +81,7 @@ export default function RecordedFinances({ refreshKey, onExpired }: Props) {
   const [range, setRange] = useState<FinanceRange>("all");
   const [currency, setCurrency] = useState("USD");
   const [chartMetric, setChartMetric] = useState<FinanceMetric>("net_sales");
-  const [chartExpanded, setChartExpanded] = useState(false);
+  const [chartExpanded, setChartExpanded] = useState(true);
   const [data, setData] = useState<Finances | null>(null);
   const [pending, setPending] = useState(true);
   const [error, setError] = useState(false);
@@ -103,26 +108,30 @@ export default function RecordedFinances({ refreshKey, onExpired }: Props) {
   }, [range, refreshKey, retry, onExpired]);
   const current = data?.range === range ? data : null;
   const group = current?.currencies.find(item => item.currency === currency) ?? current?.currencies.find(item => item.currency === "USD") ?? current?.currencies[0];
+  const missingCostCount = group ? group.metrics.owned_cost.total_count - group.metrics.owned_cost.complete_count : 0;
   const ready = !pending && !error && current;
   return <section className="recorded-finances" aria-label="Recorded finances" aria-busy={pending || !current && !error}>
-    <div className="finance-heading"><div><h2>Recorded finances</h2><p>Saved purchases and sales. Separate from demo valuations.</p></div><div className="finance-controls">
-      <label>Finance period<select aria-label="Finance period" value={range} onChange={event => setRange(event.target.value as FinanceRange)}>{FINANCE_RANGES.map(item => <option value={item.value} key={item.value}>{item.label}</option>)}</select></label>
-      {!!current?.currencies.length && <label>Financial currency<select aria-label="Financial currency" value={group?.currency ?? "USD"} onChange={event => setCurrency(event.target.value)}>{current.currencies.map(item => <option key={item.currency} value={item.currency}>{item.currency}</option>)}</select></label>}
+    <div className="finance-heading"><div><h2>Spending & sales</h2><p>From your saved purchase and sale records.</p></div><div className="finance-controls">
+      <label>Period<select aria-label="Finance period" value={range} onChange={event => setRange(event.target.value as FinanceRange)}>{FINANCE_RANGES.map(item => <option value={item.value} key={item.value}>{item.label}</option>)}</select></label>
+      {!!current?.currencies.length && <label>Currency<select aria-label="Financial currency" value={group?.currency ?? "USD"} onChange={event => setCurrency(event.target.value)}>{current.currencies.map(item => <option key={item.currency} value={item.currency}>{item.currency}</option>)}</select></label>}
     </div></div>
     {error ? <p role="alert" className="finance-error">Couldn’t load the financial summary. <button type="button" className="text-button" onClick={() => setRetry(value => value + 1)}>Retry financial summary</button></p> : !ready ? <p role="status" className="finance-status">Loading recorded finances…</p> : !group ? <p className="finance-status">Add a card to start recording purchases and sales. Missing amounts stay unknown.</p> : <>
       <dl className="finance-summary">
-        <Amount metric="acquisition_spending" label="Known acquisition spending" value={group.metrics.acquisition_spending} currency={group.currency} />
+        <Amount metric="acquisition_spending" label="Recorded spending" note="Purchase price and other costs" value={group.metrics.acquisition_spending} currency={group.currency} />
+        <Amount metric="net_sales" label="Sales after fees" value={group.metrics.net_sales} currency={group.currency} />
+        <Amount metric="realized_profit" label="Profit after costs" note="From sold cards only" value={group.metrics.realized_profit} currency={group.currency} />
+      </dl>
+      {missingCostCount > 0 && <div className="finance-data-gap"><p>{missingCostCount} owned {missingCostCount === 1 ? "card needs" : "cards need"} cost details. Estimates are not purchase prices.</p><Link className="workspace-text-link" href="/collection">Update card costs →</Link></div>}
+      <details className="finance-breakdown"><summary>Sales and cost breakdown</summary><dl className="finance-breakdown-values">
         <Amount metric="owned_cost" label="Cost of cards still owned" note="Current snapshot · all dates" value={group.metrics.owned_cost} currency={group.currency} />
         <Amount metric="gross_sales" label="Gross sales" value={group.metrics.gross_sales} currency={group.currency} />
         <Amount metric="sale_fees" label="Selling fees" value={group.metrics.sale_fees} currency={group.currency} />
-        <Amount metric="net_sales" label="Net sale proceeds" value={group.metrics.net_sales} currency={group.currency} />
-        <Amount metric="realized_profit" label="Realized profit" note="After all acquisition costs" value={group.metrics.realized_profit} currency={group.currency} />
-      </dl>
-      <dl className="finance-purchase-comparison"><Amount metric="profit_vs_purchase" label="Profit vs. purchase price" note="Excludes shipping, tax and other acquisition costs" value={group.metrics.profit_vs_purchase} currency={group.currency} /></dl>
-      <p className="finance-scope">Includes archived cards and every saved record, independent of collection filters. Unknown costs are never counted as zero. Partial totals include only supported amounts.</p>
+        <Amount metric="profit_vs_purchase" label="Profit vs. purchase price" note="Excludes shipping, tax and other acquisition costs" value={group.metrics.profit_vs_purchase} currency={group.currency} />
+      </dl></details>
+      <ActivityChart key={`${group.currency}-${range}`} group={group} data={current} metric={chartMetric} onMetricChange={setChartMetric} expanded={chartExpanded} onToggle={() => setChartExpanded(value => !value)} />
+      <details className="finance-methodology"><summary>How these figures work</summary><p className="finance-scope">Includes archived cards and every saved record, independent of collection filters. Unknown costs are never counted as zero. Partial totals include only supported amounts. Realized profit subtracts selling fees and all acquisition costs; profit vs. purchase price excludes shipping, tax and other acquisition costs. Current owned cost is an all-date snapshot, independent of the selected period.</p></details>
       {(group.undated_acquisitions > 0 || group.undated_sales > 0) && <p className="finance-date-note">Undated records: {group.undated_acquisitions} acquisitions and {group.undated_sales} sales. Included in all-time totals; excluded from dated ranges and charts.</p>}
       {(group.future_acquisitions > 0 || group.future_sales > 0) && <p className="finance-date-note">Future-dated records: {group.future_acquisitions} acquisitions and {group.future_sales} sales. Excluded from spending and sales totals and charts until their date. Current owned cost includes all owned cards.</p>}
-      <ActivityChart key={`${group.currency}-${range}`} group={group} data={current} metric={chartMetric} onMetricChange={setChartMetric} expanded={chartExpanded} onToggle={() => setChartExpanded(value => !value)} />
       <p className="finance-asof">Through {financeDate(current.as_of)} · UTC dates · {group.currency} only</p>
     </>}
   </section>;

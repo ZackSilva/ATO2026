@@ -71,6 +71,11 @@ class ComparableCreate(ComparableInput):
     expected_definition_id: UUID
 
 
+class PriceObservation(BaseModel):
+    sold_on: date
+    price: Decimal
+
+
 class Estimate(BaseModel):
     card_id: UUID
     currency: str
@@ -84,6 +89,7 @@ class Estimate(BaseModel):
     latest_sale: date | None
     confidence: Literal["insufficient", "low", "medium"]
     reason: str
+    history: list[PriceObservation] = Field(default_factory=list)
 
 
 class EstimateList(BaseModel):
@@ -108,15 +114,32 @@ def normalized_grade(value: str) -> str:
         return value
 
 
+def comparable_key(definition_id: UUID, data: ComparableInput) -> str:
+    """Share duplicate detection between recorded sales and operator imports."""
+    basis = data.source_url or json.dumps(
+        (
+            str(definition_id),
+            data.sold_on.isoformat(),
+            str(data.price.quantize(Decimal(".01"))),
+            data.currency,
+            data.condition,
+            data.grader.casefold(),
+            normalized_grade(data.grade),
+            data.source.casefold(),
+        )
+    )
+    return hashlib.sha256(basis.encode()).hexdigest()
+
+
 def estimate_for(copy: OwnedCopy, sales: list[ComparableSale], today: date) -> Estimate:
     start = today - timedelta(days=WINDOW_DAYS - 1)
-    matched = [
+    history = [
         sale
         for sale in sales
         if sale.definition_id == copy.definition_id
         and sale.currency == copy.currency
         and sale.condition == copy.condition
-        and start <= sale.sold_on <= today
+        and sale.sold_on <= today
         and (
             copy.condition == "raw"
             or (
@@ -126,6 +149,7 @@ def estimate_for(copy: OwnedCopy, sales: list[ComparableSale], today: date) -> E
             )
         )
     ]
+    matched = [sale for sale in history if sale.sold_on >= start]
     prices = [sale.price for sale in matched]
     enough = len(prices) >= MINIMUM_SALES
     note = (
@@ -157,6 +181,10 @@ def estimate_for(copy: OwnedCopy, sales: list[ComparableSale], today: date) -> E
         if enough
         else "insufficient",
         reason=reason,
+        history=[
+            PriceObservation(sold_on=sale.sold_on, price=sale.price.quantize(Decimal(".01")))
+            for sale in sorted(history, key=lambda sale: (sale.sold_on, sale.price))
+        ],
     )
 
 
@@ -233,22 +261,10 @@ def estimates_router(db_session, authenticated, mutation) -> APIRouter:
                 "Reload the card before recording a completed sale.",
             )
         # A repeated source URL cannot inflate estimates, even on another card identity.
-        duplicate_basis = data.source_url or json.dumps(
-            (
-                str(copy.definition_id),
-                data.sold_on.isoformat(),
-                str(data.price.quantize(Decimal(".01"))),
-                data.currency,
-                data.condition,
-                data.grader.casefold(),
-                normalized_grade(data.grade),
-                data.source.casefold(),
-            )
-        )
         sale = ComparableSale(
             owner_id=identity[0].id,
             definition_id=copy.definition_id,
-            source_key=hashlib.sha256(duplicate_basis.encode()).hexdigest(),
+            source_key=comparable_key(copy.definition_id, data),
             created_at=datetime.now(UTC),
             **data.model_dump(exclude={"expected_definition_id"}),
         )

@@ -3,6 +3,7 @@ export type MarketEstimate = {
   grader: string; grade: string; amount: string | null; low: string | null;
   high: string | null; sample_count: number; latest_sale: string | null;
   confidence: "insufficient" | "low" | "medium"; reason: string;
+  history?: { sold_on: string; price: string }[];
 };
 export type Estimates = { as_of: string; window_days: number; minimum_sales: number; items: MarketEstimate[] };
 export type Comparable = {

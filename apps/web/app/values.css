@@ -1,10 +1,8 @@
-/* Financial examples are display-only; charts share the black collection canvas. */
-.value-overview { margin-top: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+/* Collection charts use the saved comparable-sales evidence. */
+.value-overview { --value-axis-space: 122px; margin-top: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
 .value-toolbar, .value-headline, .chart-inspection, .chart-bottom { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .metric-picker { display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--muted); margin: 0; font-weight: 400; }
 .metric-picker select { min-height: 44px; padding: 8px 30px 8px 12px; font-size: 13px; color: var(--ink); max-width: 260px; }
-.demo-label { display: inline-flex; align-items: center; gap: 7px; color: var(--warning-ink); font-size: 11px; line-height: 1.5; font-weight: 450; }
-.demo-label > span { font-size: 18px; }
 .value-headline { margin-top: 28px; align-items: flex-end; justify-content: flex-start; gap: 32px; }
 .value-headline h2 { font-size: 13px; color: var(--muted); font-weight: 400; margin: 0 0 10px; }
 .overview-amount { display: block; font-size: clamp(32px, 4vw, 48px); font-weight: 400; line-height: 1.1; letter-spacing: -1.8px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
@@ -14,30 +12,28 @@
 .value-down { color: var(--error-ink); }
 .chart-inspection { color: var(--muted); font-size: 11px; margin: 22px 0 18px; min-height: 18px; }
 .chart-hint { color: var(--quiet); }
-.value-plot { position: relative; height: 230px; padding-right: 70px; cursor: crosshair; touch-action: pan-y; border-radius: 0; }
+.value-plot { position: relative; height: 230px; padding-right: var(--value-axis-space); cursor: crosshair; touch-action: pan-y; border-radius: 0; }
 .overview-chart { display: block; width: 100%; height: 100%; overflow: visible; }
 .chart-grid-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 6; }
 .chart-zero-line { stroke: var(--control-border); stroke-width: 1; stroke-dasharray: 4 5; }
 .chart-area { fill: var(--accent); opacity: .045; }
 .chart-value-line { stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; fill: none; }
 .chart-cursor { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 5; }
-.chart-y-axis { position: absolute; right: 0; top: -6px; bottom: -6px; display: flex; flex-direction: column; justify-content: space-between; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--muted); width: 58px; pointer-events: none; }
+.chart-y-axis { position: absolute; right: 0; top: -6px; bottom: -6px; display: flex; flex-direction: column; justify-content: space-between; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--muted); width: 110px; pointer-events: none; }
 .chart-dot { position: absolute; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-.chart-x-axis { display: flex; justify-content: space-between; gap: 12px; padding-right: 70px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+.chart-x-axis { display: flex; justify-content: space-between; gap: 12px; padding-right: var(--value-axis-space); margin-top: 12px; font-size: 11px; color: var(--muted); }
 .chart-bottom { margin-top: 20px; }
 .chart-ranges { display: flex; flex-wrap: wrap; gap: 6px; }
 .chart-ranges button { min-width: 44px; min-height: 44px; background: transparent; border: 0; color: var(--muted); padding: 8px 14px; border-radius: 4px; font-weight: 450; font-size: 12px; }
 .chart-ranges button:hover { color: var(--ink); background: var(--surface-raised); }
 .chart-ranges button[aria-pressed="true"] { color: var(--accent); background: var(--surface-raised); }
 .chart-scope { font-size: 11px; color: var(--muted); }
-.value-demo-note { font-size: 11px; margin: 14px 0 0; max-width: 860px; line-height: 1.7; }
 .chart-error { font-size: 12px; color: var(--error-ink); margin: 12px 0 0; }
 .chart-error button { color: var(--ink); font-size: 12px; margin-left: 8px; }
-.chart-placeholder { height: 230px; display: flex; align-items: center; padding-right: 70px; }
+.chart-placeholder { height: 230px; display: flex; align-items: center; padding-right: var(--value-axis-space); }
 .chart-placeholder > span { width: 100%; border-top: 1px dashed var(--line); }
 .collection-workspace .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 720px; margin: 28px 0 40px; gap: 32px; }
 .collection-workspace .stat strong { font-size: 26px; margin-top: 8px; }
-.row-demo-note { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; margin: 0 0 18px; }
 .inventory-list-heading, .inventory-row { grid-template-columns: 78px minmax(160px, 1fr) 130px 140px 140px 100px; column-gap: 20px; padding-left: 0; padding-right: 0; }
 .inventory-row { grid-template-areas: "image identity trend value purchase action"; min-height: 148px; }
 .inventory-row .card-thumbnail { grid-area: image; align-self: center; }
@@ -89,14 +85,13 @@
   .value-comparison { font-size: 9px; }
   .inventory-row .row-trend { gap: 12px; }
   .sparkline { width: 100px; height: 32px; }
-  .row-demo-note { margin-bottom: 8px; }
 }
 
 /* Compact summaries keep the collection reachable; details remain available on demand. */
 .workspace-heading > .primary { width: auto; flex-shrink: 0; }
 .metric-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
 .metric-heading h2 { margin: 0; }
-.metric-heading .demo-label, .value-demo-note, .row-demo-note, .chart-inspection, .chart-x-axis, .chart-y-axis, .chart-scope { font-size: 12px; }
+.chart-inspection, .chart-x-axis, .chart-y-axis, .chart-scope { font-size: 12px; }
 .chart-expand-toggle, .chart-touch-hint, .row-details-toggle, .row-gain-detail { display: none; }
 .row-secondary { display: contents; }
 .row-secondary[hidden] { display: none; }
@@ -105,8 +100,6 @@
 .row-value > span:not(.mobile-cell-label), .trend-change, .trend-period, .value-comparison, .row-purchase .cost-detail { font-size: 12px; }
 .inventory-list-heading { font-size: 11px; letter-spacing: .6px; }
 .inventory-row .row-value .mobile-cell-label, .inventory-row .row-purchase .mobile-cell-label { font-size: 12px; }
-.row-period-picker { display: flex; flex-direction: column; gap: 6px; margin: 0; font-size: 12px; color: var(--muted); font-weight: 400; }
-.row-period-picker select { min-height: 44px; padding: 8px 28px 8px 10px; font-size: 12px; }
 .row-edit { min-height: 44px; }
 .inventory-row { cursor: pointer; }
 .inventory-row.row-loading { cursor: wait; }
@@ -140,22 +133,13 @@
   .chart-inspection { flex-wrap: wrap; gap: 6px; margin: 8px 0 16px; }
   .chart-bottom { margin-top: 16px; gap: 8px; }
   .chart-ranges button { font-size: 12px; }
-  .value-demo-note { margin-top: 2px; font-size: 12px; line-height: 1.5; }
   .collection-workspace .stats-grid { margin: 18px 0 24px; gap: 12px; }
   .collection-workspace .stat span { font-size: 12px; }
   .collection-workspace .stat strong { font-size: 22px; margin-top: 6px; }
   .inventory-heading { align-items: flex-start; }
   .inventory-heading h2 { font-size: 22px; }
   .inventory-heading p { font-size: 12px; }
-  .row-period-picker { max-width: 145px; }
-  .collection-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; margin-top: 18px; }
-  .collection-tools .search-label { grid-column: 1 / -1; }
-  .collection-tools label:last-child { grid-column: auto; }
-  .collection-tools label { font-size: 12px; gap: 6px; }
-  .collection-tools select { padding: 10px 6px; font-size: 12px; min-height: 44px; }
-  .collection-tools input { padding: 12px; min-height: 44px; font-size: 13px; }
   .results-meta { margin: 16px 0 8px; }
-  .row-demo-note { font-size: 12px; line-height: 1.5; margin-bottom: 8px; }
   .inventory-row { grid-template-columns: 64px minmax(0, 1fr) 82px; grid-template-areas: "image identity identity" "image value action" ". more more" ". details details"; gap: 10px 14px; padding: 20px 0; }
   .inventory-row .card-thumbnail { grid-area: image; align-self: start; }
   .inventory-row .row-identity { grid-area: identity; }
@@ -178,20 +162,17 @@
   .card-tags span, .card-tags .condition-badge { font-size: 11px; }
 }
 
-.row-period-picker[hidden] { display: none; }
-
-.row-value-controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
-.row-value-controls .row-period-picker { max-width: 100%; min-width: 0; }
-.row-value-controls select { max-width: 100%; }
 .home-page > .value-overview { margin-top: 0; padding-bottom: 32px; }
 .home-page > .value-overview .value-plot, .home-page > .value-overview .chart-placeholder { height: 300px; }
 @media (max-width: 680px) {
   .inventory-heading { flex-direction: column; gap: 18px; }
-  .row-value-controls { width: 100%; gap: 12px; }
-  .row-value-controls .row-period-picker:first-child { flex: 1 1 180px; }
-  .inventory-row.demo-row { grid-template-areas: "image identity identity" "image value action" ". trend trend" ". more more" ". details details"; }
-  .inventory-row .demo-row-trend { flex-wrap: wrap; gap: 8px 12px; }
-  .inventory-row .demo-row-trend .mobile-cell-label { display: inline; flex-basis: auto; }
   .home-page > .value-overview { padding-bottom: 24px; }
   .home-page > .value-overview .value-plot, .home-page > .value-overview .chart-placeholder { height: 220px; }
 }
+
+.value-evidence-note { max-width: 780px; margin: 16px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.estimate-coverage { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.chart-empty-state { min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 10px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+.estimate-history-title { margin: 24px 0 0; color: var(--muted); font-size: 13px; font-weight: 400; }
+.chart-history-point { fill: var(--accent); }

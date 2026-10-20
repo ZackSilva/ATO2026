@@ -1,0 +1,14 @@
+/* Row charts contain saved comparable sales, with positions based on real dates. */
+.collection-value-note { margin: 0 0 18px; font-size: 12px; line-height: 1.6; }
+.inventory-row .row-sale-history { flex-direction: column; align-items: flex-start; gap: 6px; }
+.sale-history-label, .sale-history-range { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.sale-history-sparkline { display: block; width: 124px; max-width: 100%; height: 36px; color: var(--ink); overflow: visible; }
+.sale-history-range { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 680px) {
+  .collection-value-note { margin-bottom: 8px; }
+  .inventory-row.sale-history-row { grid-template-areas: "image identity identity" "image value action" ". trend trend" ". more more" ". details details"; }
+  .inventory-row .row-sale-history { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .row-sale-history .sale-history-label { flex-basis: 100%; }
+  .row-sale-history .row-estimate-context { flex-basis: 100%; }
+}

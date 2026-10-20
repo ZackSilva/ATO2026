@@ -6,6 +6,7 @@ import { cardSubtitle, money, type Card, type PhotoSide } from "../lib/cards";
 import type { MarketEstimate } from "../lib/estimates";
 import { financeMoney } from "../lib/finances";
 import { Photo, PhotoSides } from "./card-preview";
+import CardSalesHistory from "./card-sales-history";
 import "./card-detail.css";
 
 type Props = {
@@ -17,13 +18,14 @@ type Props = {
   onClose: () => void;
   onEdit: () => void;
   onPreview: (side: PhotoSide) => void;
+  onExpired: () => void;
 };
 
 function Detail({ label, children }: { label: string; children: ReactNode }) {
   return <div><dt>{label}</dt><dd>{children === null || children === undefined || children === "" ? <span className="card-detail-unknown">Not recorded</span> : children}</dd></div>;
 }
 
-export default function CardDetail({ card, estimate, estimatePending, estimateUnavailable, active, onClose, onEdit, onPreview }: Props) {
+export default function CardDetail({ card, estimate, estimatePending, estimateUnavailable, active, onClose, onEdit, onPreview, onExpired }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -74,6 +76,7 @@ export default function CardDetail({ card, estimate, estimatePending, estimateUn
         {photoUrl && <p className="card-detail-caption">{photoKind === "reference" ? <>Reference image of this card issue. The pictured copy’s condition, grade, certification, and ownership are not verified for your card. {source && <a href={source} target="_blank" rel="noreferrer">Image source ↗</a>}</> : "Your private card photo."}</p>}
       </section>
       <div className="card-detail-record">
+        <CardSalesHistory card={card} active={active} onExpired={onExpired} />
         <section aria-labelledby="card-detail-identity-title">
           <h3 id="card-detail-identity-title">Card identity</h3>
           <dl className="card-detail-fields">

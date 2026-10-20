@@ -37,13 +37,13 @@ test("workspace links open distinct pages, retain the session and support histor
     if (route.name === "Reports") await expect(finances).toBeVisible();
     else await expect(finances).toHaveCount(0);
     if (route.name === "Home") {
-      await expect(page.getByRole("region", { name: "Collection value overview", exact: true })).toBeVisible();
-      await expect(page.getByText("Preview demo value chart", { exact: true })).toHaveCount(0);
+      await expect(page.getByRole("region", { name: "Collection estimate overview", exact: true })).toBeVisible();
+      await expect(page.getByRole("group", { name: "Report source", exact: true })).toHaveCount(0);
     }
     if (route.name === "My Collection") {
       await expect(page.getByRole("heading", { name: "Your collection", level: 2, exact: true })).toBeVisible();
       await expect(page.getByRole("button", { name: "+ Add card", exact: true })).toBeEnabled();
-      await expect(page.getByRole("region", { name: "Collection value overview", exact: true })).toHaveCount(0);
+      await expect(page.getByRole("region", { name: "Collection estimate overview", exact: true })).toHaveCount(0);
     }
     if (route.name === "Settings") await expect(page.locator(".session-details dd")).toHaveText(username!);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

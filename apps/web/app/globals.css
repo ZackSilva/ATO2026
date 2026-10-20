@@ -70,9 +70,8 @@ footer { display: flex; justify-content: space-between; gap: 20px; border-top: 1
 .stat strong { display: block; font-size: 36px; font-weight: 400; letter-spacing: -1px; font-variant-numeric: tabular-nums; margin-top: var(--space-3); }
 .inventory-heading h2 { font-size: 25px; font-weight: 500; letter-spacing: -.7px; margin: 0; }
 .inventory-heading p { margin: 8px 0 0; font-size: 13px; }
-.collection-tools { display: grid; grid-template-columns: 2fr 1fr 1fr 1.15fr; align-items: end; gap: 14px; margin-top: 25px; }
-.collection-tools label, .form-grid label { display: flex; flex-direction: column; gap: 9px; margin: 0; }
-.collection-tools input, .collection-tools select, .form-grid input, .form-grid select, .form-grid textarea { margin: 0; width: 100%; }
+.form-grid label { display: flex; flex-direction: column; gap: 9px; margin: 0; }
+.form-grid input, .form-grid select, .form-grid textarea { margin: 0; width: 100%; }
 select, textarea { color: var(--ink); background: var(--bg); border: 1px solid var(--control-border); border-radius: 8px; padding: 13px; min-height: 48px; min-width: 0; }
 select { cursor: pointer; }
 textarea { resize: vertical; }
@@ -163,7 +162,7 @@ legend { display: block; width: 100%; border-bottom: 1px solid var(--line); padd
 .delete-actions .secondary { width: auto; }
 .danger { border: 1px solid var(--error-line); background: var(--error-bg); color: var(--error-ink); }
 .error p { color: inherit; font-size: 13px; margin: 0 0 12px; }
-@media (max-width: 1100px) { .collection-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); } .search-label { grid-column: 1 / -1; } .inventory-list-heading, .inventory-row { grid-template-columns: 70px minmax(140px, 1fr) 85px 140px 94px; gap: 16px; padding-left: 18px; padding-right: 18px; } .card-thumbnail { width: 70px; } }
+@media (max-width: 1100px) { .inventory-list-heading, .inventory-row { grid-template-columns: 70px minmax(140px, 1fr) 85px 140px 94px; gap: 16px; padding-left: 18px; padding-right: 18px; } .card-thumbnail { width: 70px; } }
 @media (max-width: 900px) {
   .inventory-list-heading { display: none; }
   .inventory-row { grid-template-columns: 72px minmax(0, 1fr) auto; gap: 14px 18px; padding: 20px; }
@@ -184,8 +183,6 @@ legend { display: block; width: 100%; border-bottom: 1px solid var(--line); padd
   .stat { padding: 0; }
   .stat span { font-size: 11px; }
   .stat strong { font-size: 32px; margin-top: var(--space-2); }
-  .collection-tools { grid-template-columns: 1fr 1fr; }
-  .collection-tools label:last-child { grid-column: 1 / -1; }
   .inventory-heading h2 { font-size: 22px; }
   .inventory-heading { gap: 12px; }
   .inventory-heading .primary { padding: 12px 14px; font-size: 13px; }

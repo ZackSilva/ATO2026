@@ -1,0 +1,810 @@
+{
+  "checked_on": "2026-10-20",
+  "cards": [
+    {
+      "identity": {
+        "subject": "Michael Jordan",
+        "year": 1986,
+        "sport": "Basketball",
+        "manufacturer": "Fleer",
+        "set_name": "Fleer",
+        "card_number": "57"
+      },
+      "research_url": "https://www.psacard.com/cardfacts/basketball-cards/1986-fleer/michael-jordan-57/5003",
+      "sales": [
+        {
+          "sold_on": "2026-10-09",
+          "price": "42200.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/366704532170"
+        },
+        {
+          "sold_on": "2026-07-27",
+          "price": "45500.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/366540484726"
+        },
+        {
+          "sold_on": "2026-07-06",
+          "price": "42850.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/366503842412"
+        },
+        {
+          "sold_on": "2024-11-04",
+          "price": "17988.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/387531472516"
+        },
+        {
+          "sold_on": "2024-11-11",
+          "price": "16000.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/296793687764"
+        },
+        {
+          "sold_on": "2024-11-13",
+          "price": "16950.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/387582657329"
+        },
+        {
+          "sold_on": "2025-02-21",
+          "price": "18851.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/226597405342"
+        },
+        {
+          "sold_on": "2025-03-14",
+          "price": "18600.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/306157923113"
+        },
+        {
+          "sold_on": "2025-03-27",
+          "price": "18400.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/376082827613"
+        },
+        {
+          "sold_on": "2025-04-27",
+          "price": "19291.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/127067038098"
+        },
+        {
+          "sold_on": "2025-05-26",
+          "price": "18338.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/236098400295"
+        },
+        {
+          "sold_on": "2025-06-24",
+          "price": "19500.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/187328482138"
+        },
+        {
+          "sold_on": "2025-09-01",
+          "price": "25350.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/388828635718"
+        },
+        {
+          "sold_on": "2025-10-12",
+          "price": "26401.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/127418301476"
+        },
+        {
+          "sold_on": "2025-12-07",
+          "price": "24200.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/116904941022"
+        },
+        {
+          "sold_on": "2025-12-30",
+          "price": "29211.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/177697207393"
+        },
+        {
+          "sold_on": "2026-01-22",
+          "price": "23859.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/277645201651"
+        },
+        {
+          "sold_on": "2026-06-15",
+          "price": "42100.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/267689934115"
+        }
+      ]
+    },
+    {
+      "identity": {
+        "subject": "Charles Barkley",
+        "year": 1986,
+        "sport": "Basketball",
+        "manufacturer": "Fleer",
+        "set_name": "Fleer",
+        "card_number": "7"
+      },
+      "research_url": "https://www.sportscardspro.com/game/basketball-cards-1986-fleer/charles-barkley-7",
+      "sales": [
+        {
+          "sold_on": "2026-10-16",
+          "price": "542.79",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/206611314892"
+        },
+        {
+          "sold_on": "2026-10-14",
+          "price": "620.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/307215244436"
+        },
+        {
+          "sold_on": "2026-10-09",
+          "price": "485.10",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/336824422679"
+        },
+        {
+          "sold_on": "2026-10-18",
+          "price": "140.00",
+          "currency": "USD",
+          "condition": "raw",
+          "grader": "",
+          "grade": "",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/307094868951"
+        },
+        {
+          "sold_on": "2026-10-16",
+          "price": "120.00",
+          "currency": "USD",
+          "condition": "raw",
+          "grader": "",
+          "grade": "",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/366722997933"
+        },
+        {
+          "sold_on": "2026-10-14",
+          "price": "167.50",
+          "currency": "USD",
+          "condition": "raw",
+          "grader": "",
+          "grade": "",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/377555386510"
+        },
+        {
+          "sold_on": "2024-10-23",
+          "price": "243.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/256681317362"
+        },
+        {
+          "sold_on": "2024-11-04",
+          "price": "256.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/205067001463"
+        },
+        {
+          "sold_on": "2024-12-19",
+          "price": "252.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/365282148966"
+        },
+        {
+          "sold_on": "2025-01-13",
+          "price": "252.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/306006698079"
+        },
+        {
+          "sold_on": "2025-02-17",
+          "price": "245.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/335801254635"
+        },
+        {
+          "sold_on": "2025-03-27",
+          "price": "255.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/388123735017"
+        },
+        {
+          "sold_on": "2025-04-28",
+          "price": "260.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/177035767981"
+        },
+        {
+          "sold_on": "2025-06-02",
+          "price": "260.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/157028304988"
+        },
+        {
+          "sold_on": "2025-07-02",
+          "price": "276.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/376367067799"
+        },
+        {
+          "sold_on": "2025-08-27",
+          "price": "340.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/376493568394"
+        },
+        {
+          "sold_on": "2025-09-28",
+          "price": "290.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/317315438515"
+        },
+        {
+          "sold_on": "2025-10-22",
+          "price": "320.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/376627232871"
+        },
+        {
+          "sold_on": "2025-11-17",
+          "price": "355.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/267461651708"
+        },
+        {
+          "sold_on": "2025-12-13",
+          "price": "323.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/267509279397"
+        },
+        {
+          "sold_on": "2026-01-27",
+          "price": "307.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/267550942603"
+        },
+        {
+          "sold_on": "2026-02-16",
+          "price": "349.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/389595008904"
+        },
+        {
+          "sold_on": "2026-03-16",
+          "price": "405.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/366245945167"
+        },
+        {
+          "sold_on": "2026-05-03",
+          "price": "365.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/397882868213"
+        },
+        {
+          "sold_on": "2026-06-22",
+          "price": "419.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "PSA-reported eBay; whole-dollar table; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/366472698575"
+        },
+        {
+          "sold_on": "2026-09-30",
+          "price": "425.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "8",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/117424040236"
+        }
+      ]
+    },
+    {
+      "identity": {
+        "subject": "Tom Brady",
+        "year": 2000,
+        "sport": "Football",
+        "manufacturer": "Bowman",
+        "set_name": "Bowman",
+        "card_number": "236"
+      },
+      "research_url": "https://www.sportscardspro.com/game/football-cards-2000-bowman/tom-brady-236",
+      "sales": [
+        {
+          "sold_on": "2026-10-09",
+          "price": "5122.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/327378644350"
+        },
+        {
+          "sold_on": "2026-09-29",
+          "price": "5656.54",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/800681944323"
+        },
+        {
+          "sold_on": "2026-08-31",
+          "price": "6701.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/800496983443"
+        },
+        {
+          "sold_on": "2026-10-08",
+          "price": "7100.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/307193407580"
+        },
+        {
+          "sold_on": "2026-10-18",
+          "price": "4750.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "9",
+          "source": "PSA-indexed eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/147634060391"
+        }
+      ]
+    },
+    {
+      "identity": {
+        "subject": "Barry Sanders",
+        "year": 1989,
+        "sport": "Football",
+        "manufacturer": "Score",
+        "set_name": "Score",
+        "card_number": "257"
+      },
+      "research_url": "https://www.sportscardspro.com/game/football-cards-1989-panini-score/barry-sanders-257",
+      "sales": [
+        {
+          "sold_on": "2026-10-10",
+          "price": "2399.99",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/307221960192"
+        },
+        {
+          "sold_on": "2026-09-22",
+          "price": "2247.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/178487782970"
+        },
+        {
+          "sold_on": "2026-09-14",
+          "price": "2100.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/327345652686"
+        },
+        {
+          "sold_on": "2025-09-15",
+          "price": "1903.50",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "PSA-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/267391385255"
+        },
+        {
+          "sold_on": "2025-09-16",
+          "price": "2000.01",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "PSA-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/177388218598"
+        },
+        {
+          "sold_on": "2025-09-16",
+          "price": "1900.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "PSA-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/376536114785"
+        },
+        {
+          "sold_on": "2025-09-30",
+          "price": "1780.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "PSA-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/177424281844"
+        },
+        {
+          "sold_on": "2026-09-07",
+          "price": "2075.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "PSA-indexed eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/117385419781"
+        },
+        {
+          "sold_on": "2026-09-08",
+          "price": "2130.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "10",
+          "source": "PSA-indexed eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/128049290871"
+        }
+      ]
+    },
+    {
+      "identity": {
+        "subject": "Bob McAdoo",
+        "year": 1973,
+        "sport": "Basketball",
+        "manufacturer": "Topps",
+        "set_name": "Topps",
+        "card_number": "135"
+      },
+      "research_url": "https://www.sportscardspro.com/game/basketball-cards-1973-topps/bob-mcadoo-135",
+      "sales": [
+        {
+          "sold_on": "2026-08-30",
+          "price": "105.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/227496940989"
+        },
+        {
+          "sold_on": "2026-08-18",
+          "price": "105.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/116744761581"
+        },
+        {
+          "sold_on": "2026-07-07",
+          "price": "85.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/298394166397"
+        },
+        {
+          "sold_on": "2026-07-01",
+          "price": "52.58",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/137445044452"
+        },
+        {
+          "sold_on": "2026-04-19",
+          "price": "99.99",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/147263661776"
+        },
+        {
+          "sold_on": "2026-04-15",
+          "price": "93.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/257156075369"
+        },
+        {
+          "sold_on": "2026-04-14",
+          "price": "79.99",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/146873224356"
+        },
+        {
+          "sold_on": "2025-08-27",
+          "price": "95.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/326687961874"
+        },
+        {
+          "sold_on": "2025-06-22",
+          "price": "70.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/376211748945"
+        },
+        {
+          "sold_on": "2025-06-19",
+          "price": "90.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/126609352477"
+        },
+        {
+          "sold_on": "2025-05-22",
+          "price": "65.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/127124256534"
+        },
+        {
+          "sold_on": "2025-05-11",
+          "price": "70.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/376080068647"
+        },
+        {
+          "sold_on": "2025-04-03",
+          "price": "49.99",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/267206854487"
+        },
+        {
+          "sold_on": "2025-02-19",
+          "price": "75.00",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/276833286513"
+        },
+        {
+          "sold_on": "2025-01-13",
+          "price": "49.99",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/205156016549"
+        },
+        {
+          "sold_on": "2024-10-23",
+          "price": "46.09",
+          "currency": "USD",
+          "condition": "graded",
+          "grader": "PSA",
+          "grade": "7",
+          "source": "SportsCardsPro-reported eBay; checked 2026-10-20; unverified",
+          "source_url": "https://www.ebay.com/itm/387485230592"
+        }
+      ]
+    }
+  ]
+}

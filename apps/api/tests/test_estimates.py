@@ -69,10 +69,19 @@ def test_same_grader_grade_identity_currency_only_with_other_grades_visible(clie
     assert data["estimate"]["sample_count"] == 5
     assert data["estimate"]["amount"] == "110.00"
     assert data["estimate"]["confidence"] == "medium"
+    assert [sale["price"] for sale in data["estimate"]["history"]] == [
+        "90.00",
+        "100.00",
+        "110.00",
+        "120.00",
+        "130.00",
+    ]
     assert listed(client, raw)["estimate"]["sample_count"] == 1
+    assert [sale["price"] for sale in listed(client, raw)["estimate"]["history"]] == ["3.00"]
     other = add(client, subject="Different card")
     assert listed(client, other)["items"] == []
     assert listed(client, other)["estimate"]["amount"] is None
+    assert listed(client, other)["estimate"]["history"] == []
 
 
 def test_date_window_includes_today_and_179_days_but_not_older_or_future():
@@ -96,6 +105,12 @@ def test_date_window_includes_today_and_179_days_but_not_older_or_future():
     assert estimate.sample_count == 3
     assert estimate.amount == Decimal("15.00")
     assert estimate.latest_sale == today
+    assert [(sale.sold_on, sale.price) for sale in estimate.history] == [
+        (today - timedelta(days=180), Decimal("1000.00")),
+        (today - timedelta(days=179), Decimal("20.00")),
+        (today - timedelta(days=1), Decimal("15.00")),
+        (today, Decimal("10.00")),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -268,6 +283,8 @@ def test_owner_isolation_authentication_and_csrf(client, app):
         assert other.post(f"/api/cards/{card['id']}/comparables", json=payload).status_code == 404
         assert other.delete(f"/api/cards/{card['id']}/comparables/{sale['id']}").status_code == 404
         assert listed(other, own)["items"] == []
+        assert listed(other, own)["estimate"]["history"] == []
+        assert other.get("/api/estimates").json()["items"][0]["history"] == []
     client.headers.pop("X-CSRF-Token")
     assert client.post(f"/api/cards/{card['id']}/comparables", json=payload).status_code == 403
     assert client.delete(f"/api/cards/{card['id']}/comparables/{sale['id']}").status_code == 403

@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { openCollectionFilters } from "./collection-helpers";
 
 const username = process.env.SLABTRAK_TEST_USERNAME;
 const password = process.env.SLABTRAK_TEST_PASSWORD;
@@ -80,8 +81,13 @@ test("recorded totals include archived cards beyond one page, keep currencies se
     await amount(finances, "realized_profit", "0.00");
     await expect(metric(finances, "acquisition_spending").locator(".finance-coverage")).toContainText(/3\s+of\s+29/);
     await expect(metric(finances, "realized_profit").locator(".finance-coverage")).toContainText(/2\s+of\s+3/);
+    await expect(finances.getByRole("slider", { name: "Explore recorded financial activity", exact: true })).toBeVisible();
+    if ((page.viewportSize()?.width ?? 1440) <= 680) {
+      await expect(finances.getByRole("button", { name: "Hide financial chart", exact: true })).toHaveAttribute("aria-expanded", "true");
+    }
 
     await navigate(page, "My Collection");
+    await openCollectionFilters(page);
     await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("all");
     const pages = page.getByRole("navigation", { name: "Collection pages", exact: true });
     await expect(pages).toContainText("of 30");
@@ -111,8 +117,6 @@ test("recorded totals include archived cards beyond one page, keep currencies se
       await amount(finances, "profit_vs_purchase", "5.00");
       await amount(finances, "realized_profit", "0.00");
     }
-    const expand = finances.getByRole("button", { name: "Show financial chart", exact: true });
-    if (await expand.isVisible()) await expand.click();
     for (const key of ["acquisition_spending", "gross_sales", "sale_fees", "net_sales", "profit_vs_purchase", "realized_profit"]) {
       await chartMetric.selectOption(key);
       const chart = finances.getByRole("slider", { name: "Explore recorded financial activity", exact: true });
@@ -160,6 +164,7 @@ test("saving, selling, correcting fees, unselling and deleting refresh recorded 
     await amount(finances, "net_sales", "135.00");
     await amount(finances, "realized_profit", "40.00");
     await navigate(page, "My Collection");
+    await openCollectionFilters(page);
     await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("sold");
     await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
     await editor.getByLabel("Sale fees", { exact: true }).fill("20");
@@ -169,6 +174,7 @@ test("saving, selling, correcting fees, unselling and deleting refresh recorded 
     await amount(finances, "net_sales", "130.00");
     await amount(finances, "realized_profit", "35.00");
     await navigate(page, "My Collection");
+    await openCollectionFilters(page);
     await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("sold");
     await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
     await editor.getByRole("combobox", { name: "Ownership status", exact: true }).selectOption("owned");
@@ -178,6 +184,7 @@ test("saving, selling, correcting fees, unselling and deleting refresh recorded 
     await amount(finances, "net_sales", "0.00");
     await amount(finances, "owned_cost", "95.00");
     await navigate(page, "My Collection");
+    await openCollectionFilters(page);
     await page.getByRole("combobox", { name: "Show", exact: true }).selectOption("active");
     await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
     await editor.getByRole("button", { name: "Delete card…", exact: true }).click();

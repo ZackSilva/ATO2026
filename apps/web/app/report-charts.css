@@ -1,0 +1,24 @@
+.report-visualizations { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); column-gap: 48px; border-top: 1px solid var(--line); padding-top: 24px; margin-top: 24px; }
+.report-visualizations > .value-overview { margin-top: 0; padding-bottom: 24px; border-bottom: 0; }
+.report-visualizations .estimate-history-title { margin-top: 16px; color: var(--ink); font-size: 18px; font-weight: 500; }
+.report-visualizations .estimate-coverage { margin-top: 0; }
+.report-visualizations .chart-scope { display: none; }
+.collection-breakdown { min-width: 0; padding-bottom: 24px; }
+.breakdown-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.breakdown-heading h2 { font-size: 18px; font-weight: 500; margin: 0; }
+.breakdown-heading label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); margin: 0; }
+.breakdown-heading select { min-height: 44px; padding: 8px; font-size: 12px; }
+.breakdown-caption, .breakdown-note { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.collection-breakdown figure { margin: 32px 0; }
+.breakdown-group + .breakdown-group { margin-top: 36px; }
+.breakdown-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-size: 14px; }
+.breakdown-label strong { font-weight: 450; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.report-bar-track { height: 10px; background: var(--surface-raised); margin-top: 12px; }
+.report-value-bar { display: block; height: 100%; background: var(--accent); }
+.breakdown-group[data-condition="raw"] .report-value-bar { background: var(--muted); }
+.breakdown-group p { color: var(--muted); font-size: 12px; line-height: 1.6; margin-top: 8px; }
+.reports-page .recorded-finances { margin-top: 0; }
+@media (max-width: 1000px) {
+  .report-visualizations { grid-template-columns: minmax(0, 1fr); }
+  .collection-breakdown { padding-top: 24px; border-top: 1px solid var(--line); }
+}

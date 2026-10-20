@@ -2,18 +2,28 @@
 
 ## Unreleased
 
+- Keep interactive sales graphs in read-only card details and on the comparable-sales page, including sold cards. Refresh the example collection with five historically better-covered issues and 113 source-reported observations across 2024–2026; retain unknown personal costs and explicit source/coverage limits. Add opt-in archival evidence imports without changing current estimate recency.
+
+- Restore Reports visualizations with saved-evidence estimate history, raw-versus-graded current values, and transaction charts expanded by default on phones. Unknown costs/estimates remain unknown; no separate data-source mode.
+
+- Use saved collection records and comparable-sale evidence throughout Home, My Collection, and Reports. Remove runtime fictional values, data-source switches, and synthetic row trends; preserve unknown costs and separately labeled recorded sale results.
+- Lead Home with the current known estimate subtotal and coverage. Plot rolling 180-day medians for a fixed cohort of today’s supported unsold cards, requiring three matching sales per card and leaving unsupported dates as gaps. This evidence history does not represent past holdings or investment returns.
+- Show collection mini graphs from actual matching saved sale dates and prices. Fewer than two observations shows Not enough sale history; missing estimate support stays Insufficient Market Data. Keep matching currencies and grades separate, with unverified raw-condition and manual-source disclosures.
+- Make Reports show real collection estimates before recorded spending and sale results. Group detailed costs and fees behind disclosure and clarify missing-cost and empty-history states.
+- Replace the collection toolbar with compact search and collapsible filters. Give Settings clear individual rows and truthful account, storage, market-data, and display statuses.
+- Add a dated, manually researched sale-evidence example and an operator importer that appends comparables to existing exact card identities, preserves unknown costs, preflights conflicts, and supports safe repeat imports.
 - Add the Personal VS Code workspace with SlabTrak as its only folder, an explicit Personal window title, limited repository discovery, and local-only personal agent instructions.
-- Split the workspace into Home, My Collection, Reports, Discover, and Settings with persistent private navigation, direct URLs, active-page state, reload, and history support. Move detailed financial summaries to Reports and make the labeled demo Home chart prominent and expanded by default, including phones.
-- Add automatic raw/graded estimate calculations from private user-recorded completed-sale comparables. Require three matching sales within 180 days, use exact median/range, keep currencies and grade matches separate, and expose coverage, sources, recency, and confidence. Other grades remain research context; no live pricing feed or cross-grade conversion is claimed.
-- Restore labeled demo values and visible mini graphs in collection rows, with six selectable periods and an explicit Demo/Recorded market data selector. Recorded-market mode shows evidence-backed estimates or Insufficient Market Data; recorded purchases and sold-card results stay separate in either mode. Add separate comparable management without editable fields in card details. Guard stale card identities and duplicate evidence; preserve owner isolation and CSRF validation.
+- Split the workspace into Home, My Collection, Reports, Discover, and Settings with persistent private navigation, direct URLs, active-page state, reload, and history support. Move detailed financial summaries to Reports.
+- Add automatic raw/graded estimate calculations from private user-recorded completed-sale comparables. Require three matching sales within 180 days, use exact median/range, and expose coverage, sources, recency, and confidence. Other grades remain research context; no live pricing feed or cross-grade conversion is claimed.
+- Add separate comparable management without editable fields in card details. Guard stale card identities and duplicate evidence; preserve owner isolation and CSRF validation.
 - License SlabTrak's original source under PolyForm Noncommercial 1.0.0 with canonical terms and copyright notice, frontend/API SPDX metadata, and documentation distinguishing original code from third-party materials. No dependency versions change.
 - Add additive migration `0006` for comparable records, without changing existing cards. Document current free-data research and provider access limitations.
 - Add owner-scoped recorded financial summaries across all saved cards, independent of collection filters and pagination: acquisition spending, current inventory cost, gross sales, fees, net proceeds, realized profit after complete acquisition costs, and a separately labeled purchase-price comparison.
 - Separate currencies and disclose unknown costs, partial totals, and complete-record coverage. Include archived cards and preserve explicit zero amounts.
-- Add configurable dated activity charts with six periods, six metrics, keyboard/touch exploration, and a compact phone disclosure. Flag undated and future-dated records; use UTC boundaries and actual event dates without simulated history.
-- Refresh summaries after card changes and on window focus; provide recovery after connection errors. Keep demo valuations separately labeled.
+- Add configurable dated activity charts with six periods, six metrics, keyboard/touch exploration, and a compact phone disclosure. Flag undated and future-dated records; use UTC boundaries and actual event dates.
+- Refresh summaries after card changes and on window focus; provide recovery after connection errors.
 
-No dependency or version changes. Financial summaries reflect mutable current records; immutable sale history, refunds, currency conversion, and hosted deployment remain future work. Market estimates currently require manually supplied evidence; live ingestion, condition-specific raw matching, and supported cross-grade modeling remain open.
+No dependency or version changes. Financial summaries reflect mutable current records; immutable sale-event history, refunds, currency conversion, and hosted deployment remain future work. Market estimates currently require manually supplied evidence; live ingestion, condition-specific raw matching, and supported cross-grade modeling remain open.
 
 ## v0.1.0-demo.3 — October 20, 2026
 

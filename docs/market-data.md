@@ -22,3 +22,7 @@ The current entry flow preserves the exact card issue and parallel through the s
 Raw cards are a required valuation path. Use comparable raw cards and recorded condition, and disclose missing or mixed condition evidence. For graded cards, prefer the same grading company and grade. Other grades may appear as context, but they must not silently enter a direct estimate. Do not apply invented grade multipliers or infer a cross-grade fit without sufficient card-specific evidence supporting that relationship. Missing evidence produces **Insufficient Market Data**, not zero or a fictional price.
 
 An automated provider must demonstrate working access, appropriate usage rights, source provenance, and raw/graded coverage before enabling its adapter. No HTML scraping, authentication bypass, or anti-bot workaround is part of the implementation. Manual data entry does not claim that SlabTrak independently verified the marketplace transaction.
+
+## Dated valuation demonstration
+
+A manually researched, dated example and a dry-run-first operator importer are documented in [Researched valuation example](valuation-example.md). The example uses reported eBay completed-sale observations with individual listing links; original marketplace completion/price could not be independently verified. It does not connect a live feed, populate purchase costs, change card grades, or manufacture market history.

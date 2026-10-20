@@ -46,7 +46,7 @@ test("raw cards calculate from sold comparables, retain evidence and keep purcha
   const data = await setup(page, subject);
   try {
     await page.reload();
-    await page.getByLabel("Row values", { exact: true }).selectOption("market");
+    await expect(page.getByLabel("Row values", { exact: true })).toHaveCount(0);
     const row = page.getByRole("article").filter({ has: page.getByRole("heading", { name: subject, exact: true }) });
     await expect(row.locator(".row-value")).toContainText("Insufficient Market Data");
     await row.getByRole("button", { name: `View card for ${subject}`, exact: true }).click();
@@ -67,7 +67,7 @@ test("raw cards calculate from sold comparables, retain evidence and keep purcha
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await testInfo.attach("Raw sold evidence and estimate", { body: await page.screenshot({ path: testInfo.outputPath("raw-market-evidence.png"), fullPage: true }), contentType: "image/png" });
     await page.getByRole("navigation", { name: "Workspace" }).getByRole("link", { name: "My Collection", exact: true }).click();
-    await page.getByLabel("Row values", { exact: true }).selectOption("market");
+    await expect(page.getByLabel("Row values", { exact: true })).toHaveCount(0);
     await expect(row.locator(".row-value")).toContainText(/USD\s*20\.00/);
     const more = row.getByRole("button", { name: "More card details", exact: true });
     if (await more.isVisible()) await more.click();
@@ -105,7 +105,7 @@ test("graded estimates match grade, show other grades as context and reject dupl
     await testInfo.attach("Graded market context and duplicate protection", { body: await page.screenshot({ path: testInfo.outputPath("graded-market-evidence.png"), fullPage: true }), contentType: "image/png" });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.getByRole("navigation", { name: "Workspace" }).getByRole("link", { name: "My Collection", exact: true }).click();
-    await page.getByLabel("Row values", { exact: true }).selectOption("market");
+    await expect(page.getByLabel("Row values", { exact: true })).toHaveCount(0);
     const row = page.getByRole("article");
     await row.getByRole("button", { name: /View card for Graded estimate/ }).click();
     const detail = page.getByRole("dialog");

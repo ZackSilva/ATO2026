@@ -8,6 +8,7 @@ import { cardSubtitle, type Card } from "../../../../../lib/cards";
 import type { ComparableReport } from "../../../../../lib/estimates";
 import { financeDate, financeMoney } from "../../../../../lib/finances";
 import { useWorkspace } from "../../../../workspace-shell";
+import { SalesHistoryChart } from "../../../../card-sales-history";
 import "../../../../market.css";
 
 export default function CardMarketPage() {
@@ -86,6 +87,7 @@ export default function CardMarketPage() {
         <p className="market-method">{estimate?.reason}</p>
         <p className="market-method">Same card identity and currency; at least three sold comparables from the past 180 days. Raw cards use raw sales. Graded cards use the same grading company and grade. Other grades and older sales remain listed below as context. Prices exclude shipping and taxes; they do not include selling fees.</p>
       </section>
+      <SalesHistoryChart history={report.estimate.history ?? []} currency={card.currency} headingLevel={2} />
       <section className="workspace-section" aria-labelledby="record-comparable">
         <h2 id="record-comparable">Record a sold comparable</h2>
         <p className="market-method">Record an actual completed sale you researched, including the accepted price for a Best Offer. Asking prices and unsold listings do not belong here. Sources are not automatically fetched or verified. No live price feed is connected.</p>
@@ -107,7 +109,7 @@ export default function CardMarketPage() {
       </section>
       <section className="workspace-section" aria-labelledby="recorded-comparables">
         <h2 id="recorded-comparables">Recorded sales · {report.items.length}</h2>
-        {!report.items.length ? <p>No sold comparables yet. Missing market evidence is never replaced with a fictional value.</p> : <ul className="market-comparables">{report.items.map(sale => <li key={sale.id}>
+        {!report.items.length ? <p>No sold comparables yet. Record matching completed sales to calculate an estimate.</p> : <ul className="market-comparables">{report.items.map(sale => <li key={sale.id}>
           <div><h3>{financeMoney(sale.price, sale.currency)} · {sale.condition === "raw" ? "Raw" : `${sale.grader} ${sale.grade}`}</h3><p>{financeDate(sale.sold_on)} · {sale.source} · User recorded, unverified</p>{sale.source_url && <p><a href={sale.source_url} target="_blank" rel="noreferrer">View sale source ↗</a></p>}</div>
           {deleting === sale.id ? <div><p>Remove this sale from the evidence for all matching copies?</p><button type="button" className="secondary" disabled={busy} onClick={() => void remove(sale.id)}>Confirm removal</button><button type="button" className="text-button" disabled={busy} onClick={() => setDeleting(null)}>Cancel</button></div> : <button type="button" className="secondary" disabled={busy} onClick={() => setDeleting(sale.id)}>Remove sale</button>}
         </li>)}</ul>}

@@ -5,9 +5,8 @@ import type { Card } from "../lib/cards";
 import { money } from "../lib/cards";
 import type { MarketEstimate } from "../lib/estimates";
 import { financeMoney } from "../lib/finances";
-import { demoCard, demoMoney, periodChange, pointsPath, valueSeries, VALUE_RANGES, type ValueRange } from "../lib/demo-values";
 
-export default function CardValues({ card, compact, estimate, pending, unavailable, mode, range }: { card: Card; compact: boolean; estimate?: MarketEstimate; pending: boolean; unavailable: boolean; mode: "demo" | "market"; range: ValueRange }) {
+export default function CardValues({ card, compact, estimate, pending, unavailable }: { card: Card; compact: boolean; estimate?: MarketEstimate; pending: boolean; unavailable: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const detailsId = useId();
   if (card.sold) {
@@ -23,32 +22,42 @@ export default function CardValues({ card, compact, estimate, pending, unavailab
       </div>
     </>;
   }
-  if (mode === "demo") {
-    const demo = demoCard(card);
-    const trend = valueSeries([card], range, "value");
-    const movement = periodChange(trend);
-    const gain = demo.current - demo.purchase;
-    const period = VALUE_RANGES.find(item => item.value === range)!;
-    const percent = movement.percent === null ? "—" : `${movement.percent >= 0 ? "+" : ""}${movement.percent.toFixed(1)}%`;
-    return <>
-      <div className="row-value"><span className="demo-label">Demo · USD</span><strong><span className="sr-only">Demo current value: </span>{demoMoney(demo.current)}</strong><span className={gain < 0 ? "value-down" : "value-up"}>{gain >= 0 ? "+" : "−"}{demoMoney(Math.abs(gain))}<span className="value-comparison"> vs demo purchase</span></span></div>
-      <div className="row-trend demo-row-trend"><span className="mobile-cell-label">Demo · {period.shortLabel}</span><svg viewBox="0 0 124 36" role="img" aria-label={`Demo value trend for ${card.subject}: ${percent} over ${period.label.toLowerCase()}`} className={movement.amount < 0 ? "sparkline value-down" : "sparkline value-up"}><polyline points={pointsPath(trend, 124, 36, 3)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round" /></svg><span className={movement.amount < 0 ? "trend-change value-down" : "trend-change value-up"}>{percent}<span className="trend-period"> / {period.shortLabel}</span></span></div>
-      <button type="button" className="row-details-toggle" aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(value => !value)}>{expanded ? "Fewer card details" : "More card details"}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
-      <div className="row-secondary" id={detailsId} hidden={compact && !expanded}>
-        <div className="row-purchase"><span className="mobile-cell-label" aria-hidden="true">Purchase price</span><strong><span className="sr-only">Recorded purchase price: </span>{card.purchase_price === null ? "Unknown" : money(card.purchase_price, card.currency)}</strong><span className="cost-detail">Demo purchase {demoMoney(demo.purchase)} · fictional USD</span></div>
-        <div className="row-gain-detail"><span>Demo gain / loss · fictional USD</span><strong className={gain < 0 ? "value-down" : "value-up"}>{gain >= 0 ? "+" : "−"}{demoMoney(Math.abs(gain))}</strong></div>
-      </div>
-    </>;
-  }
-  const supported = estimate?.amount !== null && estimate?.amount !== undefined;
+  const supported = !pending && !unavailable && estimate?.amount !== null && estimate?.amount !== undefined;
   const label = pending ? "Loading estimate…" : unavailable ? "Estimate unavailable" : supported ? financeMoney(estimate!.amount!, card.currency) : "Insufficient Market Data";
   return <>
     <div className="row-value"><span className="mobile-cell-label" aria-hidden="true">Market estimate</span><strong className={supported ? "" : "market-unavailable"}><span className="sr-only">Market estimate: </span>{label}</strong><span className="row-estimate-context">{supported ? `${estimate!.confidence} confidence · ${estimate!.sample_count} sales` : "Sold comparables required"}</span></div>
+    <SaleHistory card={card} estimate={estimate} pending={pending} unavailable={unavailable} />
     <button type="button" className="row-details-toggle" aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(value => !value)}>{expanded ? "Fewer card details" : "More card details"}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
     <div className="row-secondary" id={detailsId} hidden={compact && !expanded}>
-      <div className="row-trend"><span className="mobile-cell-label">Sold comparables</span><span className="row-estimate-context">{pending ? "Loading…" : unavailable ? "Unavailable" : `${estimate?.sample_count ?? 0} matches · last 180 days`}</span>{estimate?.latest_sale && <span className="cost-detail">Latest {estimate.latest_sale}</span>}</div>
       <div className="row-purchase"><span className="mobile-cell-label" aria-hidden="true">Purchase price</span><strong><span className="sr-only">Recorded purchase price: </span>{card.purchase_price === null ? "Unknown" : money(card.purchase_price, card.currency)}</strong><span className="cost-detail">{card.recorded_cost !== null ? `Recorded cost ${money(card.total_cost ?? card.recorded_cost, card.currency)}${card.total_cost === null ? " · incomplete" : ""}` : "Acquisition costs not recorded"}</span></div>
       {supported && <div className="row-gain-detail"><span>Observed sale range</span><strong>{financeMoney(estimate!.low!, card.currency)} – {financeMoney(estimate!.high!, card.currency)}</strong></div>}
     </div>
   </>;
+}
+
+// Place each real sale on its recorded date; gaps do not add synthetic observations.
+function SaleHistory({ card, estimate, pending, unavailable }: { card: Card; estimate?: MarketEstimate; pending: boolean; unavailable: boolean }) {
+  const history = pending || unavailable ? [] : estimate?.history ?? [];
+  if (history.length < 2) return <div className="row-trend row-sale-history"><span className="sale-history-label">Comparable sales</span><span className="row-estimate-context">{pending ? "Loading sale history…" : unavailable ? "Sale history unavailable" : "Not enough sale history"}</span></div>;
+
+  const dates = history.map(sale => Date.parse(`${sale.sold_on}T00:00:00Z`));
+  const prices = history.map(sale => Number(sale.price));
+  const firstDate = dates[0];
+  const lastDate = dates[dates.length - 1];
+  const low = Math.min(...prices);
+  const high = Math.max(...prices);
+  const points = history.map((sale, index) => ({
+    x: lastDate === firstDate ? 62 : 4 + (dates[index] - firstDate) / (lastDate - firstDate) * 116,
+    y: high === low ? 18 : 32 - (prices[index] - low) / (high - low) * 28,
+    description: `${sale.sold_on}: ${financeMoney(sale.price, card.currency)}`,
+  }));
+  return <div className="row-trend row-sale-history">
+    <span className="sale-history-label">Comparable sales</span>
+    <svg viewBox="0 0 124 36" className="sale-history-sparkline" role="img" aria-label={`Sale price history for ${card.subject}: ${history.length} recorded comparable sales, ${history[0].sold_on} to ${history[history.length - 1].sold_on}`}>
+      <desc>{points.map(point => point.description).join("; ")}</desc>
+      <polyline points={points.map(point => `${point.x},${point.y}`).join(" ")} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+      {points.map((point, index) => <circle key={index} cx={point.x} cy={point.y} r="2" fill="currentColor"><title>{point.description}</title></circle>)}
+    </svg>
+    <span className="sale-history-range">{history[0].sold_on} – {history[history.length - 1].sold_on}</span>
+  </div>;
 }
