@@ -52,7 +52,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(
         title="SlabTrak API",
-        version="0.1.0-demo.1",
+        version="0.1.0-demo.2",
         docs_url=None if settings.cookie_secure else "/docs",
         redoc_url=None,
         openapi_url=None if settings.cookie_secure else "/openapi.json",

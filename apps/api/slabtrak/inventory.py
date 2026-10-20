@@ -20,6 +20,7 @@ from slabtrak.photos import photo_path, prepare_photo, remove_photo, write_photo
 
 Money = Annotated[Decimal, Field(ge=0, max_digits=12, decimal_places=2)]
 Subgrade = Annotated[Decimal, Field(ge=0, le=10, max_digits=3, decimal_places=1)]
+PhotoSide = Literal["front", "back"]
 DEFINITION_FIELDS = (
     "subject",
     "year",
@@ -99,6 +100,9 @@ class CardOutput(CardInput):
     photo_url: str | None
     photo_kind: Literal["upload", "reference"]
     photo_source: str
+    back_photo_url: str | None
+    back_photo_kind: Literal["upload", "reference"]
+    back_photo_source: str
 
 
 class Summary(BaseModel):
@@ -159,6 +163,13 @@ def output(copy: OwnedCopy, definition: CardDefinition) -> CardOutput:
         photo_url=f"/api/cards/{copy.id}/photo?v={copy.photo_key}" if copy.photo_key else None,
         photo_kind=copy.photo_kind,
         photo_source=copy.photo_source,
+        back_photo_url=(
+            f"/api/cards/{copy.id}/photo?side=back&v={copy.back_photo_key}"
+            if copy.back_photo_key
+            else None
+        ),
+        back_photo_kind=copy.back_photo_kind,
+        back_photo_source=copy.back_photo_source,
     )
 
 
@@ -261,11 +272,14 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         return output(*owned(db, identity[0].id, card_id))
 
     @router.get("/{card_id}/photo", response_class=Response)
-    def get_photo(card_id: UUID, db: DB, identity: Identity):
+    def get_photo(
+        card_id: UUID, db: DB, identity: Identity, side: Annotated[PhotoSide, Query()] = "front"
+    ):
         copy, _ = owned(db, identity[0].id, card_id)
-        if not copy.photo_key:
+        key = copy.back_photo_key if side == "back" else copy.photo_key
+        if not key:
             raise HTTPException(404, "No photo is attached to this card.")
-        path = photo_path(photo_root, copy.owner_id, copy.photo_key)
+        path = photo_path(photo_root, copy.owner_id, key)
         try:
             payload = path.read_bytes()
         except FileNotFoundError:
@@ -281,15 +295,19 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         identity: WriteIdentity,
         payload: Annotated[bytes, Body(media_type="application/octet-stream")],
         revision: int = Query(ge=1),
+        side: Annotated[PhotoSide, Query()] = "front",
     ):
         copy, definition = owned(db, identity[0].id, card_id, lock=True)
         if copy.revision != revision:
             raise HTTPException(409, CONFLICT)
         image = prepare_photo(payload)
-        previous, key = copy.photo_key, uuid4()
+        prefix = "back_" if side == "back" else ""
+        previous, key = getattr(copy, f"{prefix}photo_key"), uuid4()
         owner_id = copy.owner_id
         write_photo(photo_root, owner_id, key, image)
-        copy.photo_key, copy.photo_kind, copy.photo_source = key, "upload", ""
+        setattr(copy, f"{prefix}photo_key", key)
+        setattr(copy, f"{prefix}photo_kind", "upload")
+        setattr(copy, f"{prefix}photo_source", "")
         copy.updated_at = datetime.now(UTC)
         try:
             db.commit()
@@ -301,12 +319,21 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         return output(copy, definition)
 
     @router.delete("/{card_id}/photo", response_model=CardOutput)
-    def delete_photo(card_id: UUID, db: DB, identity: WriteIdentity, revision: int = Query(ge=1)):
+    def delete_photo(
+        card_id: UUID,
+        db: DB,
+        identity: WriteIdentity,
+        revision: int = Query(ge=1),
+        side: Annotated[PhotoSide, Query()] = "front",
+    ):
         copy, definition = owned(db, identity[0].id, card_id, lock=True)
         if copy.revision != revision:
             raise HTTPException(409, CONFLICT)
-        previous = copy.photo_key
-        copy.photo_key, copy.photo_kind, copy.photo_source = None, "upload", ""
+        prefix = "back_" if side == "back" else ""
+        previous = getattr(copy, f"{prefix}photo_key")
+        setattr(copy, f"{prefix}photo_key", None)
+        setattr(copy, f"{prefix}photo_kind", "upload")
+        setattr(copy, f"{prefix}photo_source", "")
         copy.updated_at = datetime.now(UTC)
         db.commit()
         remove_photo(photo_root, copy.owner_id, previous)
@@ -356,12 +383,13 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         if copy.revision != revision:
             raise HTTPException(409, CONFLICT)
         db.delete(copy)
-        previous = copy.photo_key
+        previous = (copy.photo_key, copy.back_photo_key)
         try:
             db.commit()
         except StaleDataError:
             db.rollback()
             raise HTTPException(409, CONFLICT) from None
-        remove_photo(photo_root, copy.owner_id, previous)
+        for key in previous:
+            remove_photo(photo_root, copy.owner_id, key)
 
     return router

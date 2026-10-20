@@ -1,0 +1,33 @@
+.card-detail-dialog { width: min(1040px, calc(100% - 32px)); margin: auto; background: var(--bg); }
+.card-detail-heading > div:first-child { min-width: 0; }
+.card-detail-heading h2 { overflow-wrap: anywhere; }
+.card-detail-heading p { margin: 10px 0 16px; font-size: 14px; }
+.card-detail-heading .condition-badge, .card-detail-heading .archive-badge { display: inline-block; }
+.card-detail-actions { display: flex; flex-shrink: 0; align-items: center; gap: 12px; }
+.card-detail-actions .secondary { width: auto; min-height: 44px; margin: 0; padding: 10px 20px; }
+.card-detail-layout { display: grid; grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); gap: 36px; margin-top: 32px; }
+.card-detail-dialog h3 { margin: 0 0 18px; font-size: 17px; font-weight: 500; }
+.card-detail-photos { min-width: 0; }
+.card-detail-photos .photo-side-switch { margin-top: 0; }
+.card-detail-photo { display: flex; align-items: center; justify-content: center; min-height: 260px; background: var(--panel); padding: 16px; border-radius: 8px; }
+.card-detail-photo img { display: block; width: 100%; height: auto; max-height: 440px; object-fit: contain; }
+.card-detail-photo .photo-placeholder { min-height: 260px; font-size: 14px; }
+.card-detail-preview { margin-top: 16px; font-size: 14px; }
+.card-detail-dialog .card-detail-caption { font-size: 12px; line-height: 1.65; margin: 12px 0 18px; }
+.card-detail-caption a { color: var(--accent); }
+.card-detail-record { min-width: 0; }
+.card-detail-record section + section { border-top: 1px solid var(--line); margin-top: 26px; padding-top: 26px; }
+.card-detail-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; margin: 0; }
+.card-detail-fields > div { min-width: 0; }
+.card-detail-fields dt { margin: 0 0 6px; font-size: 12px; line-height: 1.5; }
+.card-detail-fields dd { font-size: 14px; line-height: 1.5; }
+.card-detail-unknown { color: var(--muted); }
+.card-detail-notes { color: var(--ink); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+@media (max-width: 680px) {
+  .card-detail-heading { flex-wrap: wrap; gap: 18px; }
+  .card-detail-actions { margin-left: auto; }
+  .card-detail-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; margin-top: 28px; }
+  .card-detail-photo { min-height: 200px; }
+  .card-detail-photo img { max-height: 340px; }
+  .card-detail-fields { column-gap: 16px; }
+}

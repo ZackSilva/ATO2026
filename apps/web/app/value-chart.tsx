@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useId, useMemo, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { api, ApiError } from "../lib/api";
 import type { Card, Inventory } from "../lib/cards";
 import { demoMoney, periodChange, valueSeries, VALUE_METRICS, VALUE_RANGES, type ValueRange, type ValueMetric } from "../lib/demo-values";
@@ -10,6 +10,8 @@ type Props = { range: ValueRange; onRangeChange: (range: ValueRange) => void; re
 const dateLabel = (date: string) => new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 
 export default function CollectionValueChart({ range, onRangeChange, refreshKey, onExpired }: Props) {
+  const [expanded, setExpanded] = useState(false);
+  const chartId = useId();
   const [cards, setCards] = useState<Card[] | null>(null);
   const [pending, setPending] = useState(true);
   const [error, setError] = useState(false);
@@ -74,10 +76,12 @@ export default function CollectionValueChart({ range, onRangeChange, refreshKey,
     setCursor(Math.max(0, Math.min(series.length - 1, Math.round((event.clientX - box.left) / box.width * (series.length - 1)))));
   }
 
-  return <section className="value-overview" aria-label="Collection value overview" aria-busy={pending}>
-    <div className="value-toolbar"><label className="metric-picker">Chart metric<select aria-label="Chart metric" value={metric} onChange={event => { setMetric(event.target.value as ValueMetric); setCursor(null); }}>{VALUE_METRICS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label><span className="demo-label"><span aria-hidden="true">◌</span> Demo values · USD</span></div>
-    <div className="value-headline"><div><h2>{metricLabel}</h2><strong className="overview-amount value-overview-amount">{available && selected ? demoMoney(selected.value) : "—"}</strong></div><div className="period-summary">{available && <><span className={change.amount < 0 ? "value-down" : "value-up"}>{change.amount >= 0 ? "+" : "−"}{demoMoney(Math.abs(change.amount))}{change.percent !== null ? ` (${change.percent >= 0 ? "+" : ""}${change.percent.toFixed(1)}%)` : ""}</span><span>{selectedRange.label.toLowerCase()} change</span></>}</div></div>
-    <div className="chart-inspection">{available && selected ? <span>{cursor === null ? "Latest" : "Viewing"} · {dateLabel(selected.date)}</span> : <span>{pending ? "Preparing demo history…" : error ? "Chart unavailable" : "Add a card to explore its value history."}</span>}<span className="chart-hint">Hover, touch, or use arrow keys to explore</span></div>
+  return <section className={`value-overview ${expanded ? "chart-expanded" : ""}`} aria-label="Collection value overview" aria-busy={pending}>
+    <div className="value-toolbar"><label className="metric-picker">Chart metric<select aria-label="Chart metric" value={metric} onChange={event => { setMetric(event.target.value as ValueMetric); setCursor(null); }}>{VALUE_METRICS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label></div>
+    <div className="value-headline"><div><div className="metric-heading"><h2>{metricLabel}</h2><span className="demo-label">Demo · USD</span></div><strong className="overview-amount value-overview-amount">{available && selected ? demoMoney(selected.value) : "—"}</strong></div><div className="period-summary">{available && <><span className={change.amount < 0 ? "value-down" : "value-up"}>{change.amount >= 0 ? "+" : "−"}{demoMoney(Math.abs(change.amount))}{change.percent !== null ? ` (${change.percent >= 0 ? "+" : ""}${change.percent.toFixed(1)}%)` : ""}</span><span>{selectedRange.label.toLowerCase()} change</span></>}</div></div>
+    <button type="button" className="chart-expand-toggle" aria-expanded={expanded} aria-controls={chartId} onClick={() => { setExpanded(value => !value); setCursor(null); }}>{expanded ? "Hide value chart" : "Show value chart"}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
+    <div className="value-history" id={chartId}>
+    <div className="chart-inspection">{available && selected ? <span>{cursor === null ? "Latest" : "Viewing"} · {dateLabel(selected.date)}</span> : <span>{pending ? "Preparing demo history…" : error ? "Chart unavailable" : "Add a card to explore its value history."}</span>}<span className="chart-hint"><span className="chart-desktop-hint">Hover or use arrow keys to explore</span><span className="chart-touch-hint">Touch chart to inspect</span></span></div>
     {available ? <>
       <div className="value-plot" role="slider" tabIndex={0} aria-label="Explore demo value history" aria-valuemin={0} aria-valuemax={series.length - 1} aria-valuenow={index} aria-valuetext={selected ? `${dateLabel(selected.date)}: ${demoMoney(selected.value)}` : "No values"} onKeyDown={explore} onFocus={() => setCursor(index)} onBlur={() => setCursor(null)} onPointerLeave={event => { if (document.activeElement !== event.currentTarget) setCursor(null); }}>
         <svg className="overview-chart" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true" onPointerMove={inspectPosition} onPointerDown={event => { event.currentTarget.parentElement?.focus(); inspectPosition(event); }}>
@@ -92,8 +96,9 @@ export default function CollectionValueChart({ range, onRangeChange, refreshKey,
       </div>
       <div className="chart-x-axis"><span>{dateLabel(series[0].date)}</span><span>{dateLabel(last.date)}</span></div>
     </> : <div className="chart-placeholder" aria-hidden="true"><span /></div>}
+    </div>
     <div className="chart-bottom"><div className="chart-ranges" role="group" aria-label="Chart time range">{VALUE_RANGES.map(item => <button type="button" key={item.value} aria-label={item.label} title={item.label} aria-pressed={range === item.value} onClick={() => { onRangeChange(item.value); setCursor(null); }}>{item.shortLabel}</button>)}</div><span className="chart-scope">{cards ? `${cards.length} active ${cards.length === 1 ? "card" : "cards"}` : "Active collection"}</span></div>
-    <p className="value-demo-note">Simulated history for your current active cards. All values and purchase totals are fictional demonstrations, not market estimates or saved purchase records.{range === "all" ? " All time shows two years of sample history." : ""}</p>
+    <p className="value-demo-note">Fictional values for your active cards; saved purchase records stay separate.{range === "all" ? " All time shows two years of sample history." : ""}</p>
     {error && <p className="chart-error" role="alert">{cards ? "Couldn’t refresh the chart. Showing the previous demo." : "Couldn’t load the chart."} <button type="button" className="text-button" onClick={() => setRetry(value => value + 1)}>Retry chart</button></p>}
   </section>;
 }

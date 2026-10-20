@@ -2,15 +2,15 @@
 
 Your Collection, Simplified.
 
-**Demo release: `v0.1.0-demo.1`** · [GitHub repository](https://github.com/ZackSilva/slabtrak) · [Release notes](CHANGELOG.md)
+**Demo release: `v0.1.0-demo.2`** · [GitHub repository](https://github.com/ZackSilva/slabtrak) · [Release notes](CHANGELOG.md)
 
 SlabTrak will manage raw and graded trading cards, acquisition costs, sales, photos, and collections. Later releases will add evidence-based market research, deal discovery, local OCR, and optional local AI.
 
 ## Current status
 
-The local app now includes private sign-in and a working card inventory displayed as rows with image previews. You can add, view, edit, search, filter, sort, archive, restore, and deliberately delete physical cards. Records include card identity, raw/graded condition, grading company and BGS subgrades, serial numbers, acquisition costs, dates, seller, and notes. One private preview photo per physical card can be uploaded, replaced, viewed, or removed. Separate front/back photos, sales, imports/exports, full backup/restore, and hosted deployment remain later increments.
+The local app now includes private sign-in and a working card inventory displayed as rows with image previews. You can add, view, edit, search, filter, sort, archive, restore, and deliberately delete physical cards. Records include card identity, raw/graded condition, grading company and BGS subgrades, serial numbers, acquisition costs, dates, seller, and notes. Separate private front and back photos can be uploaded, replaced, viewed, or removed independently. Sales, imports/exports, full backup/restore, and hosted deployment remain later increments.
 
-A configurable overview chart and compact row sparklines demonstrate collection value, purchase totals, and unrealized gain/loss. Choose all time, last year, last six months, last three months, last month, or last week. **Financial chart and row values are fictional demo data in USD**; all time shows two simulated years for your current active cards. Filtering the row list does not change the overview. Real purchase records remain in the card editor, and known recorded acquisition costs are separately labeled in rows.
+A configurable overview chart and compact row sparklines demonstrate collection value, purchase totals, and unrealized gain/loss. Choose all time, last year, last six months, last three months, last month, or last week. **Financial chart and row values are fictional demo data in USD**; all time shows two simulated years for your current active cards. Filtering the row list does not change the overview. On phones, **Show value chart** expands the graph and **More card details** reveals a row’s secondary financial information. The nearby **Card trend period** control updates both the overview and row trends. Add card is available beside the welcome heading. Real purchase records are available in card details and the editor, and known recorded acquisition costs are separately labeled in rows.
 
 The initial collection is approximately 100 cards. The online application will use Vercel with a Supabase Free database and private photo storage so the same collection can be accessed from multiple devices. An independent Docker Compose deployment will retain local database and photo storage. No paid service or AI API is planned.
 
@@ -63,9 +63,11 @@ After signing in, choose **Add card**. Only the player/subject is required; each
 
 Blank costs mean unknown. Enter `0` for a cost you know was zero. A total acquisition cost appears only when purchase price, shipping, tax, and other costs are all known; otherwise the screen labels the recorded costs as incomplete. These amounts are acquisition records, not market valuations, and different currencies are not combined.
 
-Search finds players/subjects, sets, manufacturers, card numbers, parallels, category, certification, grading company, notes, and seller. Use **Show → Archive** to find archived cards, then open a card to restore it. Permanent deletion requires a second confirmation. Records refresh when you return to the browser window; a conflicting edit offers an explicit reload instead of overwriting a newer save.
+Click a card row, its title, or its thumbnail to open read-only details: identity, grading, photos, acquisition costs, seller, and notes. The title is also a keyboard-accessible button. **Edit** is a separate action in the row and detail view; only the editor contains editable fields and save/archive/delete controls. Saving or canceling an edit opened from details returns to that view. Missing costs remain unknown, distinct from a recorded zero.
 
-Choose a thumbnail to open a larger image. In **View / edit**, choose **Upload photo** or **Replace photo** to attach your own JPEG, PNG, or WebP image (up to 4 MB and 16 megapixels). Save a new card before adding its photo. Uploaded images are re-encoded as JPEG previews at up to 1,200 pixels on the longest side; metadata is removed. Each preview stays private to its owner and survives ordinary container replacement in the named `photos` volume.
+Search finds players/subjects, sets, manufacturers, card numbers, parallels, category, certification, grading company, notes, and seller. Use **Show → Archive** to find archived cards, then choose **Edit** to restore one. Permanent deletion requires a second confirmation. Records refresh when you return to the browser window; a conflicting edit offers an explicit reload instead of overwriting a newer save.
+
+In card details, switch between **Front** and **Back**, then choose **Enlarge photos** for a larger image. **Edit** lets you upload, replace, or remove the selected side's JPEG, PNG, or WebP image (up to 4 MB and 16 megapixels per side). Save a new card before adding its photos. Photo changes save separately and retain unsaved editor fields until you save or close the editor. Uploaded images are re-encoded as JPEG previews at up to 1,200 pixels on the longest side; metadata is removed. Both previews stay private to their owner and survive ordinary container replacement in the named `photos` volume. Existing images are retained as fronts; a back-only card uses its back as the thumbnail.
 
 The four requested example cards have reference images with source links recorded in `data/example-cards.json`. **REFERENCE** labels distinguish these images from photos of your own copies; the pictured slab's grade and certification are not imported into your record. Replace a reference image with your own photo when recording a physical card you own.
 
@@ -99,7 +101,7 @@ docker compose run --rm --build migrate
 docker compose up -d api web
 ```
 
-Migrations are explicit operations, not actions run on API requests. Hosted migrations require a separate review of their destination and changes.
+Use `--build` for the migration command so the one-off migration image contains the current migration files. Building the API image alone does not refresh a previously built migration image. Migrations are explicit operations, not actions run on API requests. Hosted migrations require a separate review of their destination and changes.
 
 ## Database backup
 
@@ -141,5 +143,7 @@ PYTHONPATH=apps/api apps/api/.venv/bin/python scripts/check_browser.py
 ```
 
 The browser helper requires Node.js 24 on PATH and installed Google Chrome. It starts temporary servers, uses generated credentials in the isolated test database, checks desktop/phone widths, and stops those servers afterward. It refuses occupied ports. Phone emulation is not an actual phone test. CI uses its own isolated database and Chromium.
+
+Browser checks run headlessly and produce an HTML report with results and screenshots without opening browser windows. To include recordings, use `SLABTRAK_TEST_EVIDENCE=1 PYTHONPATH=apps/api apps/api/.venv/bin/python scripts/check_browser.py`, with the same stopped services and development database ports as above. Videos are recorded in the background. The report is saved at `apps/web/playwright-report/index.html`; `npx playwright show-report` from `apps/web` serves it for manual review. Generated reports stay outside Git. Recordings can show entered test data, so keep using disposable test accounts rather than your normal collection. The helper also forwards Playwright options such as `--project=desktop` or `--grep` for a focused check. Visible browser runs are reserved for an explicit request.
 
 Return to the internal-only database configuration with `docker compose up -d db api web`. API documentation is available at `http://127.0.0.1:8000/docs` when the development API port is explicitly enabled; it is disabled by secure hosted configuration.

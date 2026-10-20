@@ -72,9 +72,9 @@ Keep a centered, bounded content width with generous desktop gutters and approxi
 
 Cards always appear in a row list, with the photo on the left. On desktop, place condition alongside identity and align the trend, current value, purchase price, and row action into stable columns. On phones, stack those details beside or below the identity while keeping the photo left and labels understandable without desktop column headings.
 
-Render photographs with `object-fit: contain`; show the complete card and slab rather than cropping their edges. Use a calm neutral frame and a useful “Add photo” placeholder. Reference images must carry a visible “Reference” label in the row and a clear explanation in preview. Keep that label readable at the final thumbnail size. Never imply that a reference image is the owner’s actual card or proves its condition.
+Render photographs with `object-fit: contain`; show the complete card and slab rather than cropping their edges. Use a calm neutral frame and a clear missing-side placeholder. Reference images must carry a visible “Reference” label in the row and a clear explanation in preview. Keep that label readable at the final thumbnail size. Never imply that a reference image is the owner’s actual card or proves its condition.
 
-Use subtle separators between rows and restrained hover emphasis. Keep “View / edit” as an explicit action. A photo button opens preview or photo editing according to the available image. Avoid making unrelated parts of a row behave like one hidden action.
+Use subtle separators between rows and restrained hover emphasis. Clicking a row, title, or thumbnail opens read-only details; the title remains a native keyboard-accessible button. Keep a separate “Edit” action in both row and detail view. Inline financial disclosures retain their own behavior. Details use labeled text and definition lists, with no editable fields or mutation controls. Image enlargement remains available within details; upload/removal belongs in the editor. Preserve the originating row focus when the detail view closes, and return from editing or image enlargement to the same detail view.
 
 ### Controls and forms
 
@@ -140,3 +140,11 @@ Expose dates, values, range selection, and changes through text and semantic con
 Keep account actions in the header's top-right dropdown, separate from the collection welcome, graph, and primary card actions. The trigger uses an initial, the username on wide screens, and a disclosure chevron. On phones the username is available inside the dropdown; do not squeeze or wrap the brand lockup. Show the actual signed-in username and the working sign-out action. Do not add placeholder account settings.
 
 Use native disclosure semantics. Enter/Space opens the account control, Tab reaches its action, Escape closes it and returns focus to its trigger, and outside clicks or focus departure dismiss it. Display pending sign-out state and preserve a retry after failure. Bound the dropdown to the phone viewport and wrap long usernames inside it.
+
+## Compact mobile collection and photo sides
+
+Add card belongs beside the welcome heading so it remains immediately reachable. On phones, the overview starts with its value summary and a Show value chart disclosure; expand it for the graph, touch inspection, and range buttons. The demo designation sits beside the metric heading. A Card trend period selector near the collection keeps the shared overview/row range understandable without scrolling back up.
+
+Mobile rows show identity, condition, demo current value, and Edit first. Clicking the row opens the read-only card view. More card details reveals the trend, demo purchase, and gain/loss inline. Keep meaningful explanations at 12px where possible and retain signed values and keyboard-visible focus. Desktop retains the comparison columns. The editor action opens a dialog and therefore carries no external-link arrow.
+
+Show Reference photo beside identities that use sourced images; pictured grading does not verify the stored physical copy. Front and Back are independent, explicitly selected photo controls in editor and preview. Both sides use uncropped images, clear missing-side states, privacy, and the same revision checks. A back-only card remains previewable from its row.

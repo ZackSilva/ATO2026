@@ -21,7 +21,7 @@ async function deleteTestCard(page: Page, record: Locator, subject: string) {
   await page.getByLabel("Search collection", { exact: true }).fill(subject);
   await expect(page.getByText("Loading cards…", { exact: true })).toBeHidden();
   await expect(record).toBeVisible();
-  await record.getByRole("button", { name: `Open card for ${subject}`, exact: true }).click();
+  await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
   await dialog.getByRole("button", { name: "Delete card…", exact: true }).click();
   await dialog.getByRole("button", { name: "Confirm permanent deletion", exact: true }).click();
   await expect(dialog).toBeHidden();
@@ -32,7 +32,12 @@ test("demo overview ranges, metrics and richer rows stay separate from saved cos
   test.setTimeout(60_000);
   const subject = `Chart demo test ${testInfo.project.name} ${Date.now()}`;
   await signIn(page);
-  await page.getByRole("button", { name: "+ Add card", exact: true }).click();
+  const addCard = page.getByRole("button", { name: "+ Add card", exact: true });
+  if ((page.viewportSize()?.width ?? 1440) <= 680) {
+    const actionBounds = await addCard.boundingBox();
+    expect(actionBounds?.y).toBeLessThan(400);
+  }
+  await addCard.click();
   const editor = page.getByRole("dialog");
   await editor.getByLabel("Player(s) or subject (required)").fill(subject);
   await editor.getByRole("button", { name: "Save card", exact: true }).click();
@@ -44,6 +49,12 @@ test("demo overview ranges, metrics and richer rows stay separate from saved cos
     const overview = page.getByRole("region", { name: "Collection value overview", exact: true });
     await expect(overview).toBeVisible();
     await expect(overview).toContainText(/demo/i);
+    const showChart = overview.getByRole("button", { name: "Show value chart", exact: true });
+    if (await showChart.isVisible()) {
+      await expect(showChart).toHaveAttribute("aria-expanded", "false");
+      await showChart.click();
+      await expect(overview.getByRole("button", { name: "Hide value chart", exact: true })).toHaveAttribute("aria-expanded", "true");
+    }
     await expect(page.locator('[aria-label="Collection summary"]')).not.toContainText("Purchase price unknown");
     const metric = overview.getByLabel("Chart metric", { exact: true });
     const slider = overview.getByRole("slider", { name: "Explore demo value history", exact: true });
@@ -89,6 +100,15 @@ test("demo overview ranges, metrics and richer rows stay separate from saved cos
     await expect(overview.getByRole("heading", { name: "Collection value", exact: true })).toBeVisible();
 
     await expect(record.locator(".row-value")).toContainText(/(?:USD|\$)\s*[\d,]+\.\d{2}/);
+    const moreDetails = record.getByRole("button", { name: "More card details", exact: true });
+    if (await moreDetails.isVisible()) {
+      await expect(moreDetails).toHaveAttribute("aria-expanded", "false");
+      await expect(record.locator(".row-trend")).toBeHidden();
+      await expect(record.locator(".row-purchase")).toBeHidden();
+      await moreDetails.click();
+      await expect(page.getByRole("dialog")).toBeHidden();
+      await expect(record.getByRole("button", { name: "Fewer card details", exact: true })).toHaveAttribute("aria-expanded", "true");
+    }
     await expect(record.locator(".row-purchase")).toContainText(/(?:USD|\$)\s*[\d,]+\.\d{2}/);
     await expect(record.locator(".row-trend").getByRole("img", { name: /Demo value trend/ })).toBeVisible();
     const unfilteredAmount = await amount.innerText();
@@ -98,12 +118,12 @@ test("demo overview ranges, metrics and richer rows stay separate from saved cos
     await page.getByLabel("Search collection", { exact: true }).fill("");
     await expect(record).toBeVisible();
 
-    await record.getByRole("button", { name: `Open card for ${subject}`, exact: true }).click();
+    await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
     await expect(editor.getByLabel("Purchase price", { exact: true })).toHaveValue("");
     await editor.getByRole("button", { name: "Close card editor", exact: true }).click();
     await page.reload();
     await expect(record).toBeVisible();
-    await record.getByRole("button", { name: `Open card for ${subject}`, exact: true }).click();
+    await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
     await expect(editor.getByLabel("Purchase price", { exact: true })).toHaveValue("");
     await editor.getByRole("button", { name: "Close card editor", exact: true }).click();
     await page.evaluate(() => document.fonts.ready);

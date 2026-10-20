@@ -1,6 +1,6 @@
 # SlabTrak architecture
 
-Design baseline: October 19, 2026. Status: local private access, inventory rows, and one private preview image per physical card are implemented. Separate front/back photos and hosted deployment remain planned. See `validation.md` for the evidence boundary.
+Design baseline: October 19, 2026. Status: local private access, responsive inventory rows, and separate private front/back preview images are implemented. Hosted deployment and crash-orphan reconciliation remain planned. See `validation.md` for the evidence boundary.
 
 ## Confirmed requirements
 
@@ -99,7 +99,7 @@ Milestone 1 summaries show owned-card count, recorded acquisition cost, recorded
 
 ## Image storage and backups
 
-Migration `0003` adds a nullable opaque preview key, image kind, and source to each physical copy. Local preview files use owner UUID/image UUID paths in the named Docker `photos` volume; they are not web-public assets or database blobs. Every image GET checks the authenticated owner. Upload/removal also require origin/CSRF checks and the current card revision. Replacing a preview changes its opaque URL and removes the old file after commit; a failed commit removes the newly written file. Deleting a card removes its preview. One image is supported per copy for now, with no separate back image or original-resolution archive.
+Migration `0003` adds a nullable opaque preview key, image kind, and source to each physical copy. Local preview files use owner UUID/image UUID paths in the named Docker `photos` volume; they are not web-public assets or database blobs. Every image GET checks the authenticated owner. Upload/removal also require origin/CSRF checks and the current card revision. Replacing a preview changes its opaque URL and removes the old file after commit; a failed commit removes the newly written file. Deleting a card removes its previews. Migration `0004` extends this storage to an independent back image while preserving existing front keys and metadata; original-resolution archives remain unimplemented.
 
 Pillow decodes only JPEG, PNG, and WebP still images, bounds input to 4 MB/16 megapixels, normalizes orientation, flattens transparency onto white, and re-encodes a JPEG without EXIF/GPS metadata. Previews have a 1,200-pixel maximum edge and a 1 MB maximum output size. Client image errors fall back to an explicit missing-image state. Reference images on the four example cards are labeled and keep source links; no pictured grade/certification is assigned to those records. The API does not fetch arbitrary image URLs.
 
@@ -137,3 +137,15 @@ Provider documentation reviewed October 19, 2026; not evidence that an account o
 - [Supabase PostgreSQL connections](https://supabase.com/docs/guides/database/connecting-to-postgres)
 - [Supabase schemas and API exposure](https://supabase.com/docs/guides/api/using-custom-schemas)
 - [Supabase private storage buckets](https://supabase.com/docs/guides/storage/buckets/fundamentals)
+
+## Independent front/back previews
+
+Migration `0004` adds nullable back-photo keys and separate kind/source metadata to each physical copy. Existing `photo_*` columns, keys, reference metadata, and default `/photo` URLs remain the front side. `GET`, `PUT`, and `DELETE /api/cards/{id}/photo` accept `side=front|back`, defaulting to front. Back URLs include `side=back`; every request remains owner scoped and non-cacheable. Both sides share the copy revision, so a stale photo mutation cannot overwrite a newer change on either side.
+
+The existing bounded image processing and private local storage are reused. Replacing or removing one side preserves the other. Deleting a physical copy removes both photo files after the database commits; failed commits retain old files and remove a new uncommitted upload. Files orphaned by an abrupt process crash still need operator reconciliation; this update does not claim to implement it. Private hosted storage remains a later provider integration.
+
+## Separate card viewing and editing
+
+Collection row bodies, titles, and thumbnails open a read-only `CardDetail` dialog populated from the authenticated card record. Native title buttons provide keyboard access; Edit and inline disclosures retain independent actions. The detail view renders labeled text, photos, and recorded costs without form fields or save/archive/delete/upload controls. It makes no mutation request. Existing owner scoping and optimistic revision checks continue to protect editor writes.
+
+The detail component retains its selected photo side while its native dialog closes temporarily for editing or image enlargement; only one dialog is open at a time. Returning restores focus to the originating detail control. Successful saves, conflict reloads, and photo updates refresh the retained detail record; canceling leaves the saved record intact. Closing details restores the original row control or the collection heading if that row was removed. No API, database, dependency, or hosting changes are needed for this view.

@@ -91,3 +91,89 @@
   .sparkline { width: 100px; height: 32px; }
   .row-demo-note { margin-bottom: 8px; }
 }
+
+/* Compact summaries keep the collection reachable; details remain available on demand. */
+.workspace-heading > .primary { width: auto; flex-shrink: 0; }
+.metric-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.metric-heading h2 { margin: 0; }
+.metric-heading .demo-label, .value-demo-note, .row-demo-note, .chart-inspection, .chart-x-axis, .chart-y-axis, .chart-scope { font-size: 12px; }
+.chart-expand-toggle, .chart-touch-hint, .row-details-toggle, .row-gain-detail { display: none; }
+.row-secondary { display: contents; }
+.row-secondary[hidden] { display: none; }
+.reference-context { display: block; color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 5px; }
+.card-tags .condition-badge, .card-tags span { font-size: 11px; }
+.row-value > span:not(.mobile-cell-label), .trend-change, .trend-period, .value-comparison, .row-purchase .cost-detail { font-size: 12px; }
+.inventory-list-heading { font-size: 11px; letter-spacing: .6px; }
+.inventory-row .row-value .mobile-cell-label, .inventory-row .row-purchase .mobile-cell-label { font-size: 12px; }
+.row-period-picker { display: flex; flex-direction: column; gap: 6px; margin: 0; font-size: 12px; color: var(--muted); font-weight: 400; }
+.row-period-picker select { min-height: 44px; padding: 8px 28px 8px 10px; font-size: 12px; }
+.row-edit { min-height: 44px; }
+.inventory-row { cursor: pointer; }
+.inventory-row.row-loading { cursor: wait; }
+.row-view { display: block; min-height: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; letter-spacing: inherit; }
+.row-view:hover { color: var(--accent); }
+.inventory-row:has(.row-view:focus-visible) { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (max-width: 1150px) and (min-width: 681px) {
+  .inventory-row .row-secondary .row-trend { grid-area: trend; }
+  .inventory-row .row-secondary .row-purchase { grid-area: purchase; }
+}
+@media (max-width: 680px) {
+  .collection-workspace { padding: 22px 0; }
+  .workspace-heading { align-items: flex-start; gap: 12px; }
+  .workspace-heading h1 { font-size: 24px; letter-spacing: -.8px; }
+  .workspace-heading p { margin-top: 8px; font-size: 12px; }
+  .workspace-heading > .primary { min-height: 44px; padding: 10px 12px; font-size: 12px; margin-top: 0; }
+  .value-overview { margin-top: 18px; padding-bottom: 16px; }
+  .metric-picker { flex-direction: row; align-items: center; gap: 10px; width: 100%; }
+  .metric-picker select { width: auto; min-width: 0; max-width: 210px; flex: 1; padding-right: 24px; font-size: 12px; }
+  .value-headline { margin-top: 18px; gap: 8px; }
+  .overview-amount { font-size: 34px; letter-spacing: -1px; }
+  .period-summary { font-size: 12px; padding: 0; }
+  .period-summary > span:last-child { font-size: 12px; }
+  .metric-heading { gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .metric-heading h2 { font-size: 12px; }
+  .chart-expand-toggle { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 0; border: 0; background: transparent; color: var(--ink); font-size: 12px; font-weight: 450; }
+  .value-overview:not(.chart-expanded) .value-history, .value-overview:not(.chart-expanded) .chart-bottom { display: none; }
+  .chart-touch-hint { display: inline; }
+  .chart-desktop-hint { display: none; }
+  .chart-hint { display: inline; color: var(--muted); }
+  .chart-inspection { flex-wrap: wrap; gap: 6px; margin: 8px 0 16px; }
+  .chart-bottom { margin-top: 16px; gap: 8px; }
+  .chart-ranges button { font-size: 12px; }
+  .value-demo-note { margin-top: 2px; font-size: 12px; line-height: 1.5; }
+  .collection-workspace .stats-grid { margin: 18px 0 24px; gap: 12px; }
+  .collection-workspace .stat span { font-size: 12px; }
+  .collection-workspace .stat strong { font-size: 22px; margin-top: 6px; }
+  .inventory-heading { align-items: flex-start; }
+  .inventory-heading h2 { font-size: 22px; }
+  .inventory-heading p { font-size: 12px; }
+  .row-period-picker { max-width: 145px; }
+  .collection-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; margin-top: 18px; }
+  .collection-tools .search-label { grid-column: 1 / -1; }
+  .collection-tools label:last-child { grid-column: auto; }
+  .collection-tools label { font-size: 12px; gap: 6px; }
+  .collection-tools select { padding: 10px 6px; font-size: 12px; min-height: 44px; }
+  .collection-tools input { padding: 12px; min-height: 44px; font-size: 13px; }
+  .results-meta { margin: 16px 0 8px; }
+  .row-demo-note { font-size: 12px; line-height: 1.5; margin-bottom: 8px; }
+  .inventory-row { grid-template-columns: 64px minmax(0, 1fr) 82px; grid-template-areas: "image identity identity" "image value action" ". more more" ". details details"; gap: 10px 14px; padding: 20px 0; }
+  .inventory-row .card-thumbnail { grid-area: image; align-self: start; }
+  .inventory-row .row-identity { grid-area: identity; }
+  .inventory-row .row-value { grid-area: value; gap: 5px; }
+  .inventory-row .row-edit { grid-area: action; align-self: center; justify-self: stretch; padding: 8px 6px; min-height: 44px; font-size: 12px; }
+  .inventory-row .row-value strong { font-size: 16px; }
+  .inventory-row .row-primary-gain { display: none; }
+  .row-details-toggle { grid-area: more; display: flex; align-items: center; gap: 12px; justify-self: start; min-height: 44px; padding: 6px 0; background: transparent; border: 0; font-size: 12px; font-weight: 450; color: var(--muted); }
+  .row-secondary { grid-area: details; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 6px 0 10px; }
+  .inventory-row .row-secondary .row-trend, .inventory-row .row-secondary .row-purchase { grid-area: auto; }
+  .inventory-row .row-secondary .row-trend { flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .row-trend .mobile-cell-label { flex-basis: 100%; font-size: 12px; }
+  .row-purchase { gap: 5px; }
+  .row-purchase strong { font-size: 16px; }
+  .row-purchase .cost-detail { font-size: 12px; }
+  .row-gain-detail { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--muted); }
+  .row-gain-detail strong { font-size: 14px; font-weight: 450; }
+  .card-subtitle { font-size: 12px; margin: 5px 0 8px; }
+  .reference-context { font-size: 12px; }
+  .card-tags span, .card-tags .condition-badge { font-size: 11px; }
+}

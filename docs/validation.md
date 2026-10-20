@@ -1,6 +1,6 @@
 # Local application validation
 
-Checked October 19, 2026. Scope: private access, collection rows, inventory, and one private preview image per physical card. Automated fixtures stayed in `slabtrak_test` with temporary photo directories. Four real-card examples and their labeled reference images were separately added to the normal collection at the user's explicit request; see `data/example-cards.json`. No hosted deployment was used.
+Checked October 19, 2026. Entries below record successive local increments; the latest front/back-photo and compact-layout verification appears at the end. The original baseline covered private access, collection rows, inventory, and one private preview image per physical card. Automated fixtures stayed in `slabtrak_test` with temporary photo directories. Four real-card examples and their labeled reference images were separately added to the normal collection at the user's explicit request; see `data/example-cards.json`. No hosted deployment was used.
 
 | Check | Result | Evidence and limit |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ Pytest emits an upstream Starlette warning about a future TestClient HTTP client
 
 Not verified: Vercel/Supabase deployment, hosted storage/pooling and secure cookies, actual hosted device syncing, physical phones, Safari, x86 execution, GitHub CI execution, production abuse resistance, and independent security review. No commit or push was made.
 
-Not implemented: separate front/back photos, original-resolution image archives, automated reconciliation of files orphaned by a process crash, hosted image storage, structured multi-subject links, collections/tags/watchlists, sale transactions, portfolio calculations, import/export, and full collection/image backup and restore. Unreferenced immutable identity rows may remain after a copy is changed/deleted; the physical copy's private notes, grading, acquisition data, and current preview are removed with that copy.
+Not implemented at that baseline: separate front/back photos, original-resolution image archives, automated reconciliation of files orphaned by a process crash, hosted image storage, structured multi-subject links, collections/tags/watchlists, sale transactions, portfolio calculations, import/export, and full collection/image backup and restore. The latest increment below implements separate front/back photos. Unreferenced immutable identity rows may remain after a copy is changed/deleted; the physical copy's private notes, grading, acquisition data, and current photos are removed with that copy.
 
 Source version: uncommitted local foundation, inventory, and preview changes. Test credentials and fixtures were confined to the `_test` database and disposable photo directories. The normal collection contains four user-requested examples with PSA identity sources in their notes and image sources in preview metadata; there is no preset owner password. Read-back checks confirmed two basketball and two football entries, with costs, grades, certifications, serial numbers, and acquisition dates unknown. Raw/ungraded is explicitly noted as an example default, and ownership/physical condition are not asserted. Reference images are privately stored copies of the selected public images and are not hotlinked by the app. No external account or deployment was changed.
 
@@ -76,3 +76,42 @@ Prepared October 19, 2026 for the owner's explicitly authorized commit/push to `
 - `.env`, backups, application databases/photos, dependency installations, generated builds, and browser artifacts are excluded from Git. The repository includes public card identity/source links, not the local owner's saved collection or image files. No preset account/password is shipped.
 
 See `CHANGELOG.md` for release scope and remaining application limits. Vercel/Supabase deployment and physical-phone/Safari checks remain future work. Publishing source and a prerelease does not deploy the hosted application.
+
+## Front/back photos and compact mobile collection
+
+The next local increment adds independently replaceable/removable front and back photos, a prominent Add card action, a collapsed mobile chart, optional secondary row details, clearer demo/reference labels, and a shared trend-period control. These changes are uncommitted; the published release remains `v0.1.0-demo.1`.
+
+- All 41 PostgreSQL API checks, 20 frontend unit checks, and 20 desktop/phone-emulated Chrome journeys passed. Photo coverage includes private access on both sides, independent replacement/removal, shared stale-revision rejection, failed-commit preservation, metadata handling, and cleanup of both files on card deletion. Browser coverage checks both sides after reload, back-only thumbnails, missing-side previews, and retention of unsaved editor notes during photo uploads.
+- Ruff, ESLint, TypeScript, whitespace checks, the host Next.js production build, and ARM64 API/frontend Docker builds passed. No dependencies or lockfiles changed. A focused read-only secondary review found no material privacy, revision, or front-photo preservation issues.
+- Saved a private database dump and front-record/photo-checksum manifests before applying additive migration `0004` to the normal database. The first migration invocation reused an older Compose migration image and left the database at `0003`; rebuilding that service with `docker compose run --rm --build migrate` applied `0004`. Read-back verified the actual revision, unchanged existing metadata/revisions, and identical checksums for all four photo files. Counts remain one account, four cards, four front photos, no back photos, and no recorded purchase prices. No owner credentials were reset or sample back images added to the normal collection.
+- Read-only browser sample responses against the rebuilt local stack passed at 1440, 1024, 768, 390, and 320px with no horizontal overflow or runtime errors. Phone checks verified early access to Add card and expandable chart/row details; desktop and phone screenshots were inspected. These mocked layout checks do not establish persistence; the real API/browser suites above cover that separately.
+- The normal Docker stack is running at `http://localhost:3000`, with only the frontend exposed to localhost. Final real smoke checks passed for sign-in rendering, API health, `/design`, the favicon, and rejection of anonymous account access. No external browser requests or page errors occurred.
+
+Crash-orphan reconciliation, hosted private storage, full backup/restore, and Vercel/Supabase deployment remain pending. Physical phones, Safari, x86 execution, and independent accessibility/security review remain unverified for this increment.
+
+## Visible browser run and reviewable evidence
+
+At the owner's request, repeated all 20 browser journeys in visible Chrome with `SLABTRAK_TEST_EVIDENCE=1` and `--headed`. All 20 passed in 1.1 minutes against the isolated test database. The run produced 20 videos and 40 screenshots, with results and attachments available through the ignored `apps/web/playwright-report/` HTML report. These are recordings of real test-account interactions, including front/back-photo persistence and removal, stale-edit conflicts, account-menu behavior, and chart controls at desktop and phone widths. The normal account/collection was not used by the test run.
+
+The helper now forwards Playwright command-line options. Each browser run generates an HTML report and screenshots; evidence mode additionally records videos and slows actions for viewing. No request traces or storage-state exports are captured. Generated artifacts remain outside Git. TypeScript, ESLint, the helper's Ruff check using the API configuration, and whitespace checks passed after these tooling changes. The normal local stack was restored after the run.
+
+## Headless reports as the default
+
+Following the owner's feedback, visible browser automation is reserved for an explicit request. Removed the evidence-mode action delay and reran all 20 browser journeys headlessly against the isolated test database; all passed in 35.9 seconds. The refreshed HTML report includes 20 background recordings and 40 screenshots without opening browser windows. TypeScript, ESLint, and whitespace checks passed. The normal local stack was restored afterward. This changes test presentation only; the application and published release remain unchanged.
+
+## Read-only card details and explicit editing
+
+Checked October 20, 2026. Row bodies, native title buttons, and thumbnails now open a read-only detail view. Edit remains a separate action in the row and detail view. Details retain their selected photo side while the dialog closes temporarily for editing or enlargement, with one open modal at a time. Save/cancel returns to details, successful writes update the displayed record, and closing the view restores row focus or the collection heading.
+
+- All 22 desktop/phone-emulated Chrome journeys passed headlessly in 40.1 seconds against the isolated test database. Added coverage opens details from title, subtitle, current value, thumbnail, and row whitespace; verifies Enter/Space/Escape and focus restoration; asserts no editable fields or mutation requests while viewing; distinguishes zero from unknown costs; reads BGS subgrades, certification, serial information, and notes; checks edit cancel/save round trips; and confirms the separate row Edit action and inline disclosure remain independent.
+- Existing front/back journeys passed through the new detail-to-preview flow, including enlargement of the selected back side, return focus, replacement/removal, reload persistence, private access, and back-only thumbnails. Initial checks exposed overlapping dialogs; the final implementation closes the detail dialog while retaining its component state. A remaining saved-note test selector was corrected to use the textbox's accessible name rather than the wrapping label's text content.
+- All 20 frontend unit tests, ESLint, TypeScript, the host production build, ARM64 frontend Docker build, and whitespace checks passed. The API and schema are unchanged by this view; the previous 41-check API result is retained rather than represented as a new run.
+- Inspected desktop and phone detail screenshots. Explicit detail-view and enlarged-photo screenshots are attached to the HTML report alongside the final run's background recordings. Generated evidence remains ignored by Git, and no visible browser windows were opened for this increment.
+
+The normal local Docker stack was restored with the updated frontend. No normal collection records or credentials were changed, no new migration was required, and no commit, push, tag, or hosted deployment was performed. Physical phones, Safari, x86, and independent accessibility/security review remain unverified.
+
+## v0.1.0-demo.2 release preparation
+
+Prepared October 20, 2026 after the owner's explicit commit-and-push authorization. Release/tag, frontend, and API use `0.1.0-demo.2`; Python metadata uses `0.1.0.dev2`. Manifest/lock agreement, offline uv lock validation, Ruff, ESLint, TypeScript, all 20 frontend unit checks, and the host production build passed. Dependency versions are unchanged. The final feature run above provides the 22 passing headless browser journeys and attached screenshots/recordings; the photo increment provides the 41 PostgreSQL API checks. These suites were not represented as freshly rerun after the metadata-only version bump.
+
+A focused read-only publication review found no material blockers. The staged source excludes owner data, credentials, photos, backups, reports, recordings, generated builds, and dependency installations. The additive `0004` migration and its rebuild command are documented. GitHub checks run against the pushed commit; hosted application deployment is outside this release.

@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.1.0-demo.2 — October 20, 2026
+
+- Clicking a card row opens a read-only detail view with identity, grading, front/back photos, recorded acquisition costs, and notes. Separate Edit actions preserve the existing editor; saving or canceling returns to details when opened there. Keyboard navigation and focus restoration are supported.
+- Headless browser checks produce reviewable HTML reports and screenshots, with optional background recordings; visible browser automation requires an explicit request.
+- Separate front/back photos with independent upload, replacement, removal, private preview, and back-only thumbnail support. Additive migration `0004` preserves existing fronts and reference metadata.
+- Compact mobile overview and expandable row details, Add card near the welcome heading, readable supporting labels, clearer demo/reference labeling, and a shared trend-period selector near the collection.
+
+This prerelease adds local collection usability and private two-sided photos. Migration `0004` is additive; rebuild and run the migration service before starting the updated API. Existing front-photo links and metadata are preserved. Financial demo values remain fictional and separate from recorded costs.
+
+Validation includes 41 PostgreSQL API checks from the photo increment, 20 frontend unit checks, and 22 final headless desktop/phone browser journeys, plus lint, type checks, and production builds. The release/tag, frontend, and API use `0.1.0-demo.2`; Python metadata uses `0.1.0.dev2`. No dependency versions changed. Reports, recordings, private data/photos, credentials, and backups are excluded from Git. Hosted deployment, crash-orphan reconciliation, physical phones, Safari, and full backup/restore remain pending.
+
 ## v0.1.0-demo.1 — October 19, 2026
 
 First SlabTrak demo prerelease. This is a local Docker application with a working private collection; the financial overview demonstrates the intended UI using explicitly fictional values.

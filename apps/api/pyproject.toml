@@ -1,6 +1,6 @@
 [project]
 name = "slabtrak-api"
-version = "0.1.0.dev1"
+version = "0.1.0.dev2"
 description = "Private SlabTrak collection API"
 requires-python = ">=3.12,<3.13"
 dependencies = [

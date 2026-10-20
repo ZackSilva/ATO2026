@@ -90,6 +90,9 @@ class OwnedCopy(Base):
         ),
         CheckConstraint("condition IN ('raw', 'graded')"),
         CheckConstraint("photo_kind IN ('upload', 'reference')", name="ck_owned_copies_photo_kind"),
+        CheckConstraint(
+            "back_photo_kind IN ('upload', 'reference')", name="ck_owned_copies_back_photo_kind"
+        ),
         CheckConstraint("revision > 0"),
         CheckConstraint("serial_number IS NULL OR serial_number > 0"),
         *(
@@ -133,5 +136,8 @@ class OwnedCopy(Base):
     photo_key: Mapped[UUID | None] = mapped_column()
     photo_kind: Mapped[str] = mapped_column(String(10), default="upload")
     photo_source: Mapped[str] = mapped_column(String(2048), default="")
+    back_photo_key: Mapped[UUID | None] = mapped_column()
+    back_photo_kind: Mapped[str] = mapped_column(String(10), default="upload")
+    back_photo_source: Mapped[str] = mapped_column(String(2048), default="")
 
     __mapper_args__ = {"version_id_col": revision}

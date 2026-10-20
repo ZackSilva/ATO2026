@@ -5,6 +5,7 @@ import secrets
 import shutil
 import socket
 import subprocess
+import sys
 import time
 import urllib.request
 from contextlib import ExitStack
@@ -118,7 +119,7 @@ try:
         else:
             raise SystemExit("Test server readiness timed out.")
     result = subprocess.call(
-        [node, "node_modules/@playwright/test/cli.js", "test"],
+        [node, "node_modules/@playwright/test/cli.js", "test", *sys.argv[1:]],
         cwd=root / "apps/web",
         env=env,
     )

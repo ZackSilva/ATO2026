@@ -38,6 +38,9 @@ def edit(card, **changes):
         "photo_url",
         "photo_kind",
         "photo_source",
+        "back_photo_url",
+        "back_photo_kind",
+        "back_photo_source",
     }
     return {key: value for key, value in card.items() if key not in computed} | changes
 

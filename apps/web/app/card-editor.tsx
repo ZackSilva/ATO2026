@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ApiError } from "../lib/api";
-import { formCard, type Card, type CardInput } from "../lib/cards";
-import { Photo } from "./card-preview";
+import { formCard, type Card, type CardInput, type PhotoSide } from "../lib/cards";
+import { Photo, PhotoSides } from "./card-preview";
 
 type Props = {
   card: Card | null;
@@ -11,7 +11,7 @@ type Props = {
   onSave: (values: CardInput) => Promise<void>;
   onDelete: () => Promise<void>;
   onReload: () => Promise<void>;
-  onPhotoChange: (file: File | null) => Promise<void>;
+  onPhotoChange: (file: File | null, side: PhotoSide) => Promise<void>;
 };
 
 export default function CardEditor({ card, onClose, onSave, onDelete, onReload, onPhotoChange }: Props) {
@@ -23,6 +23,11 @@ export default function CardEditor({ card, onClose, onSave, onDelete, onReload, 
   const [error, setError] = useState("");
   const [conflict, setConflict] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [photoSide, setPhotoSide] = useState<PhotoSide>("front");
+  const photoUrl = photoSide === "back" ? card?.back_photo_url : card?.photo_url;
+  const photoKind = photoSide === "back" ? card?.back_photo_kind : card?.photo_kind;
+  const sideName = photoSide === "back" ? "Back" : "Front";
+  const actionSide = photoSide === "back" ? " back" : "";
 
   useEffect(() => {
     const element = dialog.current!;
@@ -60,8 +65,9 @@ export default function CardEditor({ card, onClose, onSave, onDelete, onReload, 
   return <dialog className="card-dialog" ref={dialog} aria-labelledby="editor-title" onCancel={event => { event.preventDefault(); if (!busy) onClose(); }}>
     <div className="editor-heading"><div><span className="eyebrow">{card ? "YOUR CARD RECORD" : "GROW YOUR COLLECTION"}</span><h2 id="editor-title">{card ? "Edit card" : "Add a card"}</h2></div><button className="icon-button" aria-label="Close card editor" disabled={busy} onClick={onClose}>✕</button></div>
     <p>Each entry is one physical card. Add another entry for another copy.</p>
+    {card && <PhotoSides side={photoSide} onChange={setPhotoSide} disabled={busy} />}
     <section className="editor-photo-section" aria-label="Card preview photo">
-      {card ? <><div className="editor-photo"><Photo card={card} /></div><div className="editor-photo-controls"><strong>{card.photo_url ? card.photo_kind === "reference" ? "Reference image" : "Your card photo" : "Add a card photo"}</strong><p>JPEG, PNG, or WebP · up to 4 MB and 16 megapixels. Photos are private to your account.</p><label className="upload-label">{card.photo_url ? "Replace photo" : "Upload photo"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; if (file) void perform(() => onPhotoChange(file)); }} /></label>{card.photo_url && <button className="text-button danger-text" disabled={busy} onClick={() => void perform(() => onPhotoChange(null))}>Remove photo</button>}{busy && <span role="status">Saving changes…</span>}</div></> : <p>Save this card first, then open it to add a preview photo.</p>}
+      {card ? <><div className="editor-photo"><Photo card={card} side={photoSide} /></div><div className="editor-photo-controls"><strong>{sideName} · {photoUrl ? photoKind === "reference" ? "Reference image" : "Your card photo" : "Add a photo"}</strong><p>JPEG, PNG, or WebP · up to 4 MB and 16 megapixels. Each side is saved separately and is private to your account.</p>{photoUrl && photoKind === "reference" && <p className="photo-reference-note">Reference only: this is not a verified photo of your copy. Uploading replaces this side’s reference image.</p>}<label className="upload-label">{photoUrl ? `Replace${actionSide} photo` : `Upload${actionSide} photo`}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; if (file) void perform(() => onPhotoChange(file, photoSide)); }} /></label>{photoUrl && <button className="text-button danger-text" disabled={busy} onClick={() => void perform(() => onPhotoChange(null, photoSide))}>Remove{actionSide} photo</button>}{busy && <span role="status">Saving changes…</span>}</div></> : <p>Save this card first, then open it to add front and back photos.</p>}
     </section>
     <form onSubmit={save}>
       <fieldset disabled={busy}>

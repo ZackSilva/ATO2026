@@ -9,10 +9,13 @@ export type CardInput = {
   acquired_on: string | null; seller: string; notes: string; archived: boolean;
 };
 
+export type PhotoSide = "front" | "back";
+
 export type Card = CardInput & {
   id: string; definition_id: string; revision: number; created_at: string; updated_at: string;
   recorded_cost: string | null; total_cost: string | null;
   photo_url: string | null; photo_kind: "upload" | "reference"; photo_source: string;
+  back_photo_url: string | null; back_photo_kind: "upload" | "reference"; back_photo_source: string;
 };
 
 export type Inventory = {
