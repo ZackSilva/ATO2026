@@ -95,6 +95,13 @@ class OwnedCopy(Base):
         ),
         CheckConstraint("revision > 0"),
         CheckConstraint("serial_number IS NULL OR serial_number > 0"),
+        CheckConstraint(
+            "(sold AND NOT archived AND sale_price IS NOT NULL AND sale_fees IS NOT NULL) "
+            "OR (NOT sold AND sale_price IS NULL AND sale_fees IS NULL AND sold_on IS NULL)",
+            name="ck_owned_copies_sale_state",
+        ),
+        CheckConstraint("sale_price IS NULL OR sale_price >= 0", name="ck_owned_copies_sale_price"),
+        CheckConstraint("sale_fees IS NULL OR sale_fees >= 0", name="ck_owned_copies_sale_fees"),
         *(
             CheckConstraint(f"{field} IS NULL OR {field} >= 0")
             for field in (
@@ -130,6 +137,10 @@ class OwnedCopy(Base):
     seller: Mapped[str] = mapped_column(String(200))
     notes: Mapped[str] = mapped_column(String(2000))
     archived: Mapped[bool] = mapped_column(Boolean)
+    sold: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    sale_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    sale_fees: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    sold_on: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     revision: Mapped[int] = mapped_column(Integer, default=1)

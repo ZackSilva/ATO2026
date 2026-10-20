@@ -34,6 +34,7 @@ DEFINITION_FIELDS = (
     "print_run",
 )
 COST_FIELDS = ("purchase_price", "shipping", "tax", "other_cost")
+SALE_FIELDS = ("sold", "sale_price", "sale_fees", "sold_on")
 CONFLICT = "This card changed in another session. Reload the card before editing again."
 
 
@@ -68,6 +69,10 @@ class CardInput(BaseModel):
     seller: str = Field(default="", max_length=200)
     notes: str = Field(default="", max_length=2000)
     archived: bool = False
+    sold: bool = False
+    sale_price: Money | None = None
+    sale_fees: Money | None = None
+    sold_on: date | None = None
 
     @model_validator(mode="after")
     def consistent_details(self):
@@ -82,6 +87,15 @@ class CardInput(BaseModel):
             raise ValueError("Choose a grading company for a graded card.")
         if self.grader.upper() != "BGS" and any(v is not None for v in subgrades):
             raise ValueError("Subgrades are available for BGS cards.")
+        if self.sold:
+            if self.archived:
+                raise ValueError("Sold cards cannot also be archived.")
+            if self.sale_price is None or self.sale_fees is None:
+                raise ValueError(
+                    "Record a sale price and sale fees, including zero when applicable."
+                )
+        elif any(value is not None for value in (self.sale_price, self.sale_fees, self.sold_on)):
+            raise ValueError("Unsold cards cannot have sale details.")
         return self
 
 
@@ -97,6 +111,9 @@ class CardOutput(CardInput):
     updated_at: datetime
     recorded_cost: Decimal | None
     total_cost: Decimal | None
+    sale_net: Decimal | None
+    net_profit: Decimal | None
+    profit_after_costs: Decimal | None
     photo_url: str | None
     photo_kind: Literal["upload", "reference"]
     photo_source: str
@@ -111,6 +128,7 @@ class Summary(BaseModel):
     graded: int
     archived: int
     missing_price: int
+    sold: int
 
 
 class CardList(BaseModel):
@@ -151,6 +169,12 @@ def output(copy: OwnedCopy, definition: CardDefinition) -> CardOutput:
     )
     costs = [getattr(copy, name) for name in COST_FIELDS]
     known = [value for value in costs if value is not None]
+    total_cost = sum(known, Decimal("0.00")) if len(known) == 4 else None
+    # Keep sale responses at cents precision before and after a database reload.
+    for name in ("sale_price", "sale_fees"):
+        if values[name] is not None:
+            values[name] = values[name].quantize(Decimal("0.00"))
+    sale_net = values["sale_price"] - values["sale_fees"] if copy.sold else None
     return CardOutput(
         **values,
         id=copy.id,
@@ -159,7 +183,16 @@ def output(copy: OwnedCopy, definition: CardDefinition) -> CardOutput:
         created_at=copy.created_at,
         updated_at=copy.updated_at,
         recorded_cost=sum(known, Decimal("0.00")) if known else None,
-        total_cost=sum(known, Decimal("0.00")) if len(known) == 4 else None,
+        total_cost=total_cost,
+        sale_net=sale_net,
+        net_profit=(
+            sale_net - copy.purchase_price
+            if sale_net is not None and copy.purchase_price is not None
+            else None
+        ),
+        profit_after_costs=(
+            sale_net - total_cost if sale_net is not None and total_cost is not None else None
+        ),
         photo_url=f"/api/cards/{copy.id}/photo?v={copy.photo_key}" if copy.photo_key else None,
         photo_kind=copy.photo_kind,
         photo_source=copy.photo_source,
@@ -204,7 +237,7 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         identity: Identity,
         q: str = Query(default="", max_length=200),
         condition: Literal["all", "raw", "graded"] = "all",
-        status: Literal["active", "archived", "all"] = "active",
+        status: Literal["active", "archived", "sold", "all"] = "active",
         sort: Literal["newest", "subject", "year"] = "newest",
         offset: int = Query(default=0, ge=0),
         limit: int = Query(default=24, ge=1, le=100),
@@ -221,8 +254,12 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
             )
             .where(OwnedCopy.owner_id == owner_id)
         )
-        if status != "all":
-            statement = statement.where(OwnedCopy.archived == (status == "archived"))
+        if status == "sold":
+            statement = statement.where(OwnedCopy.sold)
+        elif status != "all":
+            statement = statement.where(
+                ~OwnedCopy.sold, OwnedCopy.archived == (status == "archived")
+            )
         if condition != "all":
             statement = statement.where(OwnedCopy.condition == condition)
         if q.strip():
@@ -254,11 +291,18 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         rows = db.execute(statement.order_by(ordering, OwnedCopy.id).offset(offset).limit(limit))
         counts = db.execute(
             select(
-                func.count().filter(~OwnedCopy.archived),
-                func.count().filter(~OwnedCopy.archived, OwnedCopy.condition == "raw"),
-                func.count().filter(~OwnedCopy.archived, OwnedCopy.condition == "graded"),
-                func.count().filter(OwnedCopy.archived),
-                func.count().filter(~OwnedCopy.archived, OwnedCopy.purchase_price.is_(None)),
+                func.count().filter(~OwnedCopy.archived, ~OwnedCopy.sold),
+                func.count().filter(
+                    ~OwnedCopy.archived, ~OwnedCopy.sold, OwnedCopy.condition == "raw"
+                ),
+                func.count().filter(
+                    ~OwnedCopy.archived, ~OwnedCopy.sold, OwnedCopy.condition == "graded"
+                ),
+                func.count().filter(OwnedCopy.archived, ~OwnedCopy.sold),
+                func.count().filter(
+                    ~OwnedCopy.archived, ~OwnedCopy.sold, OwnedCopy.purchase_price.is_(None)
+                ),
+                func.count().filter(OwnedCopy.sold),
             ).where(OwnedCopy.owner_id == owner_id)
         ).one()
         return CardList(
@@ -363,6 +407,11 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         if copy.revision != data.revision:
             raise HTTPException(409, CONFLICT)
         values = data.model_dump(exclude={"revision"})
+        # Older clients do not send sale fields; metadata edits must retain a recorded sale.
+        if not set(SALE_FIELDS).intersection(data.model_fields_set):
+            values.update({name: getattr(copy, name) for name in SALE_FIELDS})
+            if values["sold"] and values["archived"]:
+                raise HTTPException(422, "Sold cards cannot also be archived.")
         definition = definition_for(
             db, identity[0].id, {name: values.pop(name) for name in DEFINITION_FIELDS}
         )

@@ -23,6 +23,9 @@
 .card-detail-fields dd { font-size: 14px; line-height: 1.5; }
 .card-detail-unknown { color: var(--muted); }
 .card-detail-notes { color: var(--ink); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.sale-preview { border-top: 1px solid var(--line); padding-top: 20px; }
+.sale-preview dt { color: var(--muted); font-size: 12px; }
+.sale-preview dd { margin: 6px 0 0; font-size: 16px; overflow-wrap: anywhere; }
 @media (max-width: 680px) {
   .card-detail-heading { flex-wrap: wrap; gap: 18px; }
   .card-detail-actions { margin-left: auto; }

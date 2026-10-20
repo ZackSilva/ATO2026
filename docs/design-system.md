@@ -148,3 +148,9 @@ Add card belongs beside the welcome heading so it remains immediately reachable.
 Mobile rows show identity, condition, demo current value, and Edit first. Clicking the row opens the read-only card view. More card details reveals the trend, demo purchase, and gain/loss inline. Keep meaningful explanations at 12px where possible and retain signed values and keyboard-visible focus. Desktop retains the comparison columns. The editor action opens a dialog and therefore carries no external-link arrow.
 
 Show Reference photo beside identities that use sourced images; pictured grading does not verify the stored physical copy. Front and Back are independent, explicitly selected photo controls in editor and preview. Both sides use uncropped images, clear missing-side states, privacy, and the same revision checks. A back-only card remains previewable from its row.
+
+### Grading and recorded sales
+
+Show the user's grading company and grade together, such as PSA 9, in both held and sold rows. Reference photos do not establish grading; illustrative grades on local demo entries must be explained in their notes.
+
+Keep ownership and grading independent. Sold cards use a Sold badge and a separate filter, leave the active portfolio, and display recorded sale figures instead of demo trends. The editor collects gross price, total fees, and optional date in the card's recorded currency. Preview net sale, profit versus purchase price, and profit after complete acquisition costs with explicit formulas. Unknown amounts never become zero; negative results remain visible as losses. Read-only details retain static sale fields. Returning a card to collection must explain that saving clears its current sale record.

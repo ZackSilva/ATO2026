@@ -54,7 +54,7 @@ export default function CardDetail({ card, active, onClose, onEdit, onPreview }:
 
   return <dialog ref={dialog} className="card-dialog card-detail-dialog" aria-labelledby="card-detail-title" onCancel={event => { event.preventDefault(); onClose(); }}>
     <div className="editor-heading card-detail-heading">
-      <div><span className="eyebrow">YOUR CARD RECORD</span><h2 id="card-detail-title">{card.subject}</h2><p>{cardSubtitle(card)}</p><span className={card.archived ? "archive-badge" : "condition-badge"}>{card.archived ? "Archived" : "In collection"}</span></div>
+      <div><span className="eyebrow">YOUR CARD RECORD</span><h2 id="card-detail-title">{card.subject}</h2><p>{cardSubtitle(card)}</p><span className={card.archived ? "archive-badge" : "condition-badge"}>{card.sold ? "Sold" : card.archived ? "Archived" : "In collection"}</span></div>
       <div className="card-detail-actions"><button type="button" className="secondary" onClick={onEdit}>Edit</button><button ref={closeButton} type="button" className="icon-button" aria-label="Close card details" onClick={onClose}>✕</button></div>
     </div>
     <div className="card-detail-layout">
@@ -100,6 +100,16 @@ export default function CardDetail({ card, active, onClose, onEdit, onPreview }:
           </dl>
           {card.total_cost === null && <p className="card-detail-caption">Total acquisition cost is unknown until all four cost amounts are recorded.</p>}
         </section>
+        {card.sold && <section aria-labelledby="card-detail-sale-title">
+          <h3 id="card-detail-sale-title">Sale</h3>
+          <p className="card-detail-caption">Your recorded sale in {card.currency}; separate from fictional demo market values.</p>
+          <dl className="card-detail-fields">
+            <Detail label="Sale price">{cost(card.sale_price)}</Detail><Detail label="Sale fees">{cost(card.sale_fees)}</Detail>
+            <Detail label="Net sale">{cost(card.sale_net)}</Detail><Detail label="Profit vs purchase price">{cost(card.net_profit)}</Detail>
+            <Detail label="Profit after all acquisition costs">{cost(card.profit_after_costs)}</Detail><Detail label="Sold on">{card.sold_on}</Detail>
+          </dl>
+          <p className="card-detail-caption">Net sale = sale price − fees. Profit vs purchase price subtracts your purchase price. Profit after all acquisition costs also subtracts shipping, tax, and other costs. Unknown costs remain unknown; negative amounts are losses.</p>
+        </section>}
         <section aria-labelledby="card-detail-notes-title"><h3 id="card-detail-notes-title">Notes</h3><p className="card-detail-notes">{card.notes || "No notes recorded."}</p></section>
       </div>
     </div>

@@ -2,13 +2,13 @@
 
 Your Collection, Simplified.
 
-**Demo release: `v0.1.0-demo.2`** · [GitHub repository](https://github.com/ZackSilva/slabtrak) · [Release notes](CHANGELOG.md)
+**Demo release: `v0.1.0-demo.3`** · [GitHub repository](https://github.com/ZackSilva/slabtrak) · [Release notes](CHANGELOG.md)
 
 SlabTrak will manage raw and graded trading cards, acquisition costs, sales, photos, and collections. Later releases will add evidence-based market research, deal discovery, local OCR, and optional local AI.
 
 ## Current status
 
-The local app now includes private sign-in and a working card inventory displayed as rows with image previews. You can add, view, edit, search, filter, sort, archive, restore, and deliberately delete physical cards. Records include card identity, raw/graded condition, grading company and BGS subgrades, serial numbers, acquisition costs, dates, seller, and notes. Separate private front and back photos can be uploaded, replaced, viewed, or removed independently. Sales, imports/exports, full backup/restore, and hosted deployment remain later increments.
+The local app now includes private sign-in and a working card inventory displayed as rows with image previews. You can add, view, edit, search, filter, sort, archive, restore, mark sold, and deliberately delete physical cards. Records include card identity, raw/graded condition, grading company and BGS subgrades, serial numbers, acquisition costs, dates, seller, notes, and sale results. Separate private front and back photos can be uploaded, replaced, viewed, or removed independently. Imports/exports, full backup/restore, and hosted deployment remain later increments. Grading and current-sale records are included in `v0.1.0-demo.3`.
 
 A configurable overview chart and compact row sparklines demonstrate collection value, purchase totals, and unrealized gain/loss. Choose all time, last year, last six months, last three months, last month, or last week. **Financial chart and row values are fictional demo data in USD**; all time shows two simulated years for your current active cards. Filtering the row list does not change the overview. On phones, **Show value chart** expands the graph and **More card details** reveals a row’s secondary financial information. The nearby **Card trend period** control updates both the overview and row trends. Add card is available beside the welcome heading. Real purchase records are available in card details and the editor, and known recorded acquisition costs are separately labeled in rows.
 
@@ -65,11 +65,17 @@ Blank costs mean unknown. Enter `0` for a cost you know was zero. A total acquis
 
 Click a card row, its title, or its thumbnail to open read-only details: identity, grading, photos, acquisition costs, seller, and notes. The title is also a keyboard-accessible button. **Edit** is a separate action in the row and detail view; only the editor contains editable fields and save/archive/delete controls. Saving or canceling an edit opened from details returns to that view. Missing costs remain unknown, distinct from a recorded zero.
 
+To record **PSA 9**, choose **Edit → Condition → Graded**, set **Grading company** to PSA, and enter 9 in **Grade**. BGS records can also store subgrades. Grading is recorded by you; the app does not verify a certification with the grading company.
+
+To record a sale, choose **Edit → Ownership status → Sold**. Enter the gross **Sale price**, total **Sale fees**, and an optional **Sold on** date in the card's currency. Enter 0 when no fees were charged. The editor previews **Net sale = sale price − fees**, **Profit vs purchase price = net sale − purchase price**, and **Profit after all acquisition costs = net sale − purchase price − shipping − tax − other costs**. Unknown purchase costs stay unknown. A negative result is a loss; fees can exceed the sale price. These amounts are computed exactly in cents/decimals and are separate from fictional demo valuations.
+
+Sold cards leave active collection counts and the demo value graph. Find them under **Show → Sold**; their rows and read-only details show recorded sale figures. A sold card cannot also be archived. Choosing **In collection** and saving clears its current sale record; canceling preserves it. This is one editable sale per physical copy, with no sale-event history, refund ledger, automatic fee schedule, currency conversion, or aggregate realized-profit report yet.
+
 Search finds players/subjects, sets, manufacturers, card numbers, parallels, category, certification, grading company, notes, and seller. Use **Show → Archive** to find archived cards, then choose **Edit** to restore one. Permanent deletion requires a second confirmation. Records refresh when you return to the browser window; a conflicting edit offers an explicit reload instead of overwriting a newer save.
 
 In card details, switch between **Front** and **Back**, then choose **Enlarge photos** for a larger image. **Edit** lets you upload, replace, or remove the selected side's JPEG, PNG, or WebP image (up to 4 MB and 16 megapixels per side). Save a new card before adding its photos. Photo changes save separately and retain unsaved editor fields until you save or close the editor. Uploaded images are re-encoded as JPEG previews at up to 1,200 pixels on the longest side; metadata is removed. Both previews stay private to their owner and survive ordinary container replacement in the named `photos` volume. Existing images are retained as fronts; a back-only card uses its back as the thumbnail.
 
-The four requested example cards have reference images with source links recorded in `data/example-cards.json`. **REFERENCE** labels distinguish these images from photos of your own copies; the pictured slab's grade and certification are not imported into your record. Replace a reference image with your own photo when recording a physical card you own.
+The four requested example cards have reference images with source links recorded in `data/example-cards.json`. **REFERENCE** labels distinguish these images from photos of your own copies; the pictured slab's grade and certification are not imported into your record. At the owner's request, the local examples now use illustrative PSA grades (Jordan 9, Barkley 8, Brady 9, Sanders 10), explicitly explained in their notes. Those grades are demo entries, not verified grading claims. Their purchase costs remain unknown and none is marked sold. The public JSON documents the examples; another installation does not automatically seed them. Replace a reference image with your own photo when recording a physical card you own.
 
 ## Stop and restart
 

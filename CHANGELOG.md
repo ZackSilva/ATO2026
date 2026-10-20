@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.0-demo.3 — October 20, 2026
+
+- Record a sold card's gross price, total fees, and optional sale date. Display exact proceeds after fees, profit versus purchase price, and profit after complete acquisition costs, preserving unknown amounts and losses.
+- Sold filtering and badges; exclude sold cards from active counts and fictional collection-value charts. Keep recorded sale figures separate from demo valuations. Explicitly returning a card to collection clears its current sale record.
+- Preserve sale data during legacy metadata edits, owner isolation, revision checks, and private photo operations. Additive migration `0005` leaves existing cards unsold with no invented financial data.
+- Improve PSA grading defaults and examples; add clearly labeled illustrative grades to the four existing local demo records without changing photos or purchase costs.
+- Expand headless test coverage for sale arithmetic, privacy, persistence, grading, and sale reversal, with report screenshots and background recordings.
+
+This local Docker prerelease requires additive migration `0005`; rebuild and run the migration service before starting the updated API. Existing cards migrate as unsold without invented prices or fees. The public example JSON documents illustrative grades; no owner database, photos, credentials, backups, or reports are included.
+
+Validation: 77 PostgreSQL API checks, 34 frontend unit checks, and 26 headless desktop/phone browser journeys passed, plus lint, type checks, and production builds. Release/tag, frontend, and API use `0.1.0-demo.3`; Python metadata uses `0.1.0.dev3`. Dependency versions are unchanged. Sale-event history, refunds, fee schedules, currency conversion, aggregate realized-profit reports, and hosted deployment remain future work.
+
 ## v0.1.0-demo.2 — October 20, 2026
 
 - Clicking a card row opens a read-only detail view with identity, grading, front/back photos, recorded acquisition costs, and notes. Separate Edit actions preserve the existing editor; saving or canceling returns to details when opened there. Keyboard navigation and focus restoration are supported.

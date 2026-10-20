@@ -8,6 +8,19 @@ import { demoCard, demoMoney, periodChange, pointsPath, valueSeries, VALUE_RANGE
 export default function CardValues({ card, range, compact }: { card: Card; range: ValueRange; compact: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const detailsId = useId();
+  if (card.sold) {
+    const amount = (value: string | null) => value === null ? "Unknown" : money(value, card.currency);
+    const profitClass = card.net_profit === null ? "" : card.net_profit.startsWith("-") ? "value-down" : "value-up";
+    return <>
+      <div className="row-value"><span className="mobile-cell-label" aria-hidden="true">Net sale</span><strong><span className="sr-only">Net sale: </span>{amount(card.sale_net)}</strong><span className="cost-detail">Recorded sale · {card.currency}</span></div>
+      <button type="button" className="row-details-toggle" aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(value => !value)}>{expanded ? "Fewer card details" : "More card details"}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
+      <div className="row-secondary" id={detailsId} hidden={compact && !expanded}>
+        <div className="row-trend"><span className="mobile-cell-label" aria-hidden="true">Profit vs purchase price</span><strong className={profitClass}><span className="sr-only">Profit vs purchase price: </span>{amount(card.net_profit)}</strong><span className="cost-detail">After sale fees</span></div>
+        <div className="row-purchase"><span className="mobile-cell-label" aria-hidden="true">Purchase price</span><strong><span className="sr-only">Recorded purchase price: </span>{amount(card.purchase_price)}</strong><span className="cost-detail">{card.sold_on ? `Sold ${card.sold_on}` : "Sale date not recorded"}</span></div>
+        <div className="row-gain-detail"><span>Profit after all acquisition costs</span><strong>{amount(card.profit_after_costs)}</strong></div>
+      </div>
+    </>;
+  }
   const demo = demoCard(card);
   const trend = valueSeries([card], range, "value");
   const movement = periodChange(trend);

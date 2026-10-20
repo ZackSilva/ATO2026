@@ -177,3 +177,5 @@
   .reference-context { font-size: 12px; }
   .card-tags span, .card-tags .condition-badge { font-size: 11px; }
 }
+
+.row-period-picker[hidden] { display: none; }

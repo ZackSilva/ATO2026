@@ -35,6 +35,9 @@ def edit(card, **changes):
         "updated_at",
         "recorded_cost",
         "total_cost",
+        "sale_net",
+        "net_profit",
+        "profit_after_costs",
         "photo_url",
         "photo_kind",
         "photo_source",
@@ -91,7 +94,14 @@ def test_unknown_zero_and_different_currencies_are_preserved(client):
     assert free["total_cost"] == "0.00"
     assert free["currency"] == "CAD"
     summary = client.get("/api/cards").json()["summary"]
-    assert summary == {"active": 2, "raw": 2, "graded": 0, "archived": 0, "missing_price": 1}
+    assert summary == {
+        "active": 2,
+        "raw": 2,
+        "graded": 0,
+        "archived": 0,
+        "missing_price": 1,
+        "sold": 0,
+    }
 
 
 def test_invalid_inventory_values_are_rejected_without_writing(client):
