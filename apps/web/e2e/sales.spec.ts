@@ -5,7 +5,7 @@ const password = process.env.SLABTRAK_TEST_PASSWORD;
 if (!username || !password) throw new Error("Run scripts/check_browser.py with isolated credentials.");
 
 async function signIn(page: Page) {
-  await page.goto("/");
+  await page.goto("/collection");
   await page.getByLabel("Username", { exact: true }).fill(username!);
   await page.getByLabel("Password", { exact: true }).fill(password!);
   await page.getByRole("button", { name: "Open my workspace", exact: true }).click();
@@ -42,8 +42,13 @@ test("PSA grading and private photos survive a sale, fee correction and return t
   const fixture = process.env.SLABTRAK_TEST_PHOTO;
   if (!fixture) throw new Error("The browser helper must provide an isolated image fixture.");
   await signIn(page);
-  const activeCount = page.locator('[aria-label="Collection summary"] .stat').filter({ hasText: "Cards in collection" }).locator("strong");
-  const initialActive = Number(await activeCount.innerText());
+  const counts = page.locator(".inventory-heading p");
+  await expect(counts).toHaveText(/^\d+ active · \d+ sold · \d+ archived$/);
+  const initialCounts = (await counts.innerText()).match(/^(\d+) active · (\d+) sold · (\d+) archived$/);
+  expect(initialCounts).not.toBeNull();
+  const initialActive = Number(initialCounts![1]);
+  const initialSold = Number(initialCounts![2]);
+  const initialArchived = Number(initialCounts![3]);
   await page.getByRole("button", { name: "+ Add card", exact: true }).click();
   const editor = page.getByRole("dialog", { name: /Add a card|Edit card/ });
   await editor.getByLabel("Player(s) or subject (required)").fill(subject);
@@ -63,7 +68,7 @@ test("PSA grading and private photos survive a sale, fee correction and return t
 
   try {
     await expect(record.locator(".condition-badge")).toHaveText("PSA 9");
-    await expect(activeCount).toHaveText(String(initialActive + 1));
+    await expect(counts).toHaveText(`${initialActive + 1} active · ${initialSold} sold · ${initialArchived} archived`);
     await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
     await editor.getByLabel("Upload photo", { exact: true }).setInputFiles(fixture);
     const photo = editor.getByRole("img", { name: `${subject} card photo`, exact: true });
@@ -80,10 +85,12 @@ test("PSA grading and private photos survive a sale, fee correction and return t
     await editor.getByRole("button", { name: "Save changes", exact: true }).click();
     await expect(editor).toBeHidden();
     await expect(record).toBeHidden();
-    await expect(activeCount).toHaveText(String(initialActive));
-    const overview = page.getByRole("region", { name: "Collection value overview", exact: true });
-    await expect(overview.locator(".chart-scope")).toHaveText(`${initialActive} active ${initialActive === 1 ? "card" : "cards"}`);
+    await expect(counts).toHaveText(`${initialActive} active · ${initialSold + 1} sold · ${initialArchived} archived`);
+    await page.getByRole("navigation", { name: "Workspace", exact: true }).getByRole("link", { name: "Home", exact: true }).click();
+    const homeCount = page.locator('[aria-label="Collection summary"] .stat').filter({ hasText: "Cards in collection" }).locator("strong");
+    await expect(homeCount).toHaveText(String(initialActive));
 
+    await page.getByRole("navigation", { name: "Workspace", exact: true }).getByRole("link", { name: "My Collection", exact: true }).click();
     await show.selectOption("sold");
     await expect(record).toContainText("SOLD");
     await expect(record.locator(".row-value")).toContainText(/(?:USD|\$)\s*135\.00/);
@@ -121,7 +128,7 @@ test("PSA grading and private photos survive a sale, fee correction and return t
     await expect(record).toBeHidden();
     await show.selectOption("active");
     await expect(record.locator(".condition-badge")).toHaveText("PSA 9");
-    await expect(activeCount).toHaveText(String(initialActive + 1));
+    await expect(counts).toHaveText(`${initialActive + 1} active · ${initialSold} sold · ${initialArchived} archived`);
     await expect(record.getByRole("img", { name: `${subject} card photo`, exact: true })).toHaveAttribute("src", photoUrl!);
     await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
     await expect(editor.getByLabel("Certification number", { exact: true })).toHaveValue("TEST-SALE-PSA-9");

@@ -1,0 +1,24 @@
+# Market data access and valuation evidence
+
+Investigated October 20, 2026. Free browsing of sold results does not establish free automated API access. These findings describe the sources checked; they do not establish that every possible free provider is unavailable.
+
+| Source | Verified capability and access boundary |
+| --- | --- |
+| [eBay Browse API](https://developer.ebay.com/api-docs/buy/static/api-browse.html) | Searches purchasable listings. Listing prices and current auction bids are asking prices, not evidence of completed transaction prices. |
+| [eBay Finding API status](https://developer.ebay.com/develop/get-started/api-deprecation-status) | All Finding API calls, including the former completed-item search route, were decommissioned February 4, 2025. |
+| [eBay Marketplace Insights staff guidance](https://community.ebay.com/forum/browse-57957/topic/add-scope-buymarketplaceinsights-467737/) | Sold-data access is Limited Release for select developers approved by eBay business units. Public documentation currently redirects to private sign-in. Ordinary Browse credentials do not establish this permission. |
+| [eBay Product Research](https://www.ebay.com/help/selling/selling-tools/terapeak-research-and-SEO?id=4853) | Manual research includes up to three years of actual sold prices, including accepted Best Offers. [eBay states it is free to all sellers](https://www.ebay.com/sellercenter/growth/ebay-research-tools). This investigation did not establish an unrestricted public API or CSV export facility. |
+| [SportsCardsPro API](https://www.sportscardspro.com/api-documentation) | Paid access to current ungraded and graded value estimates. Historical prices and individual historical sales are explicitly unsupported. Internal-use licensing applies; sharing requires separate permission. Provider estimates must retain their identity as estimates. |
+| [Card Hedge API](https://api.cardhedger.com/docs) | Documents actual comparable-sales and separate valuation endpoints, with Raw and specific grader/grade labels. Subscription tiers or paid agent calls apply; a trial is not continuing free access. No account or subscription was created. |
+| [130 Point terms](https://130point.com/terms) | Section 4(a)(viii) prohibits automated use. A public research page is not permission to scrape it. |
+| [CardPricer API](https://cardpricer.co/docs/api) | Advertises an anonymous free tier, separate sale/listing/quote observations, and provenance endpoints. Four direct read-only requests to documented status, baseball cards, Raw cards, and baseball sales endpoints returned HTTP 503 during this investigation. Live coverage, raw-card results, upstream permissions, and reliability remain unverified; no working integration is claimed. See its [methodology](https://cardpricer.co/methodology) and [terms](https://cardpricer.co/terms). |
+
+## Free local workflow
+
+Research completed sales manually in Product Research or another source whose terms allow that use, then enter the actual transaction facts in SlabTrak. A future CSV importer may accept a user-prepared file; this does not imply that eBay offers a downloadable export. Local estimates can update automatically from saved evidence without an external subscription. Internet access is needed for outside research, while saved evidence remains usable locally.
+
+The current entry flow preserves the exact card issue and parallel through the selected immutable identity, raw/graded designation, grading company and grade, actual sale price, currency, sale date, source name/URL, and explicit user-recorded unverified status. Prices exclude shipping, taxes, and fees; separate shipping fields and detailed raw-condition matching remain future work. A best-offer listing's original asking price is not the accepted sale amount. Keep completed sales, unverified user reports, active asking prices, and provider estimates distinguishable. Never count a listing as a confirmed sale merely because it ended.
+
+Raw cards are a required valuation path. Use comparable raw cards and recorded condition, and disclose missing or mixed condition evidence. For graded cards, prefer the same grading company and grade. Other grades may appear as context, but they must not silently enter a direct estimate. Do not apply invented grade multipliers or infer a cross-grade fit without sufficient card-specific evidence supporting that relationship. Missing evidence produces **Insufficient Market Data**, not zero or a fictional price.
+
+An automated provider must demonstrate working access, appropriate usage rights, source provenance, and raw/graded coverage before enabling its adapter. No HTML scraping, authentication bypass, or anti-bot workaround is part of the implementation. Manual data entry does not claim that SlabTrak independently verified the marketplace transaction.

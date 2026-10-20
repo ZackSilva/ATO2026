@@ -15,6 +15,8 @@ from sqlalchemy.orm import Session
 
 from slabtrak.config import Settings
 from slabtrak.db import database
+from slabtrak.estimates import estimates_router
+from slabtrak.finances import finances_router
 from slabtrak.inventory import inventory_router
 from slabtrak.models import Account, LoginLimit, LoginSession
 from slabtrak.photos import MAX_UPLOAD
@@ -124,6 +126,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return identity
 
     app.include_router(inventory_router(db_session, authenticated, mutation, settings.photo_root))
+    app.include_router(finances_router(db_session, authenticated))
+    app.include_router(estimates_router(db_session, authenticated, mutation))
 
     @app.get("/api/health")
     def health(db: Annotated[Session, Depends(db_session)]):

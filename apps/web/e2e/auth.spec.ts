@@ -9,13 +9,13 @@ async function signIn(page: Page) {
   await page.getByLabel("Username", { exact: true }).fill(username!);
   await page.getByLabel("Password", { exact: true }).fill(password!);
   await page.getByRole("button", { name: "Open my workspace" }).click();
-  await expect(page.getByRole("heading", { name: `Welcome, ${username}.` })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
 }
 
 test("sign in persists through reload and independent browser sessions; logout revokes access", async ({ page, browser }) => {
   await signIn(page);
   await page.reload();
-  await expect(page.getByRole("heading", { name: `Welcome, ${username}.` })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
   const sessionCookie = (await page.context().cookies()).find(cookie => cookie.name === "slabtrak_session");
   expect(Boolean(sessionCookie?.httpOnly)).toBe(true);
   expect(await page.evaluate(() => document.cookie.includes("slabtrak_session"))).toBe(false);
@@ -30,7 +30,7 @@ test("sign in persists through reload and independent browser sessions; logout r
   await page.reload();
   await expect(page.getByLabel("Username", { exact: true })).toBeVisible();
   await second.reload();
-  await expect(second.getByRole("heading", { name: `Welcome, ${username}.` })).toBeVisible();
+  await expect(second.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
   await other.close();
 });
 
@@ -62,7 +62,7 @@ test("keyboard entry and responsive layout", async ({ page }, testInfo) => {
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Open my workspace" })).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("heading", { name: `Welcome, ${username}.` })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("signed-in.png"), fullPage: true });
   const account = page.getByRole("button", { name: "Account menu", exact: true });
@@ -78,7 +78,8 @@ test("keyboard entry and responsive layout", async ({ page }, testInfo) => {
   await expect(menu).not.toHaveAttribute("open");
   await expect(account).toBeFocused();
   await account.click();
-  await page.getByRole("heading", { name: "Collection value", exact: true }).click();
+  // On phones the open dropdown overlaps the page title; click content below it.
+  await page.getByRole("heading", { name: "Collection estimates", exact: true }).click();
   await expect(menu).not.toHaveAttribute("open");
   await account.click();
   const bounds = await page.locator(".account-dropdown").boundingBox();
@@ -106,7 +107,7 @@ test("account menu retains access after a failed sign-out and supports retry", a
     await expect.poll(() => typeof release).toBe("function");
     release!();
     await expect(page.locator("#access-error")).toHaveText("Sign out is temporarily unavailable. Please retry.");
-    await expect(page.getByRole("heading", { name: `Welcome, ${username}.` })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign out", exact: true })).toBeEnabled();
     await page.unroute("**/api/auth/logout");
     await page.getByRole("button", { name: "Sign out", exact: true }).click();

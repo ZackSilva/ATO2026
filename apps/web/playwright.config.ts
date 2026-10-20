@@ -11,6 +11,7 @@ export default defineConfig({
     baseURL: "http://localhost:3000",
     channel: process.env.CI ? undefined : "chrome",
     screenshot: "on",
+    trace: "retain-on-failure",
     video: evidence ? "on" : "off",
   },
   projects: [

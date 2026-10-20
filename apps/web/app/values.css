@@ -179,3 +179,19 @@
 }
 
 .row-period-picker[hidden] { display: none; }
+
+.row-value-controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+.row-value-controls .row-period-picker { max-width: 100%; min-width: 0; }
+.row-value-controls select { max-width: 100%; }
+.home-page > .value-overview { margin-top: 0; padding-bottom: 32px; }
+.home-page > .value-overview .value-plot, .home-page > .value-overview .chart-placeholder { height: 300px; }
+@media (max-width: 680px) {
+  .inventory-heading { flex-direction: column; gap: 18px; }
+  .row-value-controls { width: 100%; gap: 12px; }
+  .row-value-controls .row-period-picker:first-child { flex: 1 1 180px; }
+  .inventory-row.demo-row { grid-template-areas: "image identity identity" "image value action" ". trend trend" ". more more" ". details details"; }
+  .inventory-row .demo-row-trend { flex-wrap: wrap; gap: 8px 12px; }
+  .inventory-row .demo-row-trend .mobile-cell-label { display: inline; flex-basis: auto; }
+  .home-page > .value-overview { padding-bottom: 24px; }
+  .home-page > .value-overview .value-plot, .home-page > .value-overview .chart-placeholder { height: 220px; }
+}

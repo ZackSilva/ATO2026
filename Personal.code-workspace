@@ -1,0 +1,18 @@
+{
+  "folders": [
+    {
+      "name": "SlabTrak (Personal)",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "window.title": "Personal${separator}${activeEditorShort}${separator}${appName}",
+    "git.autoRepositoryDetection": "subFolders",
+    "git.openRepositoryInParentFolders": "never",
+    "git.scanRepositories": [],
+    "git.autofetch": false,
+    "search.followSymlinks": false,
+    "chat.useAgentsMdFile": true,
+    "chat.useCustomizationsInParentRepositories": false
+  }
+}

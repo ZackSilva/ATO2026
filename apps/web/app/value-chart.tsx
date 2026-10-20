@@ -10,7 +10,7 @@ type Props = { range: ValueRange; onRangeChange: (range: ValueRange) => void; re
 const dateLabel = (date: string) => new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 
 export default function CollectionValueChart({ range, onRangeChange, refreshKey, onExpired }: Props) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const chartId = useId();
   const [cards, setCards] = useState<Card[] | null>(null);
   const [pending, setPending] = useState(true);

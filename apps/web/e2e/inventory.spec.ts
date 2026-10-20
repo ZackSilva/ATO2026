@@ -5,7 +5,7 @@ const password = process.env.SLABTRAK_TEST_PASSWORD;
 if (!username || !password) throw new Error("Run scripts/check_browser.py with isolated credentials.");
 
 async function signIn(page: Page) {
-  await page.goto("/");
+  await page.goto("/collection");
   await page.getByLabel("Username", { exact: true }).fill(username!);
   await page.getByLabel("Password", { exact: true }).fill(password!);
   await page.getByRole("button", { name: "Open my workspace" }).click();
@@ -44,7 +44,7 @@ test("add, find, edit, archive, restore and deliberately delete a persistent gra
   const record = page.getByRole("article").filter({ has: page.getByRole("heading", { name: subject, exact: true }) });
   await expect(record).toContainText("BGS 9.5");
   await expect(record).toContainText("#5 / 99");
-  await expect(record).toContainText(/USD\s*20\.00/);
+  await expect(record.locator(".row-purchase")).toContainText(/USD\s*19\.99/);
   await page.reload();
   await expect(record).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("collection.png"), fullPage: true });

@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { cardSubtitle, money, type Card, type PhotoSide } from "../lib/cards";
+import type { MarketEstimate } from "../lib/estimates";
+import { financeMoney } from "../lib/finances";
 import { Photo, PhotoSides } from "./card-preview";
 import "./card-detail.css";
 
 type Props = {
   card: Card;
+  estimate?: MarketEstimate;
+  estimatePending: boolean;
+  estimateUnavailable: boolean;
   active: boolean;
   onClose: () => void;
   onEdit: () => void;
@@ -17,7 +23,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
   return <div><dt>{label}</dt><dd>{children === null || children === undefined || children === "" ? <span className="card-detail-unknown">Not recorded</span> : children}</dd></div>;
 }
 
-export default function CardDetail({ card, active, onClose, onEdit, onPreview }: Props) {
+export default function CardDetail({ card, estimate, estimatePending, estimateUnavailable, active, onClose, onEdit, onPreview }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -89,9 +95,16 @@ export default function CardDetail({ card, active, onClose, onEdit, onPreview }:
           </dl>
           {card.condition === "graded" && <p className="card-detail-caption">Your recorded grading details; certification has not been verified with a grading company.</p>}
         </section>
+        <section aria-labelledby="card-detail-market-title">
+          <h3 id="card-detail-market-title">Market estimate</h3>
+          <p className="market-detail-note">{card.sold ? "This card is sold. Review sold comparables for market context." : estimatePending ? "Loading estimate…" : estimateUnavailable ? "Estimate unavailable. Retry market estimates in your collection." : estimate?.amount ? `${financeMoney(estimate.amount, card.currency)} · ${estimate.confidence} confidence · ${estimate.sample_count} matching sales` : "Insufficient Market Data"}</p>
+          {estimate?.amount && <p className="market-detail-note">Observed sale range: {financeMoney(estimate.low!, card.currency)} – {financeMoney(estimate.high!, card.currency)}. Latest sale: {estimate.latest_sale}.</p>}
+          <p className="card-detail-caption">{estimate?.reason ?? "At least three recent matching sold comparables are required. Raw cards use raw sales; other grades remain research context. Sources are not independently verified."}</p>
+          <Link className="workspace-text-link" href={`/collection/${card.id}/market`}>View and manage sold comparables ↗</Link>
+        </section>
         <section aria-labelledby="card-detail-acquisition-title">
           <h3 id="card-detail-acquisition-title">Acquisition</h3>
-          <p className="card-detail-caption">Recorded costs in {card.currency}, separate from demo market values. Unknown amounts are not zero.</p>
+          <p className="card-detail-caption">Recorded costs in {card.currency}, separate from market estimates. Unknown amounts are not zero.</p>
           <dl className="card-detail-fields">
             <Detail label="Purchase price">{cost(card.purchase_price)}</Detail><Detail label="Shipping">{cost(card.shipping)}</Detail>
             <Detail label="Tax">{cost(card.tax)}</Detail><Detail label="Other costs">{cost(card.other_cost)}</Detail>
@@ -102,7 +115,7 @@ export default function CardDetail({ card, active, onClose, onEdit, onPreview }:
         </section>
         {card.sold && <section aria-labelledby="card-detail-sale-title">
           <h3 id="card-detail-sale-title">Sale</h3>
-          <p className="card-detail-caption">Your recorded sale in {card.currency}; separate from fictional demo market values.</p>
+          <p className="card-detail-caption">Your recorded sale in {card.currency}; separate from market estimates.</p>
           <dl className="card-detail-fields">
             <Detail label="Sale price">{cost(card.sale_price)}</Detail><Detail label="Sale fees">{cost(card.sale_fees)}</Detail>
             <Detail label="Net sale">{cost(card.sale_net)}</Detail><Detail label="Profit vs purchase price">{cost(card.net_profit)}</Detail>

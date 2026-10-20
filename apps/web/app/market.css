@@ -1,0 +1,29 @@
+.market-overview { margin-bottom: 32px; }
+.market-currency { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; font-size: 12px; margin-top: 24px; }
+.market-currency select { min-height: 44px; padding: 8px 32px 8px 12px; font-size: 13px; }
+.market-headline { margin-top: 24px; }
+.market-headline > span { display: block; font-size: 13px; color: var(--muted); }
+.market-headline > strong { display: block; font-size: clamp(24px, 3vw, 38px); font-weight: 450; letter-spacing: -1px; margin-top: 10px; overflow-wrap: anywhere; }
+.market-headline p, .market-explanation { font-size: 13px; line-height: 1.7; }
+.market-links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.row-estimate-context, .row-market-insufficient { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.inventory-row .row-value .market-unavailable { font-size: 14px; line-height: 1.5; letter-spacing: 0; }
+.market-detail-note { font-size: 12px; line-height: 1.7; }
+.market-form { max-width: 760px; margin-top: 28px; }
+.market-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; }
+.market-form label { display: flex; flex-direction: column; gap: 8px; min-width: 0; margin: 0; font-size: 13px; }
+.market-form input, .market-form select { width: 100%; min-width: 0; min-height: 44px; margin: 0; }
+.market-form .market-form-wide { grid-column: 1 / -1; }
+.market-form .primary { width: auto; margin-top: 24px; }
+.market-comparables { list-style: none; padding: 0; margin: 24px 0; }
+.market-comparables li { border-top: 1px solid var(--line); padding: 20px 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+.market-comparables h3 { font-size: 16px; font-weight: 500; margin: 0 0 8px; }
+.market-comparables p { font-size: 13px; margin: 4px 0; overflow-wrap: anywhere; }
+.market-comparables button { min-height: 44px; }
+.market-data-heading { margin-top: 32px; }
+.market-method { max-width: 760px; font-size: 13px; }
+@media (max-width: 680px) {
+  .market-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .market-comparables li { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .market-comparables button { justify-self: start; }
+}

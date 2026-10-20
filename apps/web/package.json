@@ -2,6 +2,7 @@
   "name": "slabtrak-web",
   "version": "0.1.0-demo.3",
   "private": true,
+  "license": "PolyForm-Noncommercial-1.0.0",
   "type": "module",
   "engines": {
     "node": ">=24 <25"

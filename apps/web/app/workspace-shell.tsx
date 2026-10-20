@@ -1,12 +1,32 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { api, ApiError, type Session } from "../lib/api";
-import Collection from "./collection";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import "./workspace.css";
 import Brand from "../components/brand";
 import AccountMenu from "../components/account-menu";
 
-export default function Home() {
+type WorkspaceSession = { session: Session; onExpired: () => void };
+const WorkspaceContext = createContext<WorkspaceSession | null>(null);
+
+export function useWorkspace(): WorkspaceSession {
+  const workspace = useContext(WorkspaceContext);
+  if (!workspace) throw new Error("Workspace pages require a signed-in session.");
+  return workspace;
+}
+
+const navigation = [
+  { href: "/", label: "Home" },
+  { href: "/collection", label: "My Collection" },
+  { href: "/reports", label: "Reports" },
+  { href: "/discover", label: "Discover" },
+  { href: "/settings", label: "Settings" },
+];
+
+export default function WorkspaceShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -80,7 +100,10 @@ export default function Home() {
     </header>
     {session && !connectionError && !loading ? <>
       {error && <p className="error" id="access-error" role="alert">{error}</p>}
-      <Collection session={session} onExpired={expired} />
+      <nav className="workspace-navigation" aria-label="Workspace">
+        {navigation.map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href || item.href !== "/" && pathname.startsWith(`${item.href}/`) ? "page" : undefined}>{item.label}</Link>)}
+      </nav>
+      <WorkspaceContext.Provider value={{ session, onExpired: expired }}>{children}</WorkspaceContext.Provider>
     </> : <main id="main">
       <div className="intro">
         <span className="eyebrow">THE COLLECTOR’S WORKSPACE</span>

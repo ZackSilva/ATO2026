@@ -5,7 +5,7 @@ const password = process.env.SLABTRAK_TEST_PASSWORD;
 if (!username || !password) throw new Error("Run scripts/check_browser.py with isolated credentials.");
 
 async function signIn(page: Page) {
-  await page.goto("/");
+  await page.goto("/collection");
   await page.getByLabel("Username", { exact: true }).fill(username!);
   await page.getByLabel("Password", { exact: true }).fill(password!);
   await page.getByRole("button", { name: "Open my workspace", exact: true }).click();
@@ -14,6 +14,7 @@ async function signIn(page: Page) {
 }
 
 async function deleteTestCard(page: Page, record: Locator, subject: string) {
+  if (new URL(page.url()).pathname !== "/collection") await page.getByRole("navigation", { name: "Workspace", exact: true }).getByRole("link", { name: "My Collection", exact: true }).click();
   const dialog = page.getByRole("dialog");
   if (await dialog.isVisible()) {
     await dialog.getByRole("button", { name: "Close card editor", exact: true }).click();
@@ -28,7 +29,7 @@ async function deleteTestCard(page: Page, record: Locator, subject: string) {
   await expect(record).toBeHidden();
 }
 
-test("demo overview ranges, metrics and richer rows stay separate from saved costs", async ({ page }, testInfo) => {
+test("Home chart is prominent and collection mini graphs distinguish demos from recorded values", async ({ page }, testInfo) => {
   test.setTimeout(60_000);
   const subject = `Chart demo test ${testInfo.project.name} ${Date.now()}`;
   await signIn(page);
@@ -46,16 +47,17 @@ test("demo overview ranges, metrics and richer rows stay separate from saved cos
   await expect(record).toBeVisible();
 
   try {
+    await page.getByRole("navigation", { name: "Workspace", exact: true }).getByRole("link", { name: "Home", exact: true }).click();
     const overview = page.getByRole("region", { name: "Collection value overview", exact: true });
     await expect(overview).toBeVisible();
     await expect(overview).toContainText(/demo/i);
-    const showChart = overview.getByRole("button", { name: "Show value chart", exact: true });
-    if (await showChart.isVisible()) {
-      await expect(showChart).toHaveAttribute("aria-expanded", "false");
-      await showChart.click();
+    if ((page.viewportSize()?.width ?? 1440) <= 680) {
       await expect(overview.getByRole("button", { name: "Hide value chart", exact: true })).toHaveAttribute("aria-expanded", "true");
     }
-    await expect(page.locator('[aria-label="Collection summary"]')).not.toContainText("Purchase price unknown");
+    const summary = page.getByRole("region", { name: "Collection summary", exact: true });
+    await expect(summary).toBeVisible();
+    expect(await overview.evaluate((node, target) => Boolean(node.compareDocumentPosition(target!) & Node.DOCUMENT_POSITION_FOLLOWING), await summary.elementHandle())).toBe(true);
+
     const metric = overview.getByLabel("Chart metric", { exact: true });
     const slider = overview.getByRole("slider", { name: "Explore demo value history", exact: true });
     const ranges = ["All time", "Last year", "Last six months", "Last three months", "Last month", "Last week"];
@@ -99,22 +101,41 @@ test("demo overview ranges, metrics and richer rows stay separate from saved cos
     await metric.selectOption("value");
     await expect(overview.getByRole("heading", { name: "Collection value", exact: true })).toBeVisible();
 
-    await expect(record.locator(".row-value")).toContainText(/(?:USD|\$)\s*[\d,]+\.\d{2}/);
+    await testInfo.attach("Prominent Home demo chart", { body: await page.screenshot({ path: testInfo.outputPath("home-demo-chart.png"), fullPage: true }), contentType: "image/png" });
+    await page.getByRole("navigation", { name: "Workspace", exact: true }).getByRole("link", { name: "My Collection", exact: true }).click();
+    await expect(overview).toHaveCount(0);
+    const rowValues = page.getByLabel("Row values", { exact: true });
+    await expect(rowValues).toHaveValue("demo");
+    await expect(record.locator(".row-value")).toContainText(/Demo/i);
+    await expect(record.locator(".row-value")).toContainText(/\$[\d,.]+/);
+    const trend = record.getByRole("img", { name: /Demo value trend/ });
+    await expect(trend).toBeVisible();
+    const trendPeriod = page.getByLabel("Card trend period", { exact: true });
+    const rowPaths = new Set<string>();
+    for (const range of ["all", "1y", "6m", "3m", "1m", "1w"]) {
+      await trendPeriod.selectOption(range);
+      await expect(trendPeriod).toHaveValue(range);
+      const points = await trend.locator("polyline").getAttribute("points");
+      expect(points).toBeTruthy();
+      rowPaths.add(points!);
+    }
+    expect(rowPaths.size).toBe(6);
+    await testInfo.attach("Collection restored mini graphs", { body: await page.screenshot({ path: testInfo.outputPath("collection-mini-graphs.png"), fullPage: true }), contentType: "image/png" });
     const moreDetails = record.getByRole("button", { name: "More card details", exact: true });
     if (await moreDetails.isVisible()) {
       await expect(moreDetails).toHaveAttribute("aria-expanded", "false");
-      await expect(record.locator(".row-trend")).toBeHidden();
-      await expect(record.locator(".row-purchase")).toBeHidden();
       await moreDetails.click();
       await expect(page.getByRole("dialog")).toBeHidden();
       await expect(record.getByRole("button", { name: "Fewer card details", exact: true })).toHaveAttribute("aria-expanded", "true");
     }
-    await expect(record.locator(".row-purchase")).toContainText(/(?:USD|\$)\s*[\d,]+\.\d{2}/);
-    await expect(record.locator(".row-trend").getByRole("img", { name: /Demo value trend/ })).toBeVisible();
-    const unfilteredAmount = await amount.innerText();
+    await expect(record.locator(".row-purchase")).toContainText(/Unknown/i);
+    await expect(record.locator(".row-purchase")).toContainText(/Demo purchase/i);
+    await rowValues.selectOption("market");
+    await expect(record.locator(".row-value")).toContainText(/Insufficient Market Data/i);
+    await expect(record.getByRole("img", { name: /Demo value trend/ })).toHaveCount(0);
+    await expect(trendPeriod).toHaveCount(0);
     await page.getByLabel("Search collection", { exact: true }).fill(`No matching chart test ${Date.now()}`);
     await expect(page.getByRole("heading", { name: "No matching cards.", exact: true })).toBeVisible();
-    await expect(amount).toHaveText(unfilteredAmount);
     await page.getByLabel("Search collection", { exact: true }).fill("");
     await expect(record).toBeVisible();
 
@@ -123,6 +144,8 @@ test("demo overview ranges, metrics and richer rows stay separate from saved cos
     await editor.getByRole("button", { name: "Close card editor", exact: true }).click();
     await page.reload();
     await expect(record).toBeVisible();
+    await expect(rowValues).toHaveValue("demo");
+    await expect(trend).toBeVisible();
     await record.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
     await expect(editor.getByLabel("Purchase price", { exact: true })).toHaveValue("");
     await editor.getByRole("button", { name: "Close card editor", exact: true }).click();

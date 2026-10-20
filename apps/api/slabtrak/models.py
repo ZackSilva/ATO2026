@@ -152,3 +152,39 @@ class OwnedCopy(Base):
     back_photo_source: Mapped[str] = mapped_column(String(2048), default="")
 
     __mapper_args__ = {"version_id_col": revision}
+
+
+class ComparableSale(Base):
+    """Private, user-recorded completed sale tied to an immutable card identity."""
+
+    __tablename__ = "comparable_sales"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["definition_id", "owner_id"],
+            ["slabtrak.card_definitions.id", "slabtrak.card_definitions.owner_id"],
+        ),
+        UniqueConstraint("owner_id", "source_key"),
+        CheckConstraint("price > 0"),
+        CheckConstraint("condition IN ('raw', 'graded')"),
+        CheckConstraint(
+            "(condition = 'raw' AND grader = '' AND grade = '') OR "
+            "(condition = 'graded' AND grader <> '' AND grade <> '')"
+        ),
+        {"schema": "slabtrak"},
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    owner_id: Mapped[UUID] = mapped_column(
+        ForeignKey("slabtrak.accounts.id", ondelete="CASCADE"), index=True
+    )
+    definition_id: Mapped[UUID] = mapped_column()
+    source_key: Mapped[str] = mapped_column(String(64))
+    sold_on: Mapped[date] = mapped_column(Date)
+    price: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    currency: Mapped[str] = mapped_column(String(3))
+    condition: Mapped[str] = mapped_column(String(10))
+    grader: Mapped[str] = mapped_column(String(50))
+    grade: Mapped[str] = mapped_column(String(20))
+    source: Mapped[str] = mapped_column(String(120))
+    source_url: Mapped[str] = mapped_column(String(2048))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
