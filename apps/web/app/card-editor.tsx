@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ApiError } from "../lib/api";
-import { calculateSale, formCard, money, type Card, type CardInput, type PhotoSide } from "../lib/cards";
+import { calculateSale, formCard, money, rawConditions, type Card, type CardInput, type PhotoSide } from "../lib/cards";
 import { Photo, PhotoSides } from "./card-preview";
 import "./card-detail.css";
 
@@ -97,6 +97,7 @@ export default function CardEditor({ card, onClose, onSave, onDelete, onReload, 
         <legend>Condition & grading</legend>
         <div className="form-grid">
           <label>Condition<select name="condition" value={condition} onChange={event => setCondition(event.target.value as "raw" | "graded")}><option value="raw">Raw (ungraded)</option><option value="graded">Graded</option></select></label>
+          {condition === "raw" && <><label>Raw condition<select name="raw_condition" aria-label="Raw condition" defaultValue={card?.raw_condition ?? "unspecified"}>{Object.entries(rawConditions).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><p className="field-help wide">Your assessment, not a professional grade. Estimates use sales with the same recorded condition; unassessed sales stay separate.</p></>}
           {condition === "graded" && <>
             <label>Grading company<input name="grader" list="graders" value={grader} required maxLength={50} onChange={event => setGrader(event.target.value)} /><datalist id="graders"><option value="PSA" /><option value="BGS" /><option value="SGC" /><option value="CGC" /></datalist></label>
             <label>Grade<input name="grade" maxLength={20} defaultValue={card?.grade} placeholder="e.g. 9 for PSA 9" /></label>

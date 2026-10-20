@@ -16,6 +16,7 @@ export default function MarketOverview({ onExpired, title = "Collection estimate
   const items = data?.items.filter(item => item.currency === selected) ?? [];
   const subtotal = estimateSubtotal(items);
   const covered = items.filter(item => item.amount !== null);
+  const stale = covered.filter(item => item.stale).length;
   return <section className="workspace-section market-overview" aria-labelledby={headingId} aria-busy={pending}>
     <div className="workspace-section-heading"><h2 id={headingId}>{title}</h2><span className="workspace-status">Recorded sales · no live feed</span></div>
     {caption && <p className="market-snapshot-note">{caption}</p>}
@@ -27,9 +28,10 @@ export default function MarketOverview({ onExpired, title = "Collection estimate
           <p><strong>{covered.length} of {items.length}</strong> unsold cards have estimates{selected ? ` in ${selected}` : ""}.</p>
           <progress aria-label="Cards with market estimates" max={Math.max(1, items.length)} value={covered.length} />
           <span>Missing estimates stay unknown.</span>
+          {stale > 0 && <span>{stale} estimated {stale === 1 ? "card needs" : "cards need"} fresher sales evidence.</span>}
         </div>
       </div>
-      <details className="market-method-details"><summary>How estimates work</summary><p>At least three matching sold comparables from the past 180 days. Graded cards match the same grader and grade; raw cards use raw sales with unverified physical condition. Other grades stay separate.</p><p>Includes archived cards. Currencies are never combined. These are recorded observations, not a market-wide index. Prices are recorded before selling fees; transaction details and sources are unverified.</p><Link className="workspace-text-link" href="/discover">Market discovery roadmap ↗</Link></details>
+      <details className="market-method-details"><summary>How estimates work</summary><p>At least three matching sold comparables from the past 180 days. Graded cards match the same grader and grade; raw cards match the same recorded condition. Unassessed raw sales stay separate. Evidence older than 90 days is flagged for review.</p><p>Includes archived cards. Currencies are never combined. These are recorded observations, not a market-wide index. Prices are recorded before selling fees; transaction details and sources are unverified.</p><Link className="workspace-text-link" href="/discover">Market discovery roadmap ↗</Link></details>
     </>}
     <div className="market-links"><Link className="workspace-text-link" href="/collection">Review cards and sold comparables ↗</Link></div>
   </section>;

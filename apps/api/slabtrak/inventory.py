@@ -15,7 +15,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import StaleDataError
 
-from slabtrak.models import CardDefinition, OwnedCopy
+from slabtrak.models import CardDefinition, OwnedCopy, RawCondition
 from slabtrak.photos import photo_path, prepare_photo, remove_photo, write_photo
 
 Money = Annotated[Decimal, Field(ge=0, max_digits=12, decimal_places=2)]
@@ -52,6 +52,7 @@ class CardInput(BaseModel):
     memorabilia: bool = False
     print_run: int | None = Field(default=None, ge=1, le=2147483647)
     condition: Literal["raw", "graded"] = "raw"
+    raw_condition: RawCondition = "unspecified"
     grader: str = Field(default="", max_length=50)
     grade: str = Field(default="", max_length=20)
     certification: str = Field(default="", max_length=100)
@@ -85,6 +86,8 @@ class CardInput(BaseModel):
             raise ValueError("Raw cards cannot have grading details.")
         if self.condition == "graded" and not self.grader:
             raise ValueError("Choose a grading company for a graded card.")
+        if self.condition == "graded" and self.raw_condition != "unspecified":
+            raise ValueError("Raw condition categories apply only to raw cards.")
         if self.grader.upper() != "BGS" and any(v is not None for v in subgrades):
             raise ValueError("Subgrades are available for BGS cards.")
         if self.sold:
@@ -407,6 +410,8 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         if copy.revision != data.revision:
             raise HTTPException(409, CONFLICT)
         values = data.model_dump(exclude={"revision"})
+        if "raw_condition" not in data.model_fields_set and data.condition == "raw":
+            values["raw_condition"] = copy.raw_condition
         # Older clients do not send sale fields; metadata edits must retain a recorded sale.
         if not set(SALE_FIELDS).intersection(data.model_fields_set):
             values.update({name: getattr(copy, name) for name in SALE_FIELDS})

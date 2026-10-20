@@ -8,3 +8,6 @@
 **/.ruff_cache
 **/test-results
 **/playwright-report
+.local-trust/
+compose.local-trust.yaml
+compose.override.yaml

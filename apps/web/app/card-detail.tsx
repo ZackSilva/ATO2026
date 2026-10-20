@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { cardSubtitle, money, type Card, type PhotoSide } from "../lib/cards";
+import { cardSubtitle, money, rawConditions, type Card, type PhotoSide } from "../lib/cards";
 import type { MarketEstimate } from "../lib/estimates";
 import { financeMoney } from "../lib/finances";
 import { Photo, PhotoSides } from "./card-preview";
@@ -91,6 +91,7 @@ export default function CardDetail({ card, estimate, estimatePending, estimateUn
           <h3 id="card-detail-grading-title">Condition &amp; grading</h3>
           <dl className="card-detail-fields">
             <Detail label="Condition">{card.condition === "graded" ? "Graded" : "Raw (ungraded)"}</Detail>
+            {card.condition === "raw" && <Detail label="Raw condition">{rawConditions[card.raw_condition ?? "unspecified"]}</Detail>}
             {card.condition === "graded" && <>
               <Detail label="Grading company">{card.grader}</Detail><Detail label="Grade">{card.grade}</Detail><Detail label="Certification number">{card.certification}</Detail>
               {card.grader.toUpperCase() === "BGS" && (["centering", "corners", "edges", "surface"] as const).map(name => <Detail key={name} label={name[0].toUpperCase() + name.slice(1)}>{card[name]}</Detail>)}
@@ -102,8 +103,9 @@ export default function CardDetail({ card, estimate, estimatePending, estimateUn
           <h3 id="card-detail-market-title">Market estimate</h3>
           <p className="market-detail-note">{card.sold ? "This card is sold. Review sold comparables for market context." : estimatePending ? "Loading estimate…" : estimateUnavailable ? "Estimate unavailable. Retry market estimates in your collection." : estimate?.amount ? `${financeMoney(estimate.amount, card.currency)} · ${estimate.confidence} confidence · ${estimate.sample_count} matching sales` : "Insufficient Market Data"}</p>
           {estimate?.amount && <p className="market-detail-note">Observed sale range: {financeMoney(estimate.low!, card.currency)} – {financeMoney(estimate.high!, card.currency)}. Latest sale: {estimate.latest_sale}.</p>}
+          {estimate?.stale && <p className="market-detail-note">Evidence needs a refresh · {estimate.latest_matching_sale ? `Latest matching sale ${estimate.latest_matching_sale}.` : "No matching sales recorded."}</p>}
           <p className="card-detail-caption">{estimate?.reason ?? "At least three recent matching sold comparables are required. Raw cards use raw sales; other grades remain research context. Sources are not independently verified."}</p>
-          <Link className="workspace-text-link" href={`/collection/${card.id}/market`}>View and manage sold comparables ↗</Link>
+          <Link className="workspace-text-link" href={`/collection/${card.id}/market`}>View sold comparables ↗</Link>
         </section>
         <section aria-labelledby="card-detail-acquisition-title">
           <h3 id="card-detail-acquisition-title">Acquisition</h3>

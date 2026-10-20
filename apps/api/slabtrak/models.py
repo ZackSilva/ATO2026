@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Literal
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -15,6 +16,12 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+RawCondition = Literal["unspecified", "near_mint", "excellent", "good", "fair", "poor"]
+RAW_CONDITION_CHECK = (
+    "raw_condition IN ('unspecified', 'near_mint', 'excellent', 'good', 'fair', 'poor') "
+    "AND (condition = 'raw' OR raw_condition = 'unspecified')"
+)
 
 
 class Base(DeclarativeBase):
@@ -89,6 +96,7 @@ class OwnedCopy(Base):
             ["slabtrak.card_definitions.id", "slabtrak.card_definitions.owner_id"],
         ),
         CheckConstraint("condition IN ('raw', 'graded')"),
+        CheckConstraint(RAW_CONDITION_CHECK, name="ck_owned_copies_raw_condition"),
         CheckConstraint("photo_kind IN ('upload', 'reference')", name="ck_owned_copies_photo_kind"),
         CheckConstraint(
             "back_photo_kind IN ('upload', 'reference')", name="ck_owned_copies_back_photo_kind"
@@ -120,6 +128,9 @@ class OwnedCopy(Base):
     )
     definition_id: Mapped[UUID] = mapped_column()
     condition: Mapped[str] = mapped_column(String(10))
+    raw_condition: Mapped[str] = mapped_column(
+        String(12), default="unspecified", server_default="unspecified"
+    )
     grader: Mapped[str] = mapped_column(String(50))
     grade: Mapped[str] = mapped_column(String(20))
     certification: Mapped[str] = mapped_column(String(100))
@@ -166,6 +177,7 @@ class ComparableSale(Base):
         UniqueConstraint("owner_id", "source_key"),
         CheckConstraint("price > 0"),
         CheckConstraint("condition IN ('raw', 'graded')"),
+        CheckConstraint(RAW_CONDITION_CHECK, name="ck_comparable_sales_raw_condition"),
         CheckConstraint(
             "(condition = 'raw' AND grader = '' AND grade = '') OR "
             "(condition = 'graded' AND grader <> '' AND grade <> '')"
@@ -183,8 +195,12 @@ class ComparableSale(Base):
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2))
     currency: Mapped[str] = mapped_column(String(3))
     condition: Mapped[str] = mapped_column(String(10))
+    raw_condition: Mapped[str] = mapped_column(
+        String(12), default="unspecified", server_default="unspecified"
+    )
     grader: Mapped[str] = mapped_column(String(50))
     grade: Mapped[str] = mapped_column(String(20))
     source: Mapped[str] = mapped_column(String(120))
     source_url: Mapped[str] = mapped_column(String(2048))
+    image_url: Mapped[str | None] = mapped_column(String(2048))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

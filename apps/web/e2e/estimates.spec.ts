@@ -12,12 +12,21 @@ async function setup(page: Page, subject: string, graded = false) {
   await expect(page.getByRole("heading", { name: "My Collection", exact: true, level: 1 })).toBeVisible();
   const session = await (await page.request.get("/api/auth/me")).json();
   const headers = { Origin: "http://localhost:3000", "X-CSRF-Token": session.csrf_token };
-  const response = await page.request.post("/api/cards", { headers, data: { subject, year: 2020, sport: "Basketball", manufacturer: "Test", set_name: "Evidence fixture", card_number: "7", ...(graded ? { condition: "graded", grader: "PSA", grade: "9" } : {}) } });
+  const response = await page.request.post("/api/cards", { headers, data: { subject, year: 2020, sport: "Basketball", manufacturer: "Test", set_name: "Evidence fixture", card_number: "7", ...(graded ? { condition: "graded", grader: "PSA", grade: "9", purchase_price: "12.50" } : {}) } });
   expect(response.status()).toBe(201);
   const card = await response.json();
   const path = `/api/cards/${card.id}/comparables`;
   return {
     card,
+    async record(price: string, source: string, currency = "USD", grade = "9") {
+      // Private test-fixture setup; collectors cannot enter or import sales in the UI.
+      return page.request.post(path, { headers, data: {
+        expected_definition_id: card.definition_id,
+        sold_on: new Date().toISOString().slice(0, 10), price, currency,
+        condition: graded ? "graded" : "raw", grader: graded ? "PSA" : "", grade: graded ? grade : "",
+        source, source_url: `https://example.invalid/sold/${encodeURIComponent(source)}`,
+      } });
+    },
     async cleanup() {
       const report = await page.request.get(path);
       if (report.ok()) for (const sale of (await report.json()).items) expect((await page.request.delete(`${path}/${sale.id}`, { headers })).status()).toBe(204);
@@ -27,18 +36,12 @@ async function setup(page: Page, subject: string, graded = false) {
   };
 }
 
-async function record(page: Page, price: string, source: string, currency = "USD") {
-  const form = page.getByRole("form", { name: "Record sold comparable", exact: true });
-  await form.getByLabel("Sold price", { exact: true }).fill(price);
-  await form.getByLabel("Sale currency", { exact: true }).fill(currency);
-  await form.getByLabel("Sale source", { exact: true }).fill(source);
-  await form.getByLabel("Sale source URL (optional)", { exact: true }).fill(`https://example.invalid/sold/${encodeURIComponent(source)}`);
-  await Promise.all([
-    page.waitForResponse(response => response.url().endsWith("/comparables") && response.request().method() === "POST"),
-    form.getByRole("button", { name: "Record sold comparable", exact: true }).click(),
-  ]);
-  await expect(page.getByText("Loading sold comparables…", { exact: true })).toBeHidden();
-  await expect(form.getByRole("button", { name: "Record sold comparable", exact: true })).toBeEnabled();
+async function expectReadOnlyEvidence(page: Page) {
+  await expect(page.locator("main input, main select, main textarea, main form")).toHaveCount(0);
+  await expect(page.getByText("Import completed sales", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Remove sale", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Find recent auction sales ↗", exact: true })).toHaveAttribute("href", /^\/discover\?q=/);
+  await expect(page.getByText("Search completed auction sales. Saved historical evidence remains available below.", { exact: true })).toBeVisible();
 }
 
 test("raw cards calculate from sold comparables, retain evidence and keep purchases and reports separate", async ({ page }, testInfo) => {
@@ -52,15 +55,19 @@ test("raw cards calculate from sold comparables, retain evidence and keep purcha
     await row.getByRole("button", { name: `View card for ${subject}`, exact: true }).click();
     const detail = page.getByRole("dialog");
     await expect(detail.locator("input, select, textarea")).toHaveCount(0);
-    await detail.getByRole("link", { name: "View and manage sold comparables ↗", exact: true }).click();
+    await detail.getByRole("link", { name: "View sold comparables ↗", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Sold comparables", level: 1, exact: true })).toBeVisible();
-    await record(page, "10.00", "Raw sale one");
-    await record(page, "30.00", "Raw sale two");
+    await expectReadOnlyEvidence(page);
+    expect((await data.record("10.00", "Raw sale one")).status()).toBe(201);
+    expect((await data.record("30.00", "Raw sale two")).status()).toBe(201);
+    await page.reload();
     await expect(page.getByTestId("card-market-estimate")).toHaveText("Insufficient Market Data");
-    await record(page, "20.00", "Raw sale three");
+    expect((await data.record("20.00", "Raw sale three")).status()).toBe(201);
+    await page.reload();
     await expect(page.getByTestId("card-market-estimate")).toHaveText(/USD\s*20\.00/);
     await expect(page.getByText(/Raw condition is unverified/)).toBeVisible();
-    await record(page, "900.00", "Canadian raw context", "CAD");
+    expect((await data.record("900.00", "Canadian raw context", "CAD")).status()).toBe(201);
+    await page.reload();
     await expect(page.getByTestId("card-market-estimate")).toHaveText(/USD\s*20\.00/);
     await page.reload();
     await expect(page.getByTestId("card-market-estimate")).toHaveText(/USD\s*20\.00/);
@@ -79,9 +86,10 @@ test("raw cards calculate from sold comparables, retain evidence and keep purcha
     await expect(page.locator('[data-metric="acquisition_spending"] .finance-amount')).toHaveText("Unknown");
     await expect(page.locator('[data-metric="gross_sales"] .finance-amount')).toHaveText(/USD\s*0\.00/);
     await page.goto(`/collection/${data.card.id}/market`);
-    await page.getByRole("listitem").filter({ hasText: "Raw sale one" }).getByRole("button", { name: "Remove sale", exact: true }).click();
-    await page.getByRole("button", { name: "Confirm removal", exact: true }).click();
-    await expect(page.getByTestId("card-market-estimate")).toHaveText("Insufficient Market Data");
+    await expectReadOnlyEvidence(page);
+    await expect(page.getByRole("heading", { name: "Recorded sales · 4", exact: true })).toBeVisible();
+    const history = page.getByRole("region", { name: "Sales history", exact: true });
+    await expect(history.locator(".sales-history-point")).toHaveCount(3);
   } finally { await data.cleanup(); }
 });
 
@@ -89,19 +97,26 @@ test("graded estimates match grade, show other grades as context and reject dupl
   const data = await setup(page, `Graded estimate ${testInfo.project.name}`, true);
   try {
     await page.goto(`/collection/${data.card.id}/market`);
-    await expect(page.getByLabel("Comparable condition", { exact: true })).toHaveValue("graded");
-    await record(page, "199.99", "PSA nine sale one");
-    await record(page, "200.01", "PSA nine sale two");
-    await record(page, "999.99", "PSA nine sale three");
-    await expect(page.getByTestId("card-market-estimate")).toHaveText(/USD\s*200\.01/);
-    await page.getByLabel("Comparable grade", { exact: true }).fill("8");
-    await record(page, "10.00", "PSA eight context");
+    await expectReadOnlyEvidence(page);
+    expect((await data.record("199.99", "PSA nine sale one")).status()).toBe(201);
+    expect((await data.record("200.01", "PSA nine sale two")).status()).toBe(201);
+    expect((await data.record("999.99", "PSA nine sale three")).status()).toBe(201);
+    expect((await data.record("10.00", "PSA eight context", "USD", "8")).status()).toBe(201);
+    const duplicate = await data.record("199.99", "PSA nine sale one");
+    expect(duplicate.status()).toBe(409);
+    await page.reload();
+    await page.locator("summary").filter({ hasText: /^Recorded sales · 4$/ }).click();
     await expect(page.getByRole("heading", { name: /PSA 8/ })).toBeVisible();
     await expect(page.getByTestId("card-market-estimate")).toHaveText(/USD\s*200\.01/);
-    await record(page, "199.99", "PSA nine sale one");
-    await expect(page.getByRole("main").getByRole("alert")).toHaveText("This completed sale is already recorded.");
     await expect(page.getByRole("heading", { name: "Recorded sales · 4", exact: true })).toBeVisible();
-    await expect(page.getByLabel("Sold price", { exact: true })).toHaveValue("199.99");
+    await expectReadOnlyEvidence(page);
+    const copy = await (await page.request.get(`/api/cards/${data.card.id}`)).json();
+    expect(copy.grader).toBe("PSA");
+    expect(copy.grade).toBe("9");
+    expect(copy.purchase_price).toBe("12.50");
+    expect(copy.sale_price).toBeNull();
+    const history = page.getByRole("region", { name: "Sales history", exact: true });
+    await expect(history.locator(".sales-history-point")).toHaveCount(3);
     await testInfo.attach("Graded market context and duplicate protection", { body: await page.screenshot({ path: testInfo.outputPath("graded-market-evidence.png"), fullPage: true }), contentType: "image/png" });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.getByRole("navigation", { name: "Workspace" }).getByRole("link", { name: "My Collection", exact: true }).click();

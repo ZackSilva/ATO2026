@@ -1,0 +1,68 @@
+import { expect, test } from "@playwright/test";
+
+const username = process.env.SLABTRAK_TEST_USERNAME;
+const password = process.env.SLABTRAK_TEST_PASSWORD;
+if (!username || !password || process.env.SLABTRAK_TEST_LIVE_MARKET !== "1") throw new Error("Use the isolated browser helper with explicit live-provider opt-in.");
+
+test("real CardSight query retrieves raw completed auctions through the authenticated app", async ({ page }, testInfo) => {
+  test.setTimeout(60_000);
+  let searchRequests = 0;
+  page.on("request", request => { if (request.url().endsWith("/api/market/search") && request.method() === "POST") searchRequests += 1; });
+  await page.goto("/discover");
+  await page.getByLabel("Username", { exact: true }).fill(username!);
+  await page.getByLabel("Password", { exact: true }).fill(password!);
+  await page.getByRole("button", { name: "Open my workspace", exact: true }).click();
+  const submit = page.getByRole("button", { name: "Search sales", exact: true });
+  await expect(submit).toBeEnabled();
+  const before = await (await page.request.get("/api/cards")).json();
+  await page.getByLabel("Card search", { exact: true }).fill("1986 Fleer Charles Barkley");
+  await page.getByText("Search filters", { exact: true }).click();
+  await page.getByLabel("Sale period", { exact: true }).selectOption("all");
+  await page.getByLabel("Sale condition", { exact: true }).selectOption("raw");
+  const responsePromise = page.waitForResponse(response => response.url().endsWith("/api/market/search") && response.request().method() === "POST");
+  await submit.click();
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+  const report = await response.json();
+  expect(report.provider).toBe("cardsight");
+  expect(report.returned_count).toBeGreaterThan(0);
+  expect(report.items.every((sale: { condition: string; price: string }) => sale.condition === "raw" && Number(sale.price) > 0)).toBe(true);
+  await expect(page.getByRole("heading", { name: `${report.returned_count} auction sales found`, exact: true })).toBeVisible();
+  const history = page.getByRole("region", { name: "Sales history", exact: true });
+  await expect(history.getByRole("slider")).toBeVisible();
+  const salesDropdown = page.locator("details").filter({ has: page.getByText(`Sales · ${report.returned_count}`, { exact: true }) });
+  await expect(salesDropdown).not.toHaveAttribute("open", "");
+  await salesDropdown.locator("summary").click();
+  await expect(page.getByRole("list", { name: "Auction sales", exact: true }).getByRole("listitem")).toHaveCount(report.returned_count);
+  expect(await (await page.request.get("/api/cards")).json()).toEqual(before);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await testInfo.attach("Real provider result summary", { body: Buffer.from(JSON.stringify({ query: report.query, provider: report.provider, returned_count: report.returned_count, discarded_count: report.discarded_count, truncated: report.truncated, fetched_at: report.fetched_at }, null, 2)), contentType: "application/json" });
+  await testInfo.attach("Live CardSight query and auction graph", { body: await page.screenshot({ path: testInfo.outputPath("live-cardsight-search.png") }), contentType: "image/png" });
+  const point = history.locator(".sales-history-point").first();
+  await point.scrollIntoViewIfNeeded();
+  const box = await point.boundingBox();
+  expect(box).not.toBeNull();
+  const x = box!.x + box!.width / 2, y = box!.y + box!.height / 2;
+  if (testInfo.project.use.hasTouch) await page.touchscreen.tap(x, y);
+  else await page.mouse.move(x, y);
+  const detail = page.getByRole("region", { name: "Selected auction sale", exact: true });
+  const source = detail.getByRole("link", { name: "View selected auction source ↗", exact: true });
+  await expect(source).toHaveAttribute("href", /^https?:\/\//);
+  const href = await source.getAttribute("href");
+  const selected = report.items.find((sale: { source_url: string }) => sale.source_url === href);
+  expect(selected).toBeDefined();
+  await expect(detail).toContainText(selected.title);
+  await expect(page.getByRole("list", { name: "Auction sales", exact: true }).locator(`[data-sale-id="${selected.id}"]`)).toHaveAttribute("data-selected", "true");
+  if (selected.image_url) {
+    const preview = detail.getByRole("img", { name: `Listing preview for ${selected.title}`, exact: true });
+    const unavailable = detail.getByRole("img", { name: `Listing image unavailable for ${selected.title}`, exact: true });
+    await expect.poll(async () => (await unavailable.count()) > 0 || ((await preview.count()) > 0 && await preview.evaluate(image => (image as HTMLImageElement).complete))).toBe(true);
+    const imageLoaded = (await preview.count()) > 0 && await preview.evaluate(image => (image as HTMLImageElement).naturalWidth > 0);
+    await testInfo.attach("Live listing preview availability", { body: Buffer.from(JSON.stringify({ sale_id: selected.id, image_provided: true, image_loaded: imageLoaded }, null, 2)), contentType: "application/json" });
+    if (!imageLoaded) await expect(unavailable).toBeVisible();
+  }
+  await expect(detail).toBeVisible();
+  expect(searchRequests).toBe(1);
+  await testInfo.attach("Live auction history inspected by pointer or touch", { body: await history.screenshot({ path: testInfo.outputPath("live-cardsight-history-inspected.png") }), contentType: "image/png" });
+  await testInfo.attach("Live selected auction title and original source", { body: await detail.screenshot({ path: testInfo.outputPath("live-cardsight-selected-source.png") }), contentType: "image/png" });
+});

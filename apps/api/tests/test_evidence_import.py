@@ -410,3 +410,22 @@ def test_invalid_pack_cannot_write_collection_or_evidence(client, app, mutation)
         db.commit()
         assert inventory_state(db) == before
         assert sales_state(db) == []
+
+
+def test_listing_photo_annotation_does_not_invalidate_unchanged_sale_or_get_erased(client, app):
+    access(client)
+    card = add(client)
+    data = sale(image_url="https://i.ebayimg.com/images/g/fixture/s-l500.jpg")
+    response = client.post(
+        f"/api/cards/{card['id']}/comparables",
+        json={**data, "expected_definition_id": card["definition_id"]},
+    )
+    assert response.status_code == 201
+    with app.state.sessions() as db:
+        before = sales_state(db)
+        # The original evidence pack has transaction facts, without a listing photo.
+        assert import_evidence(db, "collector", pack(entry(card)), apply=True) == [
+            {"subject": card["subject"], "added": 0, "skipped": 1}
+        ]
+        db.commit()
+        assert sales_state(db) == before

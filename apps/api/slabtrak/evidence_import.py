@@ -107,7 +107,11 @@ def import_evidence(
                     else previous[1].model_dump()
                 )
                 previous_definition = previous.definition_id if key in existing else previous[0]
-                if previous_definition != definition.id or previous_data != data.model_dump():
+                # Listing photos are optional annotations, not transaction facts.
+                previous_data.pop("image_url", None)
+                if previous_definition != definition.id or previous_data != data.model_dump(
+                    exclude={"image_url"}
+                ):
                     raise ValueError(
                         "A sale URL already exists with different facts or card identity."
                     )

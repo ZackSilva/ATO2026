@@ -86,7 +86,7 @@ test("Home methodology and Settings notes disclose details without overwhelming 
   await page.getByRole("navigation", { name: "Workspace" }).getByRole("link", { name: "Settings", exact: true }).click();
   for (const name of ["Account", "Private storage", "Market data", "Display"]) await expect(page.getByRole("region", { name, exact: true })).toBeVisible();
   await expect(page.locator(".session-details dd")).toHaveText(username!);
-  await expect(page.getByText("Not connected", { exact: true })).toBeVisible();
+  await expect(page.getByText("Setup needed", { exact: true })).toBeVisible();
   await expect(page.getByText("Local storage", { exact: true })).toBeVisible();
   const notes = page.locator(".settings-notes");
   await notes.getByText("Installation notes", { exact: true }).click();

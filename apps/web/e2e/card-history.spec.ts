@@ -84,7 +84,7 @@ test("card details retain two-year sale graphs, filter context and remain read-o
     await row.getByRole("button", { name: `View card for ${subject}`, exact: true }).click();
     await expect(slider).toBeVisible();
     await expect(detail.locator("input, select, textarea")).toHaveCount(0);
-    await detail.getByRole("link", { name: "View and manage sold comparables ↗", exact: true }).click();
+    await detail.getByRole("link", { name: "View sold comparables ↗", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Sold comparables", exact: true, level: 1 })).toBeVisible();
     const fullHistory = page.getByRole("region", { name: "Sales history", exact: true });
     await expect(fullHistory.getByRole("slider")).toBeVisible();

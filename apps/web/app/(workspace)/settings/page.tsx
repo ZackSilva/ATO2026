@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useWorkspace } from "../../workspace-shell";
+import MarketConnection from "../../market-connection";
 import "../../settings.css";
 
 export default function SettingsPage() {
@@ -42,10 +43,7 @@ export default function SettingsPage() {
       <section className="settings-section" aria-labelledby="market-settings">
         <h2 id="market-settings">Market data</h2>
         <dl className="settings-rows">
-          <div className="settings-row">
-            <dt><span className="settings-label">Live market feed</span><span className="settings-hint">No automatic provider updates.</span></dt>
-            <dd><span className="settings-state">Not connected</span></dd>
-          </div>
+          <MarketConnection />
           <div className="settings-row">
             <dt><span className="settings-label">Recorded estimates</span><span className="settings-hint">Based on your saved completed-sale evidence.</span></dt>
             <dd><Link className="settings-action" href="/collection">View market data <span aria-hidden="true">→</span></Link></dd>

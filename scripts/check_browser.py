@@ -19,7 +19,7 @@ from sqlalchemy import create_engine, delete, select
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
-from slabtrak.models import Account, CardDefinition, LoginLimit, OwnedCopy
+from slabtrak.models import Account, CardDefinition, ComparableSale, LoginLimit, OwnedCopy
 from slabtrak.security import password_hasher
 
 # Run this helper with PYTHONPATH=apps/api and the API virtual environment.
@@ -43,6 +43,7 @@ with Session(engine) as db:
     account.password_hash = password_hasher.hash(password)
     db.flush()
     db.execute(delete(OwnedCopy).where(OwnedCopy.owner_id == account.id))
+    db.execute(delete(ComparableSale).where(ComparableSale.owner_id == account.id))
     db.execute(delete(CardDefinition).where(CardDefinition.owner_id == account.id))
     db.execute(delete(LoginLimit))
     db.commit()
@@ -66,6 +67,10 @@ env.update(
     DATABASE_URL=url.render_as_string(hide_password=False),
     APP_ORIGIN="http://localhost:3000",
     COOKIE_SECURE="false",
+    # Only the separately invoked live-provider check may use the owner's quota.
+    CARDSIGHT_API_KEY=(values.get("CARDSIGHT_API_KEY") or "")
+    if os.environ.get("SLABTRAK_TEST_LIVE_MARKET") == "1"
+    else "",
     NEXT_TELEMETRY_DISABLED="1",
     SLABTRAK_TEST_USERNAME=username,
     SLABTRAK_TEST_PASSWORD=password,

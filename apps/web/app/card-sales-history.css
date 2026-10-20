@@ -13,8 +13,20 @@
 .sales-history-point { fill: var(--accent); }
 .sales-history-cursor { stroke: var(--muted); stroke-dasharray: 3 5; }
 .sales-history-dates { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 12px; margin-top: 10px; }
+.sales-history-selected { border-bottom: 1px solid var(--line); margin-top: 12px; }
+.sales-history-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; font-size: 12px; color: var(--muted); }
+.sales-history-navigation button { min-height: 44px; }
 .sales-history-note { margin-top: 16px; }
 .sales-history-empty { padding: 24px 0; font-size: 13px; }
+.saved-sale-detail { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; padding: 16px 0; min-width: 0; overflow-wrap: anywhere; }
+.saved-sale-detail .eyebrow { display: block; margin-bottom: 12px; }
+.saved-sale-detail strong { font-size: 20px; font-weight: 500; }
+.saved-sale-detail p, .saved-sales-list p { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.saved-sales-list { margin: 16px 0; min-width: 0; }
+.saved-sales-list summary { cursor: pointer; padding: 12px 0; font-size: 13px; }
+.saved-sales-list ul { list-style: none; padding: 0; margin: 0; }
+.saved-sales-list li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; padding: 16px 12px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.saved-sales-list li[data-selected="true"] { border-left: 2px solid var(--accent); background: var(--surface-raised); }
 @media (max-width: 680px) {
   .sales-history-plot { height: 170px; }
   .sales-history-ranges { gap: 0; justify-content: space-between; }

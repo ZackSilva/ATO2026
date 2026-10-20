@@ -15,10 +15,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from slabtrak.models import ComparableSale, OwnedCopy
+from slabtrak.models import ComparableSale, OwnedCopy, RawCondition
+from slabtrak.urls import safe_image_url
 
 WINDOW_DAYS = 180
 MINIMUM_SALES = 3
+STALE_AFTER_DAYS = 90
 PositiveMoney = Annotated[Decimal, Field(gt=0, max_digits=12, decimal_places=2)]
 
 
@@ -29,10 +31,22 @@ class ComparableInput(BaseModel):
     price: PositiveMoney
     currency: str = Field(default="USD", pattern=r"^[A-Z]{3}$")
     condition: Literal["raw", "graded"] = "raw"
+    raw_condition: RawCondition = "unspecified"
     grader: str = Field(default="", max_length=50)
     grade: str = Field(default="", max_length=20)
     source: str = Field(min_length=1, max_length=120)
     source_url: str = Field(default="", max_length=2048)
+    image_url: str | None = Field(default=None, max_length=2048)
+
+    @field_validator("image_url")
+    @classmethod
+    def safe_image(cls, value):
+        if value is None:
+            return None
+        cleaned = safe_image_url(value)
+        if not cleaned:
+            raise ValueError("Use a public HTTPS listing-image URL without credentials.")
+        return cleaned
 
     @field_validator("source_url")
     @classmethod
@@ -58,6 +72,8 @@ class ComparableInput(BaseModel):
             raise ValueError("Raw completed sales cannot have grading details.")
         if self.condition == "graded" and not (self.grader and self.grade):
             raise ValueError("Record both grading company and grade for a graded sale.")
+        if self.condition == "graded" and self.raw_condition != "unspecified":
+            raise ValueError("Raw condition categories apply only to raw completed sales.")
         return self
 
 
@@ -80,6 +96,7 @@ class Estimate(BaseModel):
     card_id: UUID
     currency: str
     condition: Literal["raw", "graded"]
+    raw_condition: RawCondition = "unspecified"
     grader: str
     grade: str
     amount: Decimal | None
@@ -87,6 +104,9 @@ class Estimate(BaseModel):
     high: Decimal | None
     sample_count: int
     latest_sale: date | None
+    latest_matching_sale: date | None = None
+    days_since_latest_sale: int | None = None
+    stale: bool = True
     confidence: Literal["insufficient", "low", "medium"]
     reason: str
     history: list[PriceObservation] = Field(default_factory=list)
@@ -101,6 +121,7 @@ class EstimateList(BaseModel):
 
 class ComparableList(BaseModel):
     items: list[ComparableOutput]
+    matching_sale_ids: list[UUID]
     estimate: Estimate
 
 
@@ -116,24 +137,29 @@ def normalized_grade(value: str) -> str:
 
 def comparable_key(definition_id: UUID, data: ComparableInput) -> str:
     """Share duplicate detection between recorded sales and operator imports."""
-    basis = data.source_url or json.dumps(
-        (
-            str(definition_id),
-            data.sold_on.isoformat(),
-            str(data.price.quantize(Decimal(".01"))),
-            data.currency,
-            data.condition,
-            data.grader.casefold(),
-            normalized_grade(data.grade),
-            data.source.casefold(),
-        )
+    identity = (
+        str(definition_id),
+        data.sold_on.isoformat(),
+        str(data.price.quantize(Decimal(".01"))),
+        data.currency,
+        data.condition,
+        data.grader.casefold(),
+        normalized_grade(data.grade),
+        data.source.casefold(),
     )
+    # Keep pre-condition-category hashes valid for existing saved evidence.
+    if data.raw_condition != "unspecified":
+        identity += (data.raw_condition,)
+    basis = data.source_url or json.dumps(identity)
     return hashlib.sha256(basis.encode()).hexdigest()
 
 
-def estimate_for(copy: OwnedCopy, sales: list[ComparableSale], today: date) -> Estimate:
-    start = today - timedelta(days=WINDOW_DAYS - 1)
-    history = [
+def matching_sales(
+    copy: OwnedCopy, sales: list[ComparableSale], today: date
+) -> list[ComparableSale]:
+    """Keep source identities attached to the exact observations used by card graphs."""
+    raw_condition = copy.raw_condition or "unspecified"
+    return [
         sale
         for sale in sales
         if sale.definition_id == copy.definition_id
@@ -141,22 +167,35 @@ def estimate_for(copy: OwnedCopy, sales: list[ComparableSale], today: date) -> E
         and sale.condition == copy.condition
         and sale.sold_on <= today
         and (
-            copy.condition == "raw"
+            (copy.condition == "raw" and (sale.raw_condition or "unspecified") == raw_condition)
             or (
-                copy.grade.strip()
+                copy.condition == "graded"
+                and copy.grade.strip()
                 and sale.grader.casefold().strip() == copy.grader.casefold().strip()
                 and normalized_grade(sale.grade) == normalized_grade(copy.grade)
             )
         )
     ]
+
+
+def estimate_for(copy: OwnedCopy, sales: list[ComparableSale], today: date) -> Estimate:
+    start = today - timedelta(days=WINDOW_DAYS - 1)
+    raw_condition = copy.raw_condition or "unspecified"
+    history = matching_sales(copy, sales, today)
     matched = [sale for sale in history if sale.sold_on >= start]
     prices = [sale.price for sale in matched]
     enough = len(prices) >= MINIMUM_SALES
-    note = (
-        "Raw condition is unverified; the observed range may include different conditions."
-        if copy.condition == "raw"
-        else "Only sales from the same grading company and grade are used."
-    )
+    if copy.condition == "raw":
+        note = (
+            "Raw condition is unverified; only sales with unspecified raw condition are used."
+            if raw_condition == "unspecified"
+            else f"Only raw sales categorized as {raw_condition.replace('_', ' ')} are used; "
+            "seller condition descriptions are not independently verified."
+        )
+    else:
+        note = "Only sales from the same grading company and grade are used."
+    latest_matching = max((sale.sold_on for sale in history), default=None)
+    days_since_latest = (today - latest_matching).days if latest_matching else None
     reason = (
         (
             "Median of manually recorded completed sales; sources are not independently verified. "
@@ -170,6 +209,7 @@ def estimate_for(copy: OwnedCopy, sales: list[ComparableSale], today: date) -> E
         card_id=copy.id,
         currency=copy.currency,
         condition=copy.condition,
+        raw_condition=raw_condition,
         grader=copy.grader,
         grade=copy.grade,
         amount=median(prices).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if enough else None,
@@ -177,6 +217,9 @@ def estimate_for(copy: OwnedCopy, sales: list[ComparableSale], today: date) -> E
         high=max(prices) if enough else None,
         sample_count=len(prices),
         latest_sale=max((sale.sold_on for sale in matched), default=None),
+        latest_matching_sale=latest_matching,
+        days_since_latest_sale=days_since_latest,
+        stale=days_since_latest is None or days_since_latest > STALE_AFTER_DAYS,
         confidence=("medium" if copy.condition == "graded" and len(prices) >= 5 else "low")
         if enough
         else "insufficient",
@@ -244,9 +287,11 @@ def estimates_router(db_session, authenticated, mutation) -> APIRouter:
     def list_comparables(card_id: UUID, db: DB, identity: Identity):
         copy = owned(db, identity[0].id, card_id)
         sales = sales_for(db, identity[0].id, copy.definition_id)
+        today = datetime.now(UTC).date()
         return ComparableList(
             items=[comparable_output(sale) for sale in sales],
-            estimate=estimate_for(copy, sales, datetime.now(UTC).date()),
+            matching_sale_ids=[sale.id for sale in matching_sales(copy, sales, today)],
+            estimate=estimate_for(copy, sales, today),
         )
 
     @router.post(

@@ -31,15 +31,44 @@
 .market-form .market-form-wide { grid-column: 1 / -1; }
 .market-form .primary { width: auto; margin-top: 24px; }
 .market-comparables { list-style: none; padding: 0; margin: 24px 0; }
-.market-comparables li { border-top: 1px solid var(--line); padding: 20px 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+.market-comparables li { border-top: 1px solid var(--line); padding: 20px 0; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; align-items: start; }
 .market-comparables h3 { font-size: 16px; font-weight: 500; margin: 0 0 8px; }
 .market-comparables p { font-size: 13px; margin: 4px 0; overflow-wrap: anywhere; }
 .market-comparables button { min-height: 44px; }
 .market-data-heading { margin-top: 32px; }
 .market-method { max-width: 760px; font-size: 13px; }
+.market-search-form { max-width: 900px; margin: 32px 0 16px; }
+.market-search-form > fieldset { padding: 0; min-width: 0; }
+.market-search-form input[type="search"] { font-size: 18px; padding: 15px 16px; }
+.market-search-filters { margin: 18px 0; }
+.market-search-filters summary { cursor: pointer; min-height: 44px; padding: 12px 0; font-size: 13px; }
+.market-search-filters .market-form-grid { margin-top: 18px; }
+.market-search-form .primary { margin-top: 8px; }
+.market-search-setup { border-bottom: 1px solid var(--line); padding: 16px 0; max-width: 760px; }
+.market-search-setup h2 { font-size: 18px; font-weight: 450; }
+.market-search-setup p { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.market-search-results { margin-top: 44px; }
+.auction-sales { list-style: none; padding: 0; margin: 28px 0; }
+.auction-sales li { border-top: 1px solid var(--line); padding: 22px 12px; display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 16px 24px; align-items: start; }
+.auction-sales li[data-selected="true"] { box-shadow: inset 2px 0 var(--accent); background: var(--surface); }
+.auction-sales-heading { margin-top: 32px; }
+.selected-auction-sale { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 20px; align-items: start; padding: 20px 0; }
+.selected-auction-sale h4 { margin: 6px 0 10px; font-size: 16px; line-height: 1.5; font-weight: 450; overflow-wrap: anywhere; }
+.selected-auction-sale p { font-size: 12px; color: var(--muted); margin: 6px 0; }
+.selected-auction-sale strong { display: block; margin: 12px 0 8px; font-weight: 450; font-size: 20px; }
+.selected-auction-sale .workspace-text-link { font-size: 12px; }
+.auction-sale-identity h3 { font-size: 16px; line-height: 1.5; font-weight: 450; margin: 0 0 8px; overflow-wrap: anywhere; }
+.auction-sale-identity p { margin: 6px 0; font-size: 12px; color: var(--muted); }
+.auction-sale-price { font-size: 20px; font-weight: 450; white-space: nowrap; }
+.auction-sales .workspace-text-link { font-size: 12px; }
+.market-freshness { font-size: 13px; color: var(--muted); }
 @media (max-width: 680px) {
   .market-summary { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 20px; }
   .market-form-grid { grid-template-columns: minmax(0, 1fr); }
-  .market-comparables li { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .market-comparables li { grid-template-columns: 64px minmax(0, 1fr); gap: 14px; }
   .market-comparables button { justify-self: start; }
+  .auction-sales li { grid-template-columns: 64px minmax(0, 1fr); gap: 8px 14px; padding: 20px 10px; }
+  .auction-sales li .listing-preview { grid-row: 1 / 3; }
+  .auction-sale-price { grid-column: 2; }
+  .selected-auction-sale { grid-template-columns: 64px minmax(0, 1fr); gap: 14px; }
 }

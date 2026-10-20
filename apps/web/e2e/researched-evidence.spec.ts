@@ -58,7 +58,8 @@ test("researched sales produce graded and raw estimates while purchase costs rem
     await page.goto(`/collection/${cards[1].id}/market`);
     await expect(page.getByTestId("card-market-estimate")).toHaveText(/USD\s*542\.79/);
     await expect(page.getByRole("heading", { name: "Recorded sales · 6", exact: true })).toBeVisible();
-    await expect(page.getByRole("link", { name: "View sale source ↗" })).toHaveCount(6);
+    await page.locator("summary").filter({ hasText: /^Recorded sales · 6$/ }).click();
+    await expect(page.locator(".market-comparables").getByRole("link", { name: "View sale source ↗" })).toHaveCount(6);
     await expect(page.getByText(/sources are not independently verified/)).toBeVisible();
     await testInfo.attach("Reported sales, provenance and raw context", { body: await page.screenshot({ path: testInfo.outputPath("researched-barkley-sales.png"), fullPage: true }), contentType: "image/png" });
     await page.getByRole("link", { name: "← My Collection", exact: true }).click();

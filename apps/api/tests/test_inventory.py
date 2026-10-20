@@ -119,6 +119,8 @@ def test_invalid_inventory_values_are_rejected_without_writing(client):
         {"condition": "graded"},
         {"condition": "graded", "grader": "PSA", "corners": "9"},
         {"condition": "graded", "grader": "BGS", "corners": "10.1"},
+        {"raw_condition": "mint"},
+        {"condition": "graded", "grader": "PSA", "raw_condition": "near_mint"},
         {"owner_id": str(uuid4())},
         {"definition_id": str(uuid4())},
     ):
@@ -126,6 +128,27 @@ def test_invalid_inventory_values_are_rejected_without_writing(client):
         assert response.status_code == 422, fields
     assert client.get("/api/cards").json()["total"] == 0
     assert client.post("/api/cards", content=b"x" * 32769).status_code == 413
+
+
+def test_raw_category_belongs_to_copy_and_survives_older_client_metadata_edits(client, app):
+    access(client)
+    card = add(client, raw_condition="near_mint")
+    sibling = add(client, raw_condition="poor")
+    assert sibling["definition_id"] == card["definition_id"]
+    assert sibling["raw_condition"] == "poor"
+    payload = edit(card, notes="Metadata from an older client")
+    payload.pop("raw_condition")
+    response = client.put(f"/api/cards/{card['id']}", json=payload)
+    assert response.status_code == 200
+    assert response.json()["raw_condition"] == "near_mint"
+    assert response.json()["purchase_price"] is None
+    with app.state.sessions() as db:
+        with pytest.raises(IntegrityError):
+            db.execute(
+                text("UPDATE slabtrak.owned_copies SET raw_condition='mint' WHERE id=:id"),
+                {"id": card["id"]},
+            )
+            db.commit()
 
 
 def test_private_reads_writes_and_csrf(client):

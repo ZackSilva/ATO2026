@@ -14,6 +14,14 @@ class Settings(BaseSettings):
     login_attempts: int = Field(default=5, ge=1, le=20)
     login_window_seconds: int = Field(default=900, ge=60, le=86400)
     photo_root: Path = Path("/data/photos")
+    cardsight_api_key: SecretStr | None = None
+
+    @field_validator("cardsight_api_key", mode="before")
+    @classmethod
+    def optional_cardsight_key(cls, value):
+        if isinstance(value, str):
+            return value.strip() or None
+        return value
 
     @field_validator("database_url")
     @classmethod

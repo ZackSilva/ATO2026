@@ -1,17 +1,22 @@
+import type { RawCondition } from "./cards";
+
 export type MarketEstimate = {
   card_id: string; currency: string; condition: "raw" | "graded";
   grader: string; grade: string; amount: string | null; low: string | null;
   high: string | null; sample_count: number; latest_sale: string | null;
   confidence: "insufficient" | "low" | "medium"; reason: string;
   history?: { sold_on: string; price: string }[];
+  raw_condition?: RawCondition; latest_matching_sale?: string | null;
+  days_since_latest_sale?: number | null; stale?: boolean;
 };
 export type Estimates = { as_of: string; window_days: number; minimum_sales: number; items: MarketEstimate[] };
 export type Comparable = {
   id: string; definition_id: string; sold_on: string; price: string;
   currency: string; condition: "raw" | "graded"; grader: string; grade: string;
-  source: string; source_url: string; created_at: string;
+  source: string; source_url: string; created_at: string; image_url?: string | null;
+  raw_condition?: RawCondition;
 };
-export type ComparableReport = { items: Comparable[]; estimate: MarketEstimate };
+export type ComparableReport = { items: Comparable[]; matching_sale_ids: string[]; estimate: MarketEstimate };
 
 // Sum only supported estimates in one currency, without losing integer cents.
 export function estimateSubtotal(items: MarketEstimate[]): string | null {

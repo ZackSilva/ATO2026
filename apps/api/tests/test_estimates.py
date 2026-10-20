@@ -7,7 +7,7 @@ from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from slabtrak.estimates import estimate_for
+from slabtrak.estimates import ComparableInput, comparable_key, estimate_for
 from slabtrak.models import Account, ComparableSale, OwnedCopy
 from slabtrak.security import password_hasher
 from tests.conftest import ORIGIN, PASSWORD
@@ -66,6 +66,15 @@ def test_same_grader_grade_identity_currency_only_with_other_grades_visible(clie
     completed(client, raw, "3")
     data = listed(client, graded)
     assert len(data["items"]) == 9
+    matched = [sale for sale in data["items"] if sale["id"] in data["matching_sale_ids"]]
+    assert sorted(sale["price"] for sale in matched) == [
+        "100.00",
+        "110.00",
+        "120.00",
+        "130.00",
+        "90.00",
+    ]
+    assert len(data["matching_sale_ids"]) == 5
     assert data["estimate"]["sample_count"] == 5
     assert data["estimate"]["amount"] == "110.00"
     assert data["estimate"]["confidence"] == "medium"
@@ -80,6 +89,7 @@ def test_same_grader_grade_identity_currency_only_with_other_grades_visible(clie
     assert [sale["price"] for sale in listed(client, raw)["estimate"]["history"]] == ["3.00"]
     other = add(client, subject="Different card")
     assert listed(client, other)["items"] == []
+    assert listed(client, other)["matching_sale_ids"] == []
     assert listed(client, other)["estimate"]["amount"] is None
     assert listed(client, other)["estimate"]["history"] == []
 
@@ -127,6 +137,8 @@ def test_date_window_includes_today_and_179_days_but_not_older_or_future():
         {"condition": "raw", "grade": "9"},
         {"condition": "graded", "grader": "PSA"},
         {"condition": "graded", "grade": "9"},
+        {"raw_condition": "mint"},
+        {"condition": "graded", "grader": "PSA", "grade": "9", "raw_condition": "good"},
         {"source_url": "javascript:alert(1)"},
         {"source_url": "file:///etc/passwd"},
         {"source_url": "https://user:password@example.com/sale"},
@@ -295,3 +307,138 @@ def test_source_input_is_text_only_not_a_network_fetch(client):
     card = add(client)
     completed(client, card, source_url="http://127.0.0.1:1/private")
     assert listed(client, card)["items"][0]["source_url"] == "http://127.0.0.1:1/private"
+
+
+def test_raw_condition_matches_only_same_category_and_keeps_context_sales(client):
+    access(client)
+    near_mint = add(client, raw_condition="near_mint")
+    unspecified = add(client)
+    good = add(client, raw_condition="good")
+    for price in ("10", "20", "30"):
+        completed(client, near_mint, price, raw_condition="near_mint")
+    for price in ("1", "2", "3"):
+        completed(client, good, price, raw_condition="good")
+    completed(client, unspecified, "999")
+    estimate = listed(client, near_mint)["estimate"]
+    assert estimate["amount"] == "20.00"
+    assert estimate["sample_count"] == 3
+    assert estimate["raw_condition"] == "near_mint"
+    assert "categorized as near mint" in estimate["reason"]
+    assert [item["price"] for item in estimate["history"]] == ["10.00", "20.00", "30.00"]
+    report = listed(client, near_mint)
+    assert len(report["items"]) == 7
+    assert {
+        sale["price"] for sale in report["items"] if sale["id"] in report["matching_sale_ids"]
+    } == {"10.00", "20.00", "30.00"}
+    assert listed(client, good)["estimate"]["amount"] == "2.00"
+    assert listed(client, unspecified)["estimate"]["sample_count"] == 1
+    assert listed(client, unspecified)["estimate"]["amount"] is None
+    changed = client.put(
+        f"/api/cards/{near_mint['id']}", json=edit(near_mint, raw_condition="good")
+    ).json()
+    assert listed(client, changed)["estimate"]["amount"] == "2.00"
+    assert len(listed(client, changed)["items"]) == 7
+
+
+@pytest.mark.parametrize("days,stale", [(0, False), (90, False), (91, True), (180, True)])
+def test_freshness_uses_latest_exact_matching_history_not_other_conditions(days, stale):
+    today, definition = date(2026, 10, 20), uuid4()
+    copy = OwnedCopy(
+        id=uuid4(),
+        definition_id=definition,
+        currency="USD",
+        condition="raw",
+        raw_condition="excellent",
+        grader="",
+        grade="",
+    )
+    sales = [
+        ComparableSale(
+            definition_id=definition,
+            currency="USD",
+            condition="raw",
+            grader="",
+            grade="",
+            raw_condition=condition,
+            sold_on=today - timedelta(days=age),
+            price=Decimal("10"),
+        )
+        for condition, age in (("excellent", days), ("good", 0))
+    ]
+    estimate = estimate_for(copy, sales, today)
+    assert estimate.latest_matching_sale == today - timedelta(days=days)
+    assert estimate.days_since_latest_sale == days
+    assert estimate.stale is stale
+    assert estimate.latest_sale == (today - timedelta(days=days) if days < 180 else None)
+    missing = estimate_for(copy, [], today)
+    assert missing.stale
+    assert missing.latest_matching_sale is None and missing.days_since_latest_sale is None
+
+
+def test_duplicate_hash_keeps_legacy_unspecified_keys_and_separates_explicit_categories():
+    import hashlib
+    import json
+
+    definition = uuid4()
+    data = ComparableInput(sold_on="2026-01-01", price="10", source="Private sale")
+    legacy = json.dumps(
+        (str(definition), "2026-01-01", "10.00", "USD", "raw", "", "", "private sale")
+    )
+    assert comparable_key(definition, data) == hashlib.sha256(legacy.encode()).hexdigest()
+    specified = data.model_copy(update={"raw_condition": "near_mint"})
+    assert comparable_key(definition, specified) != comparable_key(definition, data)
+    source = "https://example.com/sale/1"
+    assert comparable_key(
+        definition, data.model_copy(update={"source_url": source})
+    ) == comparable_key(definition, specified.model_copy(update={"source_url": source}))
+
+
+def test_listing_image_is_optional_private_metadata_and_does_not_change_sale_identity(client):
+    access(client)
+    card = add(client)
+    missing = completed(client, card, "12.50")
+    assert missing["image_url"] is None
+    url = "https://i.ebayimg.com/images/g/example/s-l500.jpg"
+    imaged = completed(client, card, "15.00", image_url=url + "#preview")
+    assert imaged["image_url"] == url
+    report = listed(client, card)
+    assert next(sale for sale in report["items"] if sale["id"] == imaged["id"])["image_url"] == url
+    duplicate = {
+        key: value
+        for key, value in imaged.items()
+        if key not in {"id", "definition_id", "created_at"}
+    }
+    duplicate["expected_definition_id"] = card["definition_id"]
+    duplicate["image_url"] = "https://i.ebayimg.com/images/g/another/s-l500.jpg"
+    assert client.post(f"/api/cards/{card['id']}/comparables", json=duplicate).status_code == 409
+    assert client.get(f"/api/cards/{card['id']}").json() == card
+
+
+@pytest.mark.parametrize(
+    "image_url",
+    [
+        "http://example.com/listing.jpg",
+        "https://localhost/a.jpg",
+        "https://127.0.0.1/a.jpg",
+        "https://192.168.1.1/a.jpg",
+        "https://user:password@example.com/a.jpg",
+        "https://example.com/bad image.jpg",
+        "data:image/png;base64,abc",
+        "javascript:alert(1)",
+    ],
+)
+def test_saved_listing_image_rejects_unsafe_references_without_writing(client, image_url):
+    access(client)
+    card = add(client)
+    response = client.post(
+        f"/api/cards/{card['id']}/comparables",
+        json={
+            "expected_definition_id": card["definition_id"],
+            "sold_on": datetime.now(UTC).date().isoformat(),
+            "price": "12",
+            "source": "Fixture",
+            "image_url": image_url,
+        },
+    )
+    assert response.status_code == 422
+    assert listed(client, card)["items"] == []

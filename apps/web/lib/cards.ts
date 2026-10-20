@@ -1,7 +1,14 @@
+export const rawConditions = {
+  unspecified: "Not assessed", near_mint: "Near mint", excellent: "Excellent",
+  good: "Good", fair: "Fair", poor: "Poor",
+} as const;
+export type RawCondition = keyof typeof rawConditions;
+
 export type CardInput = {
   subject: string; year: number | null; sport: string; manufacturer: string;
   set_name: string; card_number: string; parallel: string; autograph: boolean;
   memorabilia: boolean; print_run: number | null; condition: "raw" | "graded";
+  raw_condition?: RawCondition;
   grader: string; grade: string; certification: string; centering: string | null;
   corners: string | null; edges: string | null; surface: string | null;
   serial_number: number | null; purchase_price: string | null; shipping: string | null;
@@ -74,6 +81,7 @@ export function formCard(form: HTMLFormElement, archived: boolean): CardInput {
     autograph: data.has("autograph"), memorabilia: data.has("memorabilia"),
     print_run: number("print_run"), serial_number: number("serial_number"),
     condition: graded ? "graded" : "raw", grader: graded ? text("grader") : "",
+    raw_condition: graded ? "unspecified" : (text("raw_condition") || "unspecified") as RawCondition,
     grade: graded ? text("grade") : "", certification: graded ? text("certification") : "",
     centering: bgs ? decimal("centering") : null, corners: bgs ? decimal("corners") : null,
     edges: bgs ? decimal("edges") : null, surface: bgs ? decimal("surface") : null,
