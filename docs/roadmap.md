@@ -62,7 +62,7 @@ Record the exact source version, data migrations, deployment destination, observ
 ## Current sequence agreed with the owner
 
 1. Review the implemented CardSight query search, confirmed per-copy associations and automatic collection estimates. Exclude asking prices, preserve graphs/saved history and unknown costs, and distinguish live access from fixture checks. Manual market-data imports are not an accepted user workflow; fuzzy results cannot establish exact identity. Pause at validated commit-and-push checkpoints before further feature work or publication.
-2. Prepare Vercel deployment with a durable cloud database and private object storage. Select the owner's projects, wire environment settings, then verify authentication, photo privacy, two-device reads and persistence after redeployment before claiming hosted success.
+2. Prepare one new Vercel Services project with `web` and `api`, with owner-confirmed names/public paths/binding. Runtime API forwarding and root configuration are implemented; see `vercel-services.md`. Add a durable cloud database and private object storage, then verify authentication, photo privacy, two-device reads and persistence after redeployment before claiming hosted success.
 3. Add auditable sale events, corrections/refunds and reconciliation against reports. Current editable sale fields remain unchanged until that increment.
 
 The owner deferred new backup/export work for this nonproduction sequence. Git versions source, not the private collection database or photo volume; existing local data and private backups remain separate.

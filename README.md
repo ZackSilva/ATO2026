@@ -36,6 +36,7 @@ Open [Personal.code-workspace](Personal.code-workspace) in VS Code to use this r
 - [Design system](docs/design-system.md): brand, pitch-black palette, typography, layout, and components; review the live examples at http://localhost:3000/design.
 - [Architecture](docs/architecture.md): deployment, authentication, data model, storage, cost constraints, and engineering decisions.
 - [Development roadmap](docs/roadmap.md): working increments, first-release acceptance checks, and later milestones.
+- [Vercel Services setup](docs/vercel-services.md): one project with a public website, an internal API and runtime binding; database and private hosted photos still need setup.
 - [Validation](docs/validation.md): executed checks and remaining evidence gaps.
 - [Market data](docs/market-data.md): provider access, confirmed card matching, automatic estimates and retention limits.
 - [Dependencies](docs/dependencies.md): versions, licenses, audits, and lockfiles.

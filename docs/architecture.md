@@ -28,7 +28,7 @@ flowchart LR
     LocalAPI --> LocalPhotos[Local photo volume]
 ```
 
-Use one repository with two application directories, `apps/web` and `apps/api`. Both directories now contain the private-access implementation. Each directory will map to its own Vercel project. Use one stable production application URL; configure the frontend's `/api` forwarding to a fixed, trusted backend URL. Never build an arbitrary URL proxy. Verify cookies, CSRF checks, uploads, and error responses through that forwarding path before release.
+Use one repository with two application directories, `apps/web` and `apps/api`, deployed as services in one Vercel project with repository-root `vercel.json`. The confirmed public catch-all targets `web`; its Node.js `/api/*` function calls the internal `api` service through the runtime-injected `API_SERVICE_URL` binding. This replaces the earlier two-project plan and build-time backend rewrite. The collector confirmed the service names, public exposure and binding; publication still requires authorization. Never build an arbitrary URL proxy. Verify cookies, CSRF checks, uploads and errors through this forwarding path before release; see `vercel-services.md` for setup and remaining storage/database work.
 
 The backend owns all business rules and authorization. The frontend presents state and makes validated requests; it does not connect directly to the database or receive privileged storage credentials. Supabase provides PostgreSQL and object storage rather than owning application logic.
 
@@ -125,7 +125,7 @@ Durable records mean database commits survive page reloads and application deplo
 
 ## Deployment preparation
 
-Before publishing, identify the exact Vercel account/team, frontend and backend projects, stable URLs, intended audience, Supabase project/region, private bucket, and source version. The user completes account sign-in and enters secrets through local environment files or provider settings, never in chat or Git.
+Before publishing, identify the exact Vercel account/team and Services project, confirm service names/bindings/public paths, stable URL, intended audience, Supabase project/region, private bucket and source version. The user completes account sign-in and enters secrets through local environment files or provider settings, never in chat or Git.
 
 Keep local development and previews away from the real collection database. If only one free database is available, use isolated development data locally rather than pointing unreviewed previews at production. Verify that deployment protection does not accidentally block frontend-to-backend requests. Run hosted migrations deliberately, then verify login, add/edit/search, photo access, restart persistence, cross-device access, and backup/restore on the deployed version.
 
