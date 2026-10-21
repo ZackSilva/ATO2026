@@ -25,6 +25,11 @@ services:
       APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       CARDSIGHT_API_KEY: ${CARDSIGHT_API_KEY:-}
+      PSA_API_TOKEN: ${PSA_API_TOKEN:-}
+      PHOTO_STORAGE_BACKEND: ${PHOTO_STORAGE_BACKEND:-local}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY:-}
+      SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-card-photos}
     depends_on:
       db:
         condition: service_healthy

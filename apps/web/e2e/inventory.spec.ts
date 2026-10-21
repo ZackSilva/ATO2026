@@ -275,8 +275,8 @@ test("front and back photos remain independent through preview, replacement, rel
   await expect(thumbnail).toHaveAttribute("src", frontPhotoUrl!);
   const unauthenticated = await browser.newContext();
   try {
-    expect((await unauthenticated.request.get(`http://localhost:3000${frontPhotoUrl}`)).status()).toBe(401);
-    expect((await unauthenticated.request.get(`http://localhost:3000${originalBackUrl}`)).status()).toBe(401);
+    expect((await unauthenticated.request.get(new URL(frontPhotoUrl!, page.url()).href)).status()).toBe(401);
+    expect((await unauthenticated.request.get(new URL(originalBackUrl!, page.url()).href)).status()).toBe(401);
   }
   finally { await unauthenticated.close(); }
   await record.getByRole("button", { name: `View details for ${subject}`, exact: true }).click();

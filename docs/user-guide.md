@@ -16,15 +16,23 @@ The account menu is in the top-right header. Open it to see the signed-in userna
 
 ## Add and inspect cards
 
-After signing in, choose **Add card**. Only the player/subject is required; each saved entry represents one physical card. Enter a second entry for another copy, even if its printed card details match. Matching definitions are shared within your account, while grading, serial numbers, notes, and costs stay separate for each copy.
+After signing in, choose **Add card**. In **Find your card**, search by player, year, set or card number, then choose **Search cards**. Review the results and choose **Use card details** to fill the editable identity fields below. Check the issue, number and parallel against your copy; catalog suggestions can be incomplete. Searching or choosing details does not save a card, confirm a market match or supply a price. You can also enter everything manually.
+
+Only the player/subject is required; each saved entry represents one physical card. Enter a second entry for another copy, even if its printed card details match. Matching definitions are shared within your account, while grading, serial numbers, notes, and costs stay separate for each copy.
+
+When the details are ready, choose **Estimate Value** near the top of the editor to save the physical copy first and open the estimate flow. It automatically finds candidate matches when pricing is configured; review the exact issue, parallel and grading label, then choose **Use this match** before automatic pricing begins. **Save card** still saves without pricing and offers **Estimate Value** afterward. A failed or unsupported lookup leaves your saved card available without an invented estimate.
 
 Blank costs mean unknown. Enter `0` for a cost you know was zero. A total acquisition cost appears only when purchase price, shipping, tax, and other costs are all known; otherwise the screen labels the recorded costs as incomplete. These amounts are acquisition records, not market valuations, and different currencies are not combined.
 
-Click a card row, its title, or its thumbnail to open read-only details: identity, grading, photos, acquisition costs, seller, and notes. The title is also a keyboard-accessible button. **Edit** is a separate action in the row and detail view; only the editor contains editable fields and save/archive/delete controls. Saving or canceling an edit opened from details returns to that view. Missing costs remain unknown, distinct from a recorded zero.
+Click a card row, its title, or its thumbnail to open read-only details: identity, grading, photos, acquisition costs, seller, and notes. The title is also a keyboard-accessible button. Choose **Estimate Value** in the details header to find and confirm a market match for an existing card. **Edit** is a separate action in the row and detail view; only the editor contains editable fields and save/archive/delete controls. Saving or canceling an edit opened from details returns to that view. Missing costs remain unknown, distinct from a recorded zero.
 
 ## Record grading and sales
 
-To record **PSA 9**, choose **Edit → Condition → Graded**, set **Grading company** to PSA, and enter 9 in **Grade**. BGS records can also store subgrades. Grading is recorded by you; the app does not verify a certification with the grading company.
+To record **PSA 9**, choose **Edit → Condition → Graded**, set **Grading company** to PSA, and enter 9 in **Grade**. With a configured server token and an approved PSA API account, entering a 6–12 digit **Certification number** and leaving the field requests a lookup. **Look up certificate** retries it. Typing alone makes no lookup request.
+
+A successful response proposes details for review. Check the physical card and label, then choose **Use certificate details** to fill identity and grading fields. Nothing is applied automatically; an unknown manufacturer or unsupported year preserves your existing entry, and acquisition costs stay unchanged. Choose **Estimate Value** afterward to save and follow the same explicit catalog-match confirmation. A certificate proposal supplies no price and does not establish ownership or physical authenticity.
+
+The live PSA check returned HTTP 403 because API access requires an approved customer account; no successful live lookup has been demonstrated. Manual entry remains usable. BGS, SGC, CGC and TAG retain manual certificate/grade entry and official verification links; automated lookup is not available for them. BGS records can also store subgrades. See [certificate lookup coverage and setup](certificate-lookups.md).
 
 To record a sale, choose **Edit → Ownership status → Sold**. Enter the gross **Sale price**, total **Sale fees**, and an optional **Sold on** date in the card's currency. Enter 0 when no fees were charged. The editor previews **Net sale = sale price − fees**, **Profit vs purchase price = net sale − purchase price**, and **Profit after all acquisition costs = net sale − purchase price − shipping − tax − other costs**. Unknown purchase costs stay unknown. A negative result is a loss; fees can exceed the sale price. These amounts are computed exactly in cents/decimals and remain separate from market estimates.
 
@@ -36,9 +44,9 @@ Search finds players/subjects, sets, manufacturers, card numbers, parallels, cat
 
 ## Front and back photos
 
-In card details, switch between **Front** and **Back**, then choose **Enlarge photos** for a larger image. **Edit** lets you upload, replace, or remove the selected side's JPEG, PNG, or WebP image (up to 4 MB and 16 megapixels per side). Save a new card before adding its photos. Photo changes save separately and retain unsaved editor fields until you save or close the editor. Uploaded images are re-encoded as JPEG previews at up to 1,200 pixels on the longest side; metadata is removed. Both previews stay private to their owner and survive ordinary container replacement in the named `photos` volume. Existing images are retained as fronts; a back-only card uses its back as the thumbnail.
+In card details, switch between **Front** and **Back**, then choose **Enlarge photos** for a larger image. **Edit** lets you upload, replace, or remove the selected side's JPEG, PNG, or WebP image (up to 4 MiB and 16 megapixels per side). Save a new card before adding its photos. Photo changes save separately and retain unsaved editor fields until you save or close the editor. Uploaded images are re-encoded as JPEG previews at up to 1,200 pixels on the longest side and 1 MiB per image; metadata is removed. Both previews stay private to their owner. Local previews survive ordinary container replacement in the named `photos` volume. Existing images are retained as fronts; a back-only card uses its back as the thumbnail.
 
-Hosted photo storage is not implemented yet. Local photos persist in Docker's named volume; Vercel's temporary filesystem is not a durable photo store.
+Hosted photos use a private Supabase Storage bucket when the operator configures that backend; see [storage setup](vercel-services.md#private-hosted-photo-storage). View, replace and remove photos through SlabTrak as usual. Settings reports the configured storage backend. Local and hosted photos remain separate, with no automatic transfer. Live hosted persistence after redeployment and two-device verification remain pending.
 
 ## Home and value history
 
@@ -52,7 +60,9 @@ Recorded activity charts show daily spending, sales, fees, proceeds, or profit o
 
 ## Automatic estimates
 
-Open a card's **View sold comparables → Automatic pricing → Find exact card**, review its issue/parallel and grading label, then choose **Use this match**. Confirm each physical copy separately. Changes to card identity, grade, condition or currency require a new confirmation.
+Choose **Estimate Value** in the editor or the read-only card details header. The editor saves the physical copy before opening pricing; the estimate flow automatically retrieves candidate matches when configured. Review the issue/parallel and grading label, then choose **Use this match**. Catalog search and certificate lookup only prepare editable details; neither confirms this match. Confirm each physical copy separately. Changes to card identity, grade, condition or currency require a new confirmation.
+
+The **View sold comparables** page also offers **Estimate Value → Find exact card**. A card saved with **Save card** can enter the same flow through its post-save **Estimate Value** action. Saving does not require a market-data connection or a supported price.
 
 At least three matching sales within 180 days support an estimate; evidence older than 90 days is flagged. Live pricing supports USD, raw cards with unassessed condition, and exact graded labels. Unsupported identities or conditions remain unknown. Costs, recorded sale proceeds and estimates are separate figures; currencies are not combined. See [market data and coverage](market-data.md) for matching, freshness, provider quotas and retention.
 

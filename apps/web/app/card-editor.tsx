@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { ApiError } from "../lib/api";
 import { calculateSale, formCard, money, rawConditions, type Card, type CardInput, type PhotoSide } from "../lib/cards";
 import { Photo, PhotoSides } from "./card-preview";
+import CardLookup, { type CatalogDraft } from "./card-lookup";
+import CertificateField, { type CertificateDraft } from "./certificate-field";
 import "./card-detail.css";
 
 type Props = {
   card: Card | null;
   onClose: () => void;
-  onSave: (values: CardInput) => Promise<void>;
+  onSave: (values: CardInput, estimateAfterSave?: boolean) => Promise<void>;
   onDelete: () => Promise<void>;
   onReload: () => Promise<void>;
   onPhotoChange: (file: File | null, side: PhotoSide) => Promise<void>;
@@ -17,6 +19,10 @@ type Props = {
 
 export default function CardEditor({ card, onClose, onSave, onDelete, onReload, onPhotoChange }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const formId = useId();
+  const [draftNotice, setDraftNotice] = useState("");
+  const [certification, setCertification] = useState(card?.certification ?? "");
   const subject = useRef<HTMLInputElement>(null);
   const [condition, setCondition] = useState(card?.condition ?? "raw");
   const [grader, setGrader] = useState(card?.grader || "PSA");
@@ -41,12 +47,15 @@ export default function CardEditor({ card, onClose, onSave, onDelete, onReload, 
     const element = dialog.current!;
     const opener = document.activeElement;
     element.showModal();
-    subject.current?.focus();
+    if (card) subject.current?.focus();
+    else element.querySelector<HTMLInputElement>(".card-lookup input")?.focus();
     return () => {
       element.close();
       // React removes the dialog before cleanup, so restore its opener explicitly.
       if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
     };
+  // CardEditor is remounted when a different card is opened.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function perform(action: () => Promise<void>) {
@@ -58,6 +67,23 @@ export default function CardEditor({ card, onClose, onSave, onDelete, onReload, 
     } finally { setBusy(false); }
   }
 
+  function applyIdentity(draft: CatalogDraft | CertificateDraft) {
+    const form = formRef.current;
+    if (!form) return;
+    for (const name of ["subject", "year", "sport", "manufacturer", "set_name", "card_number", "parallel"] as const) {
+      if (!(name in draft)) continue;
+      if ("certification" in draft && (name === "manufacturer" || name === "year") && !draft[name]) continue;
+      const input = form.elements.namedItem(name);
+      if (input instanceof HTMLInputElement) input.value = String((draft as Partial<CatalogDraft>)[name] ?? "");
+    }
+    if ("certification" in draft) {
+      setCondition("graded"); setGrader(draft.grader); setCertification(draft.certification);
+      const input = form.elements.namedItem("grade");
+      if (input instanceof HTMLInputElement) input.value = draft.grade;
+    }
+    setDraftNotice("Details filled in for review. Check the year, set, variant and grade before saving. Your costs are unchanged.");
+  }
+
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -67,17 +93,20 @@ export default function CardEditor({ card, onClose, onSave, onDelete, onReload, 
     if (values.serial_number !== null && values.print_run !== null && values.serial_number > values.print_run) {
       setError("Serial number must not exceed the print run."); return;
     }
-    void perform(() => onSave(values));
+    void perform(() => onSave(values, submitter?.value === "estimate"));
   }
 
   return <dialog className="card-dialog" ref={dialog} aria-labelledby="editor-title" onCancel={event => { event.preventDefault(); if (!busy) onClose(); }}>
     <div className="editor-heading"><div><span className="eyebrow">{card ? "YOUR CARD RECORD" : "GROW YOUR COLLECTION"}</span><h2 id="editor-title">{card ? "Edit card" : "Add a card"}</h2></div><button className="icon-button" aria-label="Close card editor" disabled={busy} onClick={onClose}>✕</button></div>
     <p>Each entry is one physical card. Add another entry for another copy.</p>
+    {card ? <details className="identity-search-disclosure"><summary>Find card details</summary><CardLookup onSelect={applyIdentity} /></details> : <CardLookup onSelect={applyIdentity} />}
+    <div className="estimate-entry"><div><strong>Estimate Value</strong><p>Save your card and find matching sales. Confirm the exact issue and grade before pricing.</p></div><button type="submit" form={formId} name="action" value="estimate" className="primary" disabled={busy}>Estimate Value</button></div>
+    {draftNotice && <p className="success" role="status">{draftNotice}</p>}
     {card && <PhotoSides side={photoSide} onChange={setPhotoSide} disabled={busy} />}
     <section className="editor-photo-section" aria-label="Card preview photo">
       {card ? <><div className="editor-photo"><Photo card={card} side={photoSide} /></div><div className="editor-photo-controls"><strong>{sideName} · {photoUrl ? photoKind === "reference" ? "Reference image" : "Your card photo" : "Add a photo"}</strong><p>JPEG, PNG, or WebP · up to 4 MB and 16 megapixels. Each side is saved separately and is private to your account.</p>{photoUrl && photoKind === "reference" && <p className="photo-reference-note">Reference only: this is not a verified photo of your copy. Uploading replaces this side’s reference image.</p>}<label className="upload-label">{photoUrl ? `Replace${actionSide} photo` : `Upload${actionSide} photo`}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; if (file) void perform(() => onPhotoChange(file, photoSide)); }} /></label>{photoUrl && <button className="text-button danger-text" disabled={busy} onClick={() => void perform(() => onPhotoChange(null, photoSide))}>Remove{actionSide} photo</button>}{busy && <span role="status">Saving changes…</span>}</div></> : <p>Save this card first, then open it to add front and back photos.</p>}
     </section>
-    <form onSubmit={save}>
+    <form ref={formRef} id={formId} onSubmit={save}>
       <fieldset disabled={busy}>
         <legend>Card identity</legend>
         <div className="form-grid">
@@ -101,9 +130,9 @@ export default function CardEditor({ card, onClose, onSave, onDelete, onReload, 
           {condition === "graded" && <>
             <label>Grading company<input name="grader" list="graders" value={grader} required maxLength={50} onChange={event => setGrader(event.target.value)} /><datalist id="graders"><option value="PSA" /><option value="BGS" /><option value="SGC" /><option value="CGC" /></datalist></label>
             <label>Grade<input name="grade" maxLength={20} defaultValue={card?.grade} placeholder="e.g. 9 for PSA 9" /></label>
-            <label>Certification number<input name="certification" maxLength={100} defaultValue={card?.certification} /></label>
+            <CertificateField grader={grader} certification={certification} onCertificationChange={setCertification} onApply={applyIdentity} disabled={busy} />
             {grader.toUpperCase() === "BGS" && (["centering", "corners", "edges", "surface"] as const).map(name => <label key={name}>{name[0].toUpperCase() + name.slice(1)}<input name={name} type="number" min={0} max={10} step="0.1" defaultValue={card?.[name] ?? ""} /></label>)}
-            <p className="field-help wide">Grading details are your records; certification is not verified with a grading company.</p>
+            <p className="field-help wide">Review any certificate lookup before using its details. A matching number does not establish ownership or authenticity.</p>
           </>}
         </div>
       </fieldset>

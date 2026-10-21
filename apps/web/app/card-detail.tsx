@@ -17,6 +17,7 @@ type Props = {
   active: boolean;
   onClose: () => void;
   onEdit: () => void;
+  onEstimate: () => void;
   onPreview: (side: PhotoSide) => void;
   onExpired: () => void;
 };
@@ -25,7 +26,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
   return <div><dt>{label}</dt><dd>{children === null || children === undefined || children === "" ? <span className="card-detail-unknown">Not recorded</span> : children}</dd></div>;
 }
 
-export default function CardDetail({ card, estimate, estimatePending, estimateUnavailable, active, onClose, onEdit, onPreview, onExpired }: Props) {
+export default function CardDetail({ card, estimate, estimatePending, estimateUnavailable, active, onClose, onEdit, onEstimate, onPreview, onExpired }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -63,7 +64,7 @@ export default function CardDetail({ card, estimate, estimatePending, estimateUn
   return <dialog ref={dialog} className="card-dialog card-detail-dialog" aria-labelledby="card-detail-title" onCancel={event => { event.preventDefault(); onClose(); }}>
     <div className="editor-heading card-detail-heading">
       <div><span className="eyebrow">YOUR CARD RECORD</span><h2 id="card-detail-title">{card.subject}</h2><p>{cardSubtitle(card)}</p><span className={card.archived ? "archive-badge" : "condition-badge"}>{card.sold ? "Sold" : card.archived ? "Archived" : "In collection"}</span></div>
-      <div className="card-detail-actions"><button type="button" className="secondary" onClick={onEdit}>Edit</button><button ref={closeButton} type="button" className="icon-button" aria-label="Close card details" onClick={onClose}>✕</button></div>
+      <div className="card-detail-actions"><button type="button" className="primary" onClick={onEstimate}>Estimate Value</button><button type="button" className="secondary" onClick={onEdit}>Edit</button><button ref={closeButton} type="button" className="icon-button" aria-label="Close card details" onClick={onClose}>✕</button></div>
     </div>
     <div className="card-detail-layout">
       <section className="card-detail-photos" aria-labelledby="card-detail-photos-title">

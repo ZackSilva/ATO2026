@@ -1,0 +1,22 @@
+.card-lookup { min-width: 0; background: var(--bg); border: 1px solid var(--line); border-top: 2px solid var(--accent); border-radius: var(--radius-control); padding: var(--space-6); margin-bottom: var(--space-6); }
+.card-lookup h3 { color: var(--ink); font-size: var(--text-section); font-weight: 500; letter-spacing: -.5px; line-height: 1.2; margin: 0; }
+.card-lookup .card-lookup-help { font-size: var(--text-body); margin: var(--space-2) 0 var(--space-6); }
+.card-lookup-form label { margin-bottom: var(--space-2); }
+.card-lookup-controls { display: flex; gap: var(--space-3); align-items: stretch; }
+.card-lookup-controls input { flex: 1; width: 100%; margin: 0; }
+.card-lookup-controls .primary { margin: 0; justify-content: center; white-space: nowrap; }
+.card-lookup-status, .card-lookup-note { color: var(--muted); font-size: var(--text-caption); line-height: 1.6; margin: var(--space-3) 0 0; }
+.card-lookup-status:empty { display: none; }
+.card-lookup .card-lookup-error { font-size: var(--text-caption); margin: var(--space-4) 0 0; }
+.card-lookup-results { list-style: none; padding: 0; margin: var(--space-4) 0 0; max-height: 340px; overflow-y: auto; overscroll-behavior: contain; }
+.card-lookup-results li { display: flex; gap: var(--space-4); align-items: center; justify-content: space-between; padding: var(--space-4) 0; border-top: 1px solid var(--line); }
+.card-lookup-results li > div { min-width: 0; overflow-wrap: anywhere; }
+.card-lookup-results strong { font-size: var(--text-body); font-weight: 550; }
+.card-lookup-results p { color: var(--muted); font-size: var(--text-caption); line-height: 1.6; margin: var(--space-1) 0 0; }
+.card-lookup-parallel { display: block; color: var(--accent); font-size: var(--text-caption); line-height: 1.6; margin-top: var(--space-1); }
+.card-lookup-results .secondary { width: auto; flex-shrink: 0; min-height: 44px; padding: 10px 12px; font-size: var(--text-caption); }
+@media (max-width: 680px) {
+  .card-lookup { padding: var(--space-4); }
+  .card-lookup-controls { flex-direction: column; }
+  .card-lookup-results li { align-items: flex-start; flex-direction: column; gap: var(--space-3); }
+}

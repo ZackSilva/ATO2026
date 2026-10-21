@@ -1,6 +1,6 @@
 # Vercel Services deployment
 
-Prepared October 20, 2026. The owner confirmed the service names, public exposure and binding. No Vercel project, deployment, database or storage bucket has been created by this change.
+Updated October 21, 2026. The Services routing and database setup are documented below; hosted database health has been checked separately. The private photo adapter is implemented, but this source change does not create a bucket or configure Vercel secrets. Live hosted photo checks remain pending.
 
 ## One project, two services
 
@@ -31,6 +31,14 @@ Configure secrets in Vercel settings, never source control or chat:
 
 Apply migrations deliberately with a separate migration connection and the required application role/schema grants before using a hosted database. Do not run migrations on each request or build. Create the owner account through the existing operator procedure; public registration remains disabled.
 
+### CardSight for every collector on this installation
+
+Set `CARDSIGHT_API_KEY` in the Vercel project's **Production** environment to the operator's CardSight API key, then deploy again. The key in a local `.env` file is not sent to Vercel by a Git push. Keep the key server-only; do not add a `NEXT_PUBLIC_` copy or ask collectors to configure their own key.
+
+The existing API uses this one deployment-level key for every signed-in collector's Discover searches, card matching and automatic estimates. Accounts retain separate cards, confirmed matches and saved records. All provider requests share the operator's CardSight allowance; caches and request pacing are per process, so they do not provide a shared quota ledger across Vercel workers.
+
+After the new deployment is Ready, sign in and check **Settings → Market data** for **Key configured**, then perform a Discover search. Configuration status confirms only that a key is present; successful search verifies provider access. Repeat from a separate collector account to check guest access. Each live search consumes provider allowance.
+
 ### Row-level security and backend access
 
 Migration `0010` adds a `slabtrak_backend` policy on the seven application tables, restricted to the server-only `slabtrak_app` database role. It leaves existing RLS settings unchanged. When RLS is enabled, table grants alone are insufficient: without applicable policies, an otherwise reachable database can reject the failed-login counter insert with a storage error. A passing health check only proves an account SELECT can execute, not that writes or account visibility work.
@@ -39,7 +47,30 @@ The backend role can access rows allowed by its existing table grants; the API a
 
 For an installation already at `0009`, apply only the `0010` upgrade, not the original initialization script. Verify seven role-specific policies and revision `0010`. A nonexistent-user sign-in should then return 401 instead of 503; create the hosted owner separately before attempting a successful sign-in. Database policy changes take effect without redeploying the application.
 
-Supabase integration is still pending. The existing photo implementation uses local files and cannot provide durable storage on Vercel. A private object-storage adapter and data/photo transfer need a separate increment. Until then, do not treat a successful build as a persistent, fully usable hosted collection. Price-cache retention and quota coordination across hosted instances also remain open. Keep the normal local installation independent.
+### Private hosted photo storage
+
+The API supports private Supabase Storage without changing the database or adding dependencies. Docker keeps `PHOTO_STORAGE_BACKEND=local` and its named `photos` volume by default. For Vercel, complete these operator steps before deploying the storage increment:
+
+1. In the intended Supabase project, create the `card-photos` Storage bucket with **Public OFF**, allowed MIME type `image/jpeg`, and file-size limit **1 MiB / 1,048,576 bytes**. Do not add public read access or `anon`/`authenticated` policies.
+2. Obtain a new server-only Supabase secret key beginning `sb_secret_`. Use neither a browser publishable/anon key nor a legacy JWT `service_role` key. Enter the real value directly in provider settings, never chat or Git.
+3. Add all four values below to the Vercel project's **Production** runtime environment before deploying the reviewed commit. Keep the existing database, origin and cookie settings. Do not set `API_SERVICE_URL`; Services injects that binding.
+
+| Setting | Production value |
+| --- | --- |
+| `PHOTO_STORAGE_BACKEND` | `supabase` |
+| `SUPABASE_URL` | `https://YOUR_PROJECT.supabase.co` — the HTTPS project origin, without a path, query or credentials. |
+| `SUPABASE_SECRET_KEY` | The server-only `sb_secret_…` key. No `NEXT_PUBLIC_` copy. |
+| `SUPABASE_STORAGE_BUCKET` | `card-photos` (also the application default). |
+
+SlabTrak uses its own accounts and sessions, not Supabase Auth. The secret bypasses storage RLS, so the API must enforce collector ownership before every read or mutation; storage policies for browser roles do not provide that isolation. The adapter sends this key only in the Storage REST `apikey` header. Browser requests use the existing authenticated SlabTrak photo routes and never receive storage credentials, public URLs or signed URLs. Objects have opaque `ownerUUID/photoUUID.jpg` paths.
+
+Incoming uploads still accept JPEG, PNG or WebP up to 4 MiB and 16 megapixels. The API strips metadata, normalizes orientation and produces JPEG previews capped at 1,200 pixels and 1 MiB; the bucket accepts only those processed images. Selecting `supabase` without valid required settings fails API startup. A storage error never silently falls back to Vercel's temporary local filesystem.
+
+Existing local cards and photos are not copied by these settings. Local and hosted installations remain independent, and this increment includes no operator transfer or automatic synchronization.
+
+After an authorized deployment, verify front/back upload, view, replacement and removal, another account's denied access, unauthenticated denial, missing-object and service-error behavior, two-device reads, and the same photo after a redeployment. Confirm Settings reports Supabase storage. Local/mock checks do not prove the real key, bucket limits or hosted persistence; record actual results in `validation.md` before calling this hosted path verified. Photo storage is designed to survive application redeployment because objects live outside Vercel, but live proof remains pending.
+
+Price-cache retention and quota coordination across hosted instances also remain open.
 
 ## Local Services check
 

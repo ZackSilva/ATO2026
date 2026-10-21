@@ -8,6 +8,7 @@ import CardDetail from "./card-detail";
 import CardPreview, { Photo } from "./card-preview";
 import CardValues from "./card-values";
 import CollectionSearch from "./collection-search";
+import EstimateValue from "./estimate-value";
 import { useCompactLayout } from "../lib/use-compact-layout";
 import { useEstimates } from "../lib/use-estimates";
 import "./values.css";
@@ -34,6 +35,8 @@ export default function Collection({ session, onExpired }: Props) {
   const [editorVersion, setEditorVersion] = useState(0);
   const [preview, setPreview] = useState<{ card: Card; side: PhotoSide } | null>(null);
   const [viewing, setViewing] = useState<Card | null>(null);
+  const [estimating, setEstimating] = useState<Card | null>(null);
+  const [savedForPricing, setSavedForPricing] = useState<Card | null>(null);
   const viewOpener = useRef<HTMLElement | null>(null);
   const requestId = useRef(0);
   const invalidateRequests = useCallback(() => { requestId.current += 1; }, []);
@@ -85,7 +88,7 @@ export default function Collection({ session, onExpired }: Props) {
     }, 0);
   }
 
-  async function save(values: CardInput) {
+  async function save(values: CardInput, estimateAfterSave = false) {
     const saved = await api<Card>(editing ? `/cards/${editing.id}` : "/cards", {
       method: editing ? "PUT" : "POST",
       headers: { "X-CSRF-Token": session.csrf_token },
@@ -94,6 +97,8 @@ export default function Collection({ session, onExpired }: Props) {
     if (viewing?.id === saved.id) setViewing(saved);
     setOverviewVersion(version => version + 1);
     closeEditor(); setNotice(values.sold ? "Card marked as sold." : values.archived ? "Card saved in your archive." : "Card saved to your collection.");
+    setSavedForPricing(saved.sold ? null : saved);
+    if (estimateAfterSave) setEstimating(saved);
     await load();
   }
 
@@ -102,7 +107,7 @@ export default function Collection({ session, onExpired }: Props) {
     await api<void>(`/cards/${editing.id}?revision=${editing.revision}`, { method: "DELETE", headers: { "X-CSRF-Token": session.csrf_token } });
     setViewing(null);
     setOverviewVersion(version => version + 1);
-    closeEditor(); setNotice("Card permanently deleted.");
+    closeEditor(); setSavedForPricing(null); setNotice("Card permanently deleted.");
     if (inventory?.items.length === 1 && offset > 0) setOffset(Math.max(0, offset - PAGE_SIZE));
     else await load();
   }
@@ -138,7 +143,7 @@ export default function Collection({ session, onExpired }: Props) {
         onCondition={value => { setLoading(true); setCondition(value); setOffset(0); }}
         onStatus={value => { setLoading(true); setStatus(value); setOffset(0); }}
         onSort={value => { setLoading(true); setSort(value); setOffset(0); }} />
-      {notice && <p className="success" role="status">{notice}</p>}
+      {notice && <div className="success save-pricing-notice" role="status">{notice}{savedForPricing && <button type="button" className="text-button" onClick={() => setEstimating(savedForPricing)}>Estimate Value</button>}</div>}
       {error && <div className="error" role="alert"><p>{error} {inventory ? "Showing the last loaded records." : "Your records could not be loaded."}</p><button className="secondary" onClick={() => void load()}>Retry loading cards</button></div>}
       <div className="results-meta" role="status">{loading ? "Loading cards…" : inventory ? `${inventory.total} ${inventory.total === 1 ? "card" : "cards"} found` : "Collection unavailable"}</div>
       <p className="collection-value-note">{status === "sold" ? "Sale figures use your recorded amounts. Profit vs purchase price excludes other acquisition costs." : "Market estimates use matching completed sales. Mini graphs show recorded comparable sale prices."}</p>
@@ -163,8 +168,9 @@ export default function Collection({ session, onExpired }: Props) {
       {inventory && inventory.total > PAGE_SIZE && <nav className="pagination" aria-label="Collection pages"><button className="secondary" disabled={offset === 0 || loading} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>Previous</button><span>{offset + 1}–{Math.min(offset + PAGE_SIZE, inventory.total)} of {inventory.total}</span><button className="secondary" disabled={offset + PAGE_SIZE >= inventory.total || loading} onClick={() => setOffset(offset + PAGE_SIZE)}>Next</button></nav>}
       <p className="collection-footnote">Raw and graded estimates need at least three matching sold comparables from the last 180 days. Graded estimates match the same grader and grade; raw condition is unverified. Reference images show the card issue; upload your own photo to show your copy.</p>
     </section>
-    {viewing && <CardDetail card={viewing} estimate={estimates.data?.items.find(item => item.card_id === viewing.id)} estimatePending={estimates.pending} estimateUnavailable={estimates.error} active={editing === undefined && !preview} onClose={closeView} onEdit={() => setEditing(viewing)} onPreview={side => setPreview({ card: viewing, side })} onExpired={onExpired} />}
+    {viewing && <CardDetail card={viewing} estimate={estimates.data?.items.find(item => item.card_id === viewing.id)} estimatePending={estimates.pending} estimateUnavailable={estimates.error} active={editing === undefined && !preview && !estimating} onClose={closeView} onEdit={() => setEditing(viewing)} onEstimate={() => setEstimating(viewing)} onPreview={side => setPreview({ card: viewing, side })} onExpired={onExpired} />}
     {editing !== undefined && <CardEditor key={`${editing?.id ?? "new"}-${editorVersion}`} card={editing} onClose={closeEditor} onSave={save} onDelete={remove} onReload={reloadCard} onPhotoChange={changePhoto} />}
+    {estimating && <EstimateValue card={estimating} onClose={() => { setEstimating(null); window.setTimeout(() => { if (document.activeElement === document.body) heading.current?.focus(); }, 0); }} onChange={() => setOverviewVersion(value => value + 1)} onExpired={onExpired} />}
     {preview && <CardPreview card={preview.card} initialSide={preview.side} onClose={() => setPreview(null)} />}
   </main>;
 }

@@ -14,15 +14,18 @@ from sqlalchemy import delete, select, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from slabtrak.certificates import certificates_router
 from slabtrak.config import Settings
 from slabtrak.db import database
 from slabtrak.estimates import estimates_router
 from slabtrak.finances import finances_router
 from slabtrak.inventory import inventory_router
+from slabtrak.market_catalog import market_catalog_router
 from slabtrak.market_links import market_links_router
 from slabtrak.market_search import market_search_router
 from slabtrak.market_values import MarketValues
 from slabtrak.models import Account, LoginLimit, LoginSession
+from slabtrak.photo_store import LocalPhotoStore, SupabasePhotoStore
 from slabtrak.photos import MAX_UPLOAD
 from slabtrak.security import (
     check_password,
@@ -51,6 +54,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
     engine, sessions = database(settings)
     market_values = MarketValues(settings)
+    photos = (
+        SupabasePhotoStore(
+            settings.supabase_url,
+            settings.supabase_secret_key.get_secret_value(),
+            settings.supabase_storage_bucket,
+        )
+        if settings.photo_storage_backend == "supabase"
+        else LocalPhotoStore(settings.photo_root)
+    )
 
     async def purge_provider_cache():
         while True:
@@ -71,7 +83,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(
         title="SlabTrak API",
-        version="0.1.0-demo.3",
+        version="0.1.0-beta.1",
         docs_url=None if settings.cookie_secure else "/docs",
         redoc_url=None,
         openapi_url=None if settings.cookie_secure else "/openapi.json",
@@ -80,6 +92,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.sessions = sessions
     app.state.engine = engine
     app.state.market_values = market_values
+    app.state.photo_store = photos
 
     @app.exception_handler(RequestValidationError)
     async def invalid_request(request, exception):
@@ -143,11 +156,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(403, "Security check failed. Refresh and try again.")
         return identity
 
-    app.include_router(inventory_router(db_session, authenticated, mutation, settings.photo_root))
+    app.include_router(inventory_router(db_session, authenticated, mutation, photos))
+
+    @app.get("/api/storage/status")
+    def storage_status(identity: Annotated[tuple, Depends(authenticated)]):
+        # Configuration status only; never exposes project URLs or credentials.
+        return {"photos": settings.photo_storage_backend}
+
     app.include_router(finances_router(db_session, authenticated))
     app.include_router(estimates_router(db_session, authenticated, mutation, market_values))
     app.include_router(market_search_router(settings, authenticated, mutation))
     app.include_router(market_links_router(db_session, authenticated, mutation, market_values))
+    app.include_router(market_catalog_router(authenticated, mutation, market_values))
+    app.include_router(certificates_router(settings, authenticated, mutation))
 
     @app.get("/api/health")
     def health(db: Annotated[Session, Depends(db_session)]):

@@ -52,6 +52,10 @@ def write_photo(root: Path, owner_id: UUID, key: UUID, payload: bytes):
         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         with os.fdopen(os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600), "wb") as file:
             file.write(payload)
+    except FileExistsError:
+        raise HTTPException(
+            503, "Photo storage is temporarily unavailable. Please retry."
+        ) from None
     except OSError:
         remove_photo(root, owner_id, key)
         raise HTTPException(

@@ -1,8 +1,11 @@
 # Changelog
 
-## Unreleased
+## v0.1.0-beta.1 — October 21, 2026
 
+- Add catalog search to card entry with explicitly chosen, editable identity details. Put **Estimate Value** near the top of the editor and in read-only card details: save the physical copy first, retrieve candidate matches automatically, and require **Use this match** before automatic pricing. Keep **Save card** independent of pricing with an estimate action afterward; rename the Sold comparables pricing section **Estimate Value**. Catalog requests use bounded transient caching and share provider quotas; typing makes no requests.
+- Add reviewed PSA certificate proposals on certificate-field blur when server configuration and approved PSA API access are available. **Use certificate details** explicitly fills identity/grade, preserving existing manufacturer/year entries when the proposal lacks them and leaving all costs unchanged; pricing still requires a separate confirmed catalog match. BGS, SGC, CGC and TAG keep manual grading/certificate entry and official verification links. The live PSA attempt returned HTTP 403 requiring approved-customer access; no successful live lookup is claimed. See [coverage and setup](docs/certificate-lookups.md).
 - Add automatic CardSight auction search, confirmed per-copy card matches, automatic collection estimates and linked listing previews. Keep unsupported identities, conditions and missing costs unknown.
+- Add an explicitly selected private Supabase Storage photo backend while retaining Docker local storage by default. Reuse existing front/back photo keys, normalize uploads to bounded metadata-free JPEGs, and serve images through owner-authenticated API routes. Document private-bucket setup and four required Vercel Production settings; no database migration, dependency change or local-data transfer. Live hosted privacy, two-device and redeployment checks remain pending.
 - Configure one Vercel Services project with a public Next.js frontend and an internal FastAPI backend connected through a runtime binding. Add migration `0010` for backend-only access when application tables have RLS enabled.
 - Refresh the repository front page with the existing brand, a concise feature summary and a local quick start. Move detailed usage, maintenance and development instructions into focused guides.
 
@@ -27,7 +30,7 @@
 - Add configurable dated activity charts with six periods, six metrics, keyboard/touch exploration, and a compact phone disclosure. Flag undated and future-dated records; use UTC boundaries and actual event dates.
 - Refresh summaries after card changes and on window focus; provide recovery after connection errors.
 
-No dependency or version changes. Financial summaries reflect mutable current records; immutable sale-event history, refunds and currency conversion remain future work. Automatic auction retrieval and confirmed-card estimates are implemented; condition-specific raw pricing, cross-grade modeling and durable hosted photo storage remain open.
+First beta release, following the demo prereleases. Frontend/API use `0.1.0-beta.1`; Python package metadata uses the equivalent `0.1.0b1`. Dependency versions are unchanged. Validation includes 418 passing full API tests, 75 passing final focused API checks and 80 passing desktop/phone browser journeys, plus a real CardSight search-to-estimate journey; see [validation evidence](docs/validation.md#estimate-value-entry-and-certificate-proposals). PSA live autofill remains blocked by provider account approval. Financial summaries reflect mutable current records; immutable sale-event history, refunds and currency conversion remain future work. Automatic auction retrieval and confirmed-card estimates are implemented; condition-specific raw pricing, cross-grade modeling and live hosted photo verification remain open.
 
 ## v0.1.0-demo.3 — October 20, 2026
 

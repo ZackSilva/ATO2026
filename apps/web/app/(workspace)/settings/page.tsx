@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useWorkspace } from "../../workspace-shell";
 import MarketConnection from "../../market-connection";
+import StorageConnection from "../../storage-connection";
 import "../../settings.css";
 
 export default function SettingsPage() {
@@ -25,9 +26,10 @@ export default function SettingsPage() {
         <div>
           <dl className="settings-rows">
             <div className="settings-row">
-              <dt><span className="settings-label">Card records &amp; photos</span><span className="settings-hint">Saved privately in this installation.</span></dt>
-              <dd><span className="settings-state">Local storage</span></dd>
+              <dt><span className="settings-label">Card records</span><span className="settings-hint">Saved privately in this installation.</span></dt>
+              <dd><span className="settings-state">Database storage</span></dd>
             </div>
+            <StorageConnection />
             <div className="settings-row">
               <dt><span className="settings-label">Recorded finances</span><span className="settings-hint">Your saved costs and sales.</span></dt>
               <dd><Link className="settings-action" href="/reports">View reports <span aria-hidden="true">→</span></Link></dd>

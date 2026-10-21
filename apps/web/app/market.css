@@ -87,3 +87,23 @@
   .auction-sale-price { grid-column: 2; }
   .selected-auction-sale { grid-template-columns: 64px minmax(0, 1fr); gap: 14px; }
 }
+
+.estimate-entry { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; margin: 12px 0; border-block: 1px solid var(--line); }
+.estimate-entry strong { font-size: 1.15rem; font-weight: 600; }
+.estimate-entry p { margin: 6px 0 0; max-width: 52ch; color: var(--muted); font-size: .875rem; line-height: 1.6; }
+.estimate-entry .primary { white-space: nowrap; }
+.estimate-result { padding: 24px 0; border-bottom: 1px solid var(--line); }
+.estimate-result > strong { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; }
+.estimate-result p { color: var(--muted); line-height: 1.6; }
+.save-pricing-notice { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; }
+.identity-search-disclosure { margin-block: 16px; }
+.identity-search-disclosure > summary { cursor: pointer; color: var(--muted); }
+.certificate-result { grid-column: 1 / -1; padding: 16px 0; border-top: 1px solid var(--line); }
+.certificate-result p { color: var(--muted); font-size: .875rem; line-height: 1.6; }
+.certificate-result .text-button { margin: 8px 16px 8px 0; }
+@media (max-width: 680px) {
+  .estimate-entry { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .estimate-entry .primary { width: 100%; }
+  .card-detail-actions { flex-wrap: wrap; }
+}
+.estimate-dialog { margin: auto; background: var(--bg); }

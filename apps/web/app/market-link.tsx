@@ -6,7 +6,7 @@ import type { Card } from "../lib/cards";
 import type { MarketCandidates, MarketLinkStatus } from "../lib/market-link";
 import { useWorkspace } from "./workspace-shell";
 
-export default function MarketLink({ card, onChange }: { card: Card; onChange: () => void }) {
+export default function MarketLink({ card, onChange, autoFind = false }: { card: Card; onChange: () => void; autoFind?: boolean }) {
   const { session, onExpired } = useWorkspace();
   const [status, setStatus] = useState<MarketLinkStatus | null>(null);
   const [candidates, setCandidates] = useState<MarketCandidates | null>(null);
@@ -25,6 +25,15 @@ export default function MarketLink({ card, onChange }: { card: Card; onChange: (
       try {
         const result = await api<MarketLinkStatus>(path, { signal: controller.signal });
         if (!controller.signal.aborted) setStatus(result);
+        if (autoFind && result.configured && (!result.link || !result.link.valid)) {
+          const matches = await api<MarketCandidates>(`${path}/candidates`, {
+            method: "POST", headers: { "X-CSRF-Token": session.csrf_token },
+            signal: controller.signal, body: JSON.stringify({ expected_definition_id: card.definition_id }),
+          });
+          if (!controller.signal.aborted) {
+            setCandidates(matches); setGrade(matches.grade_options.length === 1 ? matches.grade_options[0].id : "");
+          }
+        }
       } catch (failure) {
         if (controller.signal.aborted) return;
         if (failure instanceof ApiError && failure.status === 401) onExpired();
@@ -32,7 +41,7 @@ export default function MarketLink({ card, onChange }: { card: Card; onChange: (
       } finally { if (!controller.signal.aborted) setLoading(false); }
     }, 0);
     return () => { window.clearTimeout(timer); request.current?.abort(); };
-  }, [path, card.revision, retry, onExpired]);
+  }, [path, card.revision, card.definition_id, retry, onExpired, autoFind, session.csrf_token]);
 
   async function act(action: "find" | "link" | "remove" | "refresh", candidateId?: string) {
     if (pending) return;
@@ -66,7 +75,7 @@ export default function MarketLink({ card, onChange }: { card: Card; onChange: (
   }
 
   return <section className="workspace-section market-link" aria-labelledby="market-link-title" aria-busy={loading || !!pending}>
-    <h2 id="market-link-title">Automatic pricing</h2>
+    <h2 id="market-link-title">{autoFind ? "Confirm market match" : "Estimate Value"}</h2>
     {loading ? <p role="status">Checking card match…</p> : <>
       {error && <p className="error" role="alert">{error}</p>}
       {!status ? <button type="button" className="text-button" onClick={() => setRetry(value => value + 1)}>Retry card match</button> : !status.configured ? <p>Automatic pricing is unavailable until a CardSight connection is configured.</p> : <>

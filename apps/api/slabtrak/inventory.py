@@ -4,7 +4,6 @@ import hashlib
 import json
 from datetime import UTC, date, datetime
 from decimal import Decimal
-from pathlib import Path
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
@@ -16,7 +15,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import StaleDataError
 
 from slabtrak.models import CardDefinition, OwnedCopy, RawCondition
-from slabtrak.photos import photo_path, prepare_photo, remove_photo, write_photo
+from slabtrak.photo_store import PhotoStore
+from slabtrak.photos import prepare_photo
 
 Money = Annotated[Decimal, Field(ge=0, max_digits=12, decimal_places=2)]
 Subgrade = Annotated[Decimal, Field(ge=0, le=10, max_digits=3, decimal_places=1)]
@@ -209,7 +209,7 @@ def output(copy: OwnedCopy, definition: CardDefinition) -> CardOutput:
     )
 
 
-def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> APIRouter:
+def inventory_router(db_session, authenticated, mutation, photos: PhotoStore) -> APIRouter:
     router = APIRouter(prefix="/api/cards", tags=["Inventory"])
     DB = Annotated[Session, Depends(db_session)]
     Identity = Annotated[tuple, Depends(authenticated)]
@@ -326,13 +326,7 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         key = copy.back_photo_key if side == "back" else copy.photo_key
         if not key:
             raise HTTPException(404, "No photo is attached to this card.")
-        path = photo_path(photo_root, copy.owner_id, key)
-        try:
-            payload = path.read_bytes()
-        except FileNotFoundError:
-            raise HTTPException(404, "Photo is unavailable. Upload it again.") from None
-        except OSError:
-            raise HTTPException(503, "Photo storage is temporarily unavailable.") from None
+        payload = photos.read(copy.owner_id, key)
         return Response(payload, media_type="image/jpeg")
 
     @router.put("/{card_id}/photo", response_model=CardOutput)
@@ -351,7 +345,7 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         prefix = "back_" if side == "back" else ""
         previous, key = getattr(copy, f"{prefix}photo_key"), uuid4()
         owner_id = copy.owner_id
-        write_photo(photo_root, owner_id, key, image)
+        photos.write(owner_id, key, image)
         setattr(copy, f"{prefix}photo_key", key)
         setattr(copy, f"{prefix}photo_kind", "upload")
         setattr(copy, f"{prefix}photo_source", "")
@@ -360,9 +354,9 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
             db.commit()
         except Exception:
             db.rollback()
-            remove_photo(photo_root, owner_id, key)
+            photos.remove(owner_id, key)
             raise
-        remove_photo(photo_root, copy.owner_id, previous)
+        photos.remove(copy.owner_id, previous)
         return output(copy, definition)
 
     @router.delete("/{card_id}/photo", response_model=CardOutput)
@@ -383,7 +377,7 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
         setattr(copy, f"{prefix}photo_source", "")
         copy.updated_at = datetime.now(UTC)
         db.commit()
-        remove_photo(photo_root, copy.owner_id, previous)
+        photos.remove(copy.owner_id, previous)
         return output(copy, definition)
 
     @router.post("", response_model=CardOutput, status_code=201)
@@ -444,6 +438,6 @@ def inventory_router(db_session, authenticated, mutation, photo_root: Path) -> A
             db.rollback()
             raise HTTPException(409, CONFLICT) from None
         for key in previous:
-            remove_photo(photo_root, copy.owner_id, key)
+            photos.remove(copy.owner_id, key)
 
     return router

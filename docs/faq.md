@@ -30,6 +30,18 @@ The operator optionally configures a CardSight key on the server; collectors do 
 
 Automatic estimates use provider-reported completed auctions for a confirmed exact card match. At least three matching sales within 180 days support a median estimate. Missing, insufficient or failed pricing remains unavailable; purchase cost never fills the gap. Results are evidence-based estimates, with coverage and freshness limits, rather than independently verified sale prices. See [matching and evidence](market-data.md#automatic-collector-workflow).
 
+## How do I add a card and estimate its value?
+
+Choose **Add card**, search by player/year/set/card number, and choose **Use card details** for the matching result. Review the editable fields against your copy. **Estimate Value** near the top saves that physical copy first and automatically retrieves candidate matches when pricing is configured. Review the exact issue, parallel and grade, then choose **Use this match** before automatic pricing starts. Search results alone never confirm a price.
+
+You can use **Save card** without pricing and choose **Estimate Value** afterward. Existing cards have the same action in their read-only details header; the Sold comparables page also has an **Estimate Value** section. See the [card-entry workflow](user-guide.md#add-and-inspect-cards).
+
+## Can a certificate number fill my slab's details?
+
+For a graded PSA card, a valid certificate number requests a lookup when you leave the field, provided the server has a token and the PSA account has approved API access. Review any returned proposal and choose **Use certificate details** to apply identity and grading fields. Existing manufacturer/year entries survive when the proposal lacks them; costs stay unchanged. This does not save the card, verify physical authenticity or provide a price. **Estimate Value** still requires a separate confirmed catalog match.
+
+The live PSA check returned HTTP 403 restricting access to approved customers; no successful live lookup is claimed. BGS, SGC, CGC and TAG retain manual entry and official verification links, with no automated autofill. See [certificate coverage and setup](certificate-lookups.md).
+
 ## Which raw and graded cards can receive live prices?
 
 Live pricing currently supports USD, raw cards with unassessed condition, and exact supported grader/grade labels. Condition-specific raw pricing, other currencies, autograph/relic identities and unsupported or unverifiable variants remain unavailable. Recording a card or grade does not guarantee pricing coverage, and grades are not converted using multipliers. See [coverage limits](market-data.md#automatic-collector-workflow).
@@ -44,7 +56,7 @@ The collector interface has no manual market-sale entry or CSV import. Discover 
 
 ## Where are my card photos stored?
 
-Local uploads persist in Docker's named photo volume. Durable hosted photo storage is still pending; Vercel's temporary filesystem is insufficient for it. Do not treat the hosted preview as a completed persistent photo-storage solution. See [photo behavior](user-guide.md#front-and-back-photos) and [hosting limitations](vercel-services.md).
+Local uploads persist in Docker's named `photos` volume by default. Hosted installations can use a private Supabase Storage bucket after the operator completes [storage setup](vercel-services.md#private-hosted-photo-storage). Photos are read through the signed-in SlabTrak API; browsers receive neither storage credentials nor a public/signed bucket URL. Existing local photos are not copied automatically. Hosted redeployment persistence and two-device checks still need live verification. See [photo behavior](user-guide.md#front-and-back-photos).
 
 ## What license covers the source?
 
