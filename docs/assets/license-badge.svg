@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="244" height="20" viewBox="0 0 244 20" role="img" aria-labelledby="title">
+  <title id="title">License: PolyForm Noncommercial</title>
+  <defs>
+    <clipPath id="badge-shape"><rect width="244" height="20" rx="3"/></clipPath>
+  </defs>
+  <g clip-path="url(#badge-shape)">
+    <path d="M0 0H58V20H0Z" fill="#3b4147"/>
+    <path d="M58 0H244V20H58Z" fill="#c6e5b1"/>
+  </g>
+  <g font-family="Verdana, Geneva, sans-serif" font-size="11" text-anchor="middle">
+    <text x="29" y="14" fill="#fff">license</text>
+    <text x="151" y="14" fill="#10150d">PolyForm Noncommercial</text>
+  </g>
+</svg>

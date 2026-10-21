@@ -35,3 +35,17 @@ Live provider access and fixture validation are distinct. The key remains in ign
 ## Dated valuation demonstration
 
 A manually researched, dated example and a dry-run-first operator importer are documented in [Researched valuation example](valuation-example.md). The example uses reported eBay completed-sale observations with individual listing links; original marketplace completion/price could not be independently verified. It does not connect a live feed, populate purchase costs, change card grades, or manufacture market history.
+
+## Configure CardSight and inspect sales
+
+Create a free [CardSight account](https://app.cardsight.ai), then add its API key to your local ignored `.env` as `CARDSIGHT_API_KEY`. Never commit the real key or use a `NEXT_PUBLIC_` setting for it. Recreate the API after changing configuration:
+
+```sh
+docker compose up -d --no-deps --force-recreate api
+```
+
+Open **Discover**, enter a card description and choose **Search sales**. Expand **Search filters** for raw/graded condition, grading company/grade and time range. Entering or editing text does not spend a search request until you submit. A card's **Find recent auction sales** link prefills the query for you. Results show reported completed auctions and source links; the graph describes only those returned prices, which may span multiple card issues or variants. Incomplete and non-auction observations are excluded. No manual sales entry or CSV import is part of this flow.
+
+Each returned sale appears in an individual row with its listing-image preview, title, grade/condition, date, price and original source link. Hover or tap a point in the graph to inspect that sale and highlight its row. The selected-sale panel includes the photo and source link; arrow keys and Previous/Next controls also reach overlapping points. Missing or failed images show a fallback without hiding the sale. These are marketplace listing photos, not photos of your owned copy. Changing the graph period or inspecting a point makes no extra provider search request.
+
+Saved-card graphs in card details and Sold comparables also expose individual sale details and source links when you hover, tap or use the arrow keys. Expand Sales for the dated records behind the graph; closing the dropdown leaves the graph and selected sale visible. Matching follows the API's exact card/currency/condition/grade rules. Saved sales retain optional original-listing image references and use the same previews as Discover. Older records without available images show a fallback; an owned-card photo is never substituted for a listing image. The full Recorded sales list is also collapsible.

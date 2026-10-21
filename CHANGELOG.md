@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add automatic CardSight auction search, confirmed per-copy card matches, automatic collection estimates and linked listing previews. Keep unsupported identities, conditions and missing costs unknown.
+- Configure one Vercel Services project with a public Next.js frontend and an internal FastAPI backend connected through a runtime binding. Add migration `0010` for backend-only access when application tables have RLS enabled.
+- Refresh the repository front page with the existing brand, a concise feature summary and a local quick start. Move detailed usage, maintenance and development instructions into focused guides.
+
 - Keep interactive sales graphs in read-only card details and on the comparable-sales page, including sold cards. Refresh the example collection with five historically better-covered issues and 113 source-reported observations across 2024–2026; retain unknown personal costs and explicit source/coverage limits. Add opt-in archival evidence imports without changing current estimate recency.
 
 - Restore Reports visualizations with saved-evidence estimate history, raw-versus-graded current values, and transaction charts expanded by default on phones. Unknown costs/estimates remain unknown; no separate data-source mode.
@@ -23,7 +27,7 @@
 - Add configurable dated activity charts with six periods, six metrics, keyboard/touch exploration, and a compact phone disclosure. Flag undated and future-dated records; use UTC boundaries and actual event dates.
 - Refresh summaries after card changes and on window focus; provide recovery after connection errors.
 
-No dependency or version changes. Financial summaries reflect mutable current records; immutable sale-event history, refunds, currency conversion, and hosted deployment remain future work. Market estimates currently require manually supplied evidence; live ingestion, condition-specific raw matching, and supported cross-grade modeling remain open.
+No dependency or version changes. Financial summaries reflect mutable current records; immutable sale-event history, refunds and currency conversion remain future work. Automatic auction retrieval and confirmed-card estimates are implemented; condition-specific raw pricing, cross-grade modeling and durable hosted photo storage remain open.
 
 ## v0.1.0-demo.3 — October 20, 2026
 

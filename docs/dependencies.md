@@ -33,4 +33,4 @@ No known vulnerabilities is a point-in-time result, not a security certification
 
 The design system also bundles the unmodified Geist Latin variable font from the pinned Next.js distribution. Geist uses the SIL Open Font License 1.1; the font, upstream license, provenance, and SHA-256 are retained in `apps/web/app/fonts/`. This adds no npm dependency or remote font requests. See the [official Geist source](https://github.com/vercel/geist-font).
 
-The demo prerelease is tagged `v0.1.0-demo.1`. Frontend/API release metadata advertises `0.1.0-demo.1`; Python package/uv project metadata uses `0.1.0.dev1` for packaging compatibility. Runtime and development dependency versions and hashes are unchanged.
+The latest tagged demo prerelease is `v0.1.0-demo.3`. Frontend/API release metadata advertises `0.1.0-demo.3`; Python package/uv project metadata uses `0.1.0.dev3` for packaging compatibility. Runtime and development dependency versions and hashes are unchanged; later working-source changes are listed in [the changelog](../CHANGELOG.md).

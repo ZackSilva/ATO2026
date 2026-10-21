@@ -66,6 +66,8 @@ Bootstrap the owner through a controlled setup procedure, with public signup off
 
 Every collection query and mutation must enforce the authenticated owner. Use a dedicated application schema that is not exposed through Supabase's public Data API, separate migration and runtime privileges, and no anonymous database access. Owner consistency must also hold for foreign-key relationships and imported records. Prove isolation with two-account integration tests, including images, backups, imports, search, and aggregate totals.
 
+Migration `0010` supplies role-specific RLS policies for the trusted server-only `slabtrak_app` role without changing existing RLS flags. With RLS enabled, that role retains its existing row access and table privileges; collector isolation remains enforced by the API, not by these backend policies. Browser/Supabase Auth roles receive no policy or role membership. The API integration suite enables RLS on all seven application tables so authentication, owner scoping and writes exercise this hosted configuration.
+
 ## Data model
 
 Migration `0002` adds owner-scoped immutable `card_definitions` and separate `owned_copies`. An exact fingerprint of the trimmed identity fields shares matching definitions within an account; correcting one copy selects a new identity without changing its siblings. A composite foreign key prevents references to another owner's definition. Acquisition fields currently live on the physical-copy row; a separate acquisition entity and structured multi-subject links remain planned. The subject field currently stores the entered player/subject text. Unreferenced identity rows can remain after a copy is corrected or removed; private copy notes, grading, and acquisition fields are deleted with the copy.

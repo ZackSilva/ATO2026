@@ -11,7 +11,7 @@ from sqlalchemy.engine import make_url
 
 from slabtrak.app import create_app
 from slabtrak.config import Settings
-from slabtrak.models import Account
+from slabtrak.models import Account, Base
 from slabtrak.security import password_hasher
 
 PASSWORD = "Only-for-isolated-tests-123!"
@@ -34,6 +34,10 @@ def migrated_database():
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     command.upgrade(config, "head")
     engine = create_engine(migration_url)
+    # Exercise the hosted configuration: policies must work under real RLS.
+    with engine.begin() as connection:
+        for table in Base.metadata.sorted_tables:
+            connection.execute(text(f"ALTER TABLE slabtrak.{table.name} ENABLE ROW LEVEL SECURITY"))
     yield engine
     engine.dispose()
 

@@ -31,6 +31,14 @@ Configure secrets in Vercel settings, never source control or chat:
 
 Apply migrations deliberately with a separate migration connection and the required application role/schema grants before using a hosted database. Do not run migrations on each request or build. Create the owner account through the existing operator procedure; public registration remains disabled.
 
+### Row-level security and backend access
+
+Migration `0010` adds a `slabtrak_backend` policy on the seven application tables, restricted to the server-only `slabtrak_app` database role. It leaves existing RLS settings unchanged. When RLS is enabled, table grants alone are insufficient: without applicable policies, an otherwise reachable database can reject the failed-login counter insert with a storage error. A passing health check only proves an account SELECT can execute, not that writes or account visibility work.
+
+The backend role can access rows allowed by its existing table grants; the API authenticates collectors and enforces owner isolation. These policies do not implement database isolation between collectors. Keep `slabtrak` outside the exposed Data API schemas, never grant browser roles membership in `slabtrak_app`, and keep its connection string server-only. The policies do not target `PUBLIC`, `anon` or `authenticated`, grant `BYPASSRLS`, or rely on Supabase Auth's `auth.uid()`; SlabTrak uses its own sessions. The migration version table remains operator-only. A downgrade removes these policies without changing RLS flags.
+
+For an installation already at `0009`, apply only the `0010` upgrade, not the original initialization script. Verify seven role-specific policies and revision `0010`. A nonexistent-user sign-in should then return 401 instead of 503; create the hosted owner separately before attempting a successful sign-in. Database policy changes take effect without redeploying the application.
+
 Supabase integration is still pending. The existing photo implementation uses local files and cannot provide durable storage on Vercel. A private object-storage adapter and data/photo transfer need a separate increment. Until then, do not treat a successful build as a persistent, fully usable hosted collection. Price-cache retention and quota coordination across hosted instances also remain open. Keep the normal local installation independent.
 
 ## Local Services check

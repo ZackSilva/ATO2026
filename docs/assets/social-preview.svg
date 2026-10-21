@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">SlabTrak — Your collection, simplified.</title>
+  <desc id="description">The SlabTrak wordmark and graded-card holders on a pitch-black background with mint accents.</desc>
+  <rect width="1280" height="640" fill="#000"/>
+  <!-- Wordmark and slab geometry match readme-banner.svg, scaled proportionally. -->
+  <g transform="translate(64 130) scale(1.25)">
+    <g transform="scale(1.5)" color="#f5f5f3">
+      <rect x="3" y="1" width="24" height="38" rx="3.5" stroke="currentColor" stroke-width="1.7"/>
+      <rect x="6.5" y="4.5" width="17" height="5" rx=".8" fill="currentColor"/>
+      <rect x="6.5" y="13" width="17" height="22.5" rx=".8" stroke="currentColor" stroke-width="1.3"/>
+    </g>
+    <text x="64" y="48" fill="#f5f5f3" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" letter-spacing="-3">slab<tspan font-weight="400">trak</tspan><tspan fill="#c6e5b1">.</tspan></text>
+  </g>
+  <text x="64" y="305" fill="#f5f5f3" font-family="Arial, Helvetica, sans-serif" font-size="44" letter-spacing="-1">Your collection, simplified.</text>
+  <text x="64" y="357" fill="#a3a3a0" font-family="Arial, Helvetica, sans-serif" font-size="24">Every card. Every sale. A clearer picture.</text>
+  <path d="M64 435H744" stroke="#262626"/>
+  <text x="64" y="477" fill="#c6e5b1" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="3">BUILT FOR THE COLLECTOR</text>
+  <!-- Decorative holders use the banner's geometry without small interior text. -->
+  <g transform="translate(856 133) rotate(-12 112.5 172.5)">
+    <g transform="scale(1.5)">
+      <rect width="150" height="230" rx="12" fill="#0a0a0a" stroke="#393f38" stroke-width="2"/>
+      <rect x="13" y="13" width="124" height="32" rx="3" fill="#777e72"/>
+      <rect x="13" y="58" width="124" height="158" rx="3" stroke="#393f38" stroke-width="2"/>
+    </g>
+  </g>
+  <g transform="translate(1000 177) rotate(9 112.5 172.5)">
+    <g transform="scale(1.5)">
+      <rect width="150" height="230" rx="12" fill="#0a0a0a" stroke="#8b9b80" stroke-width="2"/>
+      <rect x="13" y="13" width="124" height="32" rx="3" fill="#c6e5b1"/>
+      <path d="M25 29H93M111 29H125" stroke="#35452e" stroke-width="4"/>
+      <rect x="13" y="58" width="124" height="158" rx="3" fill="#10150d" stroke="#35452e" stroke-width="2"/>
+      <circle cx="75" cy="136" r="33" stroke="#35452e" stroke-width="2"/>
+      <path d="M13 136H137M75 58V216" stroke="#35452e" stroke-width="2"/>
+    </g>
+  </g>
+</svg>
