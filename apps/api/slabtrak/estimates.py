@@ -110,6 +110,13 @@ class Estimate(BaseModel):
     confidence: Literal["insufficient", "low", "medium"]
     reason: str
     history: list[PriceObservation] = Field(default_factory=list)
+    source: Literal["saved", "cardsight"] = "saved"
+    pricing_status: Literal[
+        "saved", "live", "insufficient", "unavailable", "pending", "mismatch"
+    ] = "saved"
+    fetched_at: datetime | None = None
+    refresh_after: datetime | None = None
+    pricing_note: str | None = None
 
 
 class EstimateList(BaseModel):
@@ -119,10 +126,14 @@ class EstimateList(BaseModel):
     items: list[Estimate]
 
 
-class ComparableList(BaseModel):
+class SavedEvidence(BaseModel):
     items: list[ComparableOutput]
     matching_sale_ids: list[UUID]
     estimate: Estimate
+
+
+class ComparableList(SavedEvidence):
+    saved_history: SavedEvidence | None = None
 
 
 def normalized_grade(value: str) -> str:
@@ -240,7 +251,7 @@ def comparable_output(sale: ComparableSale) -> ComparableOutput:
     )
 
 
-def estimates_router(db_session, authenticated, mutation) -> APIRouter:
+def estimates_router(db_session, authenticated, mutation, market_values=None) -> APIRouter:
     router = APIRouter(tags=["Market estimates"])
     DB = Annotated[Session, Depends(db_session)]
     Identity = Annotated[tuple, Depends(authenticated)]
@@ -265,20 +276,24 @@ def estimates_router(db_session, authenticated, mutation) -> APIRouter:
     @router.get("/api/estimates", response_model=EstimateList)
     def list_estimates(db: DB, identity: Identity):
         today = datetime.now(UTC).date()
-        copies = db.scalars(
-            select(OwnedCopy)
-            .where(OwnedCopy.owner_id == identity[0].id, OwnedCopy.sold.is_(False))
-            .order_by(OwnedCopy.id)
+        copies = list(
+            db.scalars(
+                select(OwnedCopy)
+                .where(OwnedCopy.owner_id == identity[0].id, OwnedCopy.sold.is_(False))
+                .order_by(OwnedCopy.id)
+            )
         )
         sales = sales_for(db, identity[0].id)
         # Group once; no per-card database queries or cross-currency sums.
         by_definition: dict[UUID, list[ComparableSale]] = {}
         for sale in sales:
             by_definition.setdefault(sale.definition_id, []).append(sale)
+        live = market_values.estimates(db, copies) if market_values else {}
         return EstimateList(
             as_of=today,
             items=[
-                estimate_for(copy, by_definition.get(copy.definition_id, []), today)
+                live.get(copy.id)
+                or estimate_for(copy, by_definition.get(copy.definition_id, []), today)
                 for copy in copies
             ],
         )
@@ -288,11 +303,16 @@ def estimates_router(db_session, authenticated, mutation) -> APIRouter:
         copy = owned(db, identity[0].id, card_id)
         sales = sales_for(db, identity[0].id, copy.definition_id)
         today = datetime.now(UTC).date()
-        return ComparableList(
+        saved = SavedEvidence(
             items=[comparable_output(sale) for sale in sales],
             matching_sale_ids=[sale.id for sale in matching_sales(copy, sales, today)],
             estimate=estimate_for(copy, sales, today),
         )
+        if market_values:
+            current = market_values.comparables(db, copy)
+            if current is not None:
+                return ComparableList(**current, saved_history=saved)
+        return ComparableList(**saved.model_dump())
 
     @router.post(
         "/api/cards/{card_id}/comparables", response_model=ComparableOutput, status_code=201

@@ -77,10 +77,10 @@ export default function CollectionValueChart({ range, onRangeChange, refreshKey,
           {selected?.amount !== null && selected?.amount !== undefined && cursor !== null && <span className="chart-dot" style={{ left: `calc((100% - var(--value-axis-space)) * ${x(selected.date) / 1000})`, top: `${y(selected.amount) / 240 * 100}%` }} />}
         </div>
         <div className="chart-x-axis"><span>{financeDate(series[0].date)}</span><span>{financeDate(last!.date)}</span></div>
-      </> : <div className="chart-placeholder chart-empty-state"><p>{pending ? "Preparing saved sales…" : error ? "Retry to load your saved evidence." : `History needs at least ${data?.minimum_sales ?? 3} matching sales within ${data?.window_days ?? 180} days for every currently estimated card. Missing evidence remains unknown.`}</p></div>}
+      </> : <div className="chart-placeholder chart-empty-state"><p>{pending ? "Preparing sales evidence…" : error ? "Retry to load your sales evidence." : `History needs at least ${data?.minimum_sales ?? 3} matching sales within ${data?.window_days ?? 180} days for every currently estimated card. Missing evidence remains unknown.`}</p></div>}
     </div>
     <div className="chart-bottom"><div className="chart-ranges" role="group" aria-label="Chart time range">{VALUE_RANGES.map(item => <button type="button" key={item.value} aria-label={item.label} title={item.label} aria-pressed={range === item.value} onClick={() => { onRangeChange(item.value); setCursor(null); }}>{item.shortLabel}</button>)}</div><span className="chart-scope">{supported} current {supported === 1 ? "card" : "cards"} with estimates</span></div>
-    <p className="value-evidence-note" id={noteId}>Based on saved comparable sales; not historical holdings. Each date uses the same currently estimated cards and their current grades. Gaps are unknown. Sources and raw condition are unverified.</p>
+    <p className="value-evidence-note" id={noteId}>Based on available comparable sales; not historical holdings. Each date uses the same currently estimated cards and their current grades. Gaps are unknown. Sources and raw condition are unverified.</p>
     {error && <p className="chart-error" role="alert">Couldn’t load collection estimates. <button type="button" className="text-button" onClick={retry}>Retry chart</button></p>}
   </section>;
 }

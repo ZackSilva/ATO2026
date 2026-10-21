@@ -41,7 +41,7 @@ async function expectReadOnlyEvidence(page: Page) {
   await expect(page.getByText("Import completed sales", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Remove sale", exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Find recent auction sales ↗", exact: true })).toHaveAttribute("href", /^\/discover\?q=/);
-  await expect(page.getByText("Search completed auction sales. Saved historical evidence remains available below.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Match your exact card for automatic auction pricing. Review the supporting sales and saved historical evidence below.", { exact: true })).toBeVisible();
 }
 
 test("raw cards calculate from sold comparables, retain evidence and keep purchases and reports separate", async ({ page }, testInfo) => {

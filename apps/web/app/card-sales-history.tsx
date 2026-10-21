@@ -52,7 +52,7 @@ export function SalesHistoryChart<T extends SaleObservation>({ history, currency
 
   return <section className="card-sales-history" aria-labelledby={headingId}>
     <Heading id={headingId}>Sales history</Heading>
-    <p className="sales-history-caption">{searchResults ? "Completed auction prices" : "Recorded comparable sale prices"} · {currency}</p>
+    <p className="sales-history-caption">{searchResults ? "Completed auction prices" : "Comparable sale prices"} · {currency}</p>
     <div className="sales-history-ranges" role="group" aria-label="Sales history period">{VALUE_RANGES.map(item => <button type="button" key={item.value} aria-label={item.label} aria-pressed={range === item.value} onClick={() => changeRange(item.value)}>{item.shortLabel}</button>)}</div>
     {selected ? <>
       <p className="sales-history-inspection" aria-live="polite">{describe}</p>
@@ -80,13 +80,19 @@ export default function CardSalesHistory({ card, active, onExpired }: { card: Ca
   useEffect(() => {
     if (!active) return;
     let request: AbortController;
-    async function load() {
+    let poll: number | undefined;
+    async function load(round = 0) {
+      window.clearTimeout(poll);
       request?.abort();
       const controller = new AbortController(); request = controller;
-      setPending(true); setError(false);
+      if (round === 0) setPending(true);
+      setError(false);
       try {
         const result = await api<ComparableReport>(`/cards/${card.id}/comparables`, { signal: controller.signal });
-        if (!controller.signal.aborted) setReport(result);
+        if (!controller.signal.aborted) {
+          setReport(result);
+          if (result.estimate.pricing_status === "pending" && round < 10) poll = window.setTimeout(() => void load(round + 1), 2000);
+        }
       } catch (failure) {
         if (controller.signal.aborted) return;
         if (failure instanceof ApiError && failure.status === 401) onExpired();
@@ -96,11 +102,25 @@ export default function CardSalesHistory({ card, active, onExpired }: { card: Ca
     const timer = window.setTimeout(() => void load(), 0);
     const focus = () => void load();
     window.addEventListener("focus", focus);
-    return () => { window.clearTimeout(timer); request?.abort(); window.removeEventListener("focus", focus); };
+    return () => { window.clearTimeout(timer); window.clearTimeout(poll); request?.abort(); window.removeEventListener("focus", focus); };
   }, [card.id, card.revision, active, retry, onExpired]);
   if (pending) return <section aria-label="Sales history" aria-busy="true"><p role="status">Loading card sales history…</p></section>;
   if (error) return <section aria-label="Sales history"><p role="alert" className="error">Couldn’t load card sales history. <button type="button" className="text-button" onClick={() => setRetry(value => value + 1)}>Retry card sales history</button></p></section>;
-  return report ? <SavedSalesHistory report={report} currency={card.currency} /> : null;
+  return report ? <>
+    {report.estimate.pricing_status === "pending" && <p role="status" className="sales-history-note">Retrieving matching auction sales…</p>}
+    {report.estimate.pricing_note && <p className="sales-history-note">{report.estimate.pricing_note}</p>}
+    <SavedSalesHistory key={report.estimate.fetched_at ?? "saved"} report={report} currency={card.currency} />
+    <SavedHistoricalEvidence report={report} currency={card.currency} />
+  </> : null;
+}
+
+export function SavedHistoricalEvidence({ report, currency }: { report: ComparableReport; currency: string }) {
+  if (!report.saved_history) return null;
+  return <details className="saved-historical-evidence">
+    <summary>Saved historical evidence</summary>
+    <p className="sales-history-note">Earlier recorded sales remain available for research. They are separate from the automatic estimate above.</p>
+    <SavedSalesHistory report={report.saved_history} currency={currency} />
+  </details>;
 }
 
 function SaleDetails({ sale }: { sale: Comparable }) {

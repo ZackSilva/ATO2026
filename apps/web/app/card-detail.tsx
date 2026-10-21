@@ -103,6 +103,8 @@ export default function CardDetail({ card, estimate, estimatePending, estimateUn
           <h3 id="card-detail-market-title">Market estimate</h3>
           <p className="market-detail-note">{card.sold ? "This card is sold. Review sold comparables for market context." : estimatePending ? "Loading estimate…" : estimateUnavailable ? "Estimate unavailable. Retry market estimates in your collection." : estimate?.amount ? `${financeMoney(estimate.amount, card.currency)} · ${estimate.confidence} confidence · ${estimate.sample_count} matching sales` : "Insufficient Market Data"}</p>
           {estimate?.amount && <p className="market-detail-note">Observed sale range: {financeMoney(estimate.low!, card.currency)} – {financeMoney(estimate.high!, card.currency)}. Latest sale: {estimate.latest_sale}.</p>}
+          {estimate?.source === "cardsight" && <p className="market-detail-note">Automatic auction estimate{estimate.fetched_at ? ` · Refreshed ${new Date(estimate.fetched_at).toLocaleString()}` : ""}</p>}
+          {estimate?.pricing_note && <p className="market-detail-note">{estimate.pricing_note}</p>}
           {estimate?.stale && <p className="market-detail-note">Evidence needs a refresh · {estimate.latest_matching_sale ? `Latest matching sale ${estimate.latest_matching_sale}.` : "No matching sales recorded."}</p>}
           <p className="card-detail-caption">{estimate?.reason ?? "At least three recent matching sold comparables are required. Raw cards use raw sales; other grades remain research context. Sources are not independently verified."}</p>
           <Link className="workspace-text-link" href={`/collection/${card.id}/market`}>View sold comparables ↗</Link>

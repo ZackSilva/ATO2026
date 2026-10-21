@@ -165,6 +165,22 @@ class OwnedCopy(Base):
     __mapper_args__ = {"version_id_col": revision}
 
 
+class MarketLink(Base):
+    """A collector-confirmed provider reference; sale responses stay in an expiring cache."""
+
+    __tablename__ = "market_links"
+    __table_args__ = ({"schema": "slabtrak"},)
+
+    copy_id: Mapped[UUID] = mapped_column(
+        ForeignKey("slabtrak.owned_copies.id", ondelete="CASCADE"), primary_key=True
+    )
+    provider_card_id: Mapped[UUID] = mapped_column()
+    provider_parallel_id: Mapped[UUID | None] = mapped_column()
+    provider_grade_id: Mapped[UUID | None] = mapped_column()
+    copy_signature: Mapped[str] = mapped_column(String(64))
+    confirmed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class ComparableSale(Base):
     """Private, user-recorded completed sale tied to an immutable card identity."""
 

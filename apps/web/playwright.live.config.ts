@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
-// Explicit opt-in: this suite spends a real provider request and stays outside CI fixtures.
+// Explicit opt-in: these checks consume real provider quota and stays outside CI fixtures.
 if (process.env.SLABTRAK_TEST_LIVE_MARKET !== "1") throw new Error("Enable SLABTRAK_TEST_LIVE_MARKET=1 for the live provider check.");
 export default defineConfig({
   testDir: "./live", workers: 1, retries: 0,

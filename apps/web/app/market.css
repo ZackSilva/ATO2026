@@ -62,7 +62,22 @@
 .auction-sale-price { font-size: 20px; font-weight: 450; white-space: nowrap; }
 .auction-sales .workspace-text-link { font-size: 12px; }
 .market-freshness { font-size: 13px; color: var(--muted); }
+.market-link > p, .market-link-candidates p { font-size: 13px; line-height: 1.7; }
+.market-link-actions { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.market-link button { min-height: 44px; }
+.market-link-candidates { margin-top: 20px; }
+.market-link-candidates ul { list-style: none; padding: 0; margin: 16px 0; }
+.market-link-candidates li { display: flex; gap: 20px; align-items: center; justify-content: space-between; padding: 20px 0; border-top: 1px solid var(--line); }
+.market-link-candidates li > div { min-width: 0; overflow-wrap: anywhere; }
+.market-link-candidates h3 { margin: 0 0 8px; font-size: 16px; font-weight: 500; }
+.market-link-candidates p { margin: 4px 0; }
+.market-link-candidates button { flex-shrink: 0; }
+.market-grade-choice { display: flex; flex-direction: column; gap: 8px; font-size: 13px; max-width: 420px; }
+.market-grade-choice select { min-height: 44px; max-width: 100%; }
+.saved-historical-evidence { margin: 24px 0; border-top: 1px solid var(--line); }
+.saved-historical-evidence > summary { cursor: pointer; padding: 16px 0; min-height: 44px; font-size: 14px; }
 @media (max-width: 680px) {
+  .market-link-candidates li { flex-direction: column; align-items: flex-start; gap: 8px; }
   .market-summary { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 20px; }
   .market-form-grid { grid-template-columns: minmax(0, 1fr); }
   .market-comparables li { grid-template-columns: 64px minmax(0, 1fr); gap: 14px; }

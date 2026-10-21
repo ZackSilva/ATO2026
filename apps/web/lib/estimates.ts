@@ -6,6 +6,8 @@ export type MarketEstimate = {
   high: string | null; sample_count: number; latest_sale: string | null;
   confidence: "insufficient" | "low" | "medium"; reason: string;
   history?: { sold_on: string; price: string }[];
+  source?: "saved" | "cardsight"; pricing_status?: "saved" | "live" | "insufficient" | "unavailable" | "pending" | "mismatch";
+  fetched_at?: string | null; refresh_after?: string | null; pricing_note?: string | null;
   raw_condition?: RawCondition; latest_matching_sale?: string | null;
   days_since_latest_sale?: number | null; stale?: boolean;
 };
@@ -16,7 +18,8 @@ export type Comparable = {
   source: string; source_url: string; created_at: string; image_url?: string | null;
   raw_condition?: RawCondition;
 };
-export type ComparableReport = { items: Comparable[]; matching_sale_ids: string[]; estimate: MarketEstimate };
+export type SavedEvidence = { items: Comparable[]; matching_sale_ids: string[]; estimate: MarketEstimate };
+export type ComparableReport = SavedEvidence & { saved_history?: SavedEvidence | null };
 
 // Sum only supported estimates in one currency, without losing integer cents.
 export function estimateSubtotal(items: MarketEstimate[]): string | null {

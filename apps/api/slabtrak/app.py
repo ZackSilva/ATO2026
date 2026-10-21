@@ -1,7 +1,8 @@
+import asyncio
 import logging
 import re
 import secrets
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
@@ -18,7 +19,9 @@ from slabtrak.db import database
 from slabtrak.estimates import estimates_router
 from slabtrak.finances import finances_router
 from slabtrak.inventory import inventory_router
+from slabtrak.market_links import market_links_router
 from slabtrak.market_search import market_search_router
+from slabtrak.market_values import MarketValues
 from slabtrak.models import Account, LoginLimit, LoginSession
 from slabtrak.photos import MAX_UPLOAD
 from slabtrak.security import (
@@ -47,11 +50,24 @@ class LoginInput(BaseModel):
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
     engine, sessions = database(settings)
+    market_values = MarketValues(settings)
+
+    async def purge_provider_cache():
+        while True:
+            await asyncio.sleep(60)
+            await asyncio.to_thread(market_values.purge)
 
     @asynccontextmanager
     async def lifespan(app):
-        yield
-        engine.dispose()
+        purge_task = asyncio.create_task(purge_provider_cache())
+        try:
+            yield
+        finally:
+            purge_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await purge_task
+            market_values.clear()
+            engine.dispose()
 
     app = FastAPI(
         title="SlabTrak API",
@@ -63,6 +79,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.sessions = sessions
     app.state.engine = engine
+    app.state.market_values = market_values
 
     @app.exception_handler(RequestValidationError)
     async def invalid_request(request, exception):
@@ -128,8 +145,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(inventory_router(db_session, authenticated, mutation, settings.photo_root))
     app.include_router(finances_router(db_session, authenticated))
-    app.include_router(estimates_router(db_session, authenticated, mutation))
+    app.include_router(estimates_router(db_session, authenticated, mutation, market_values))
     app.include_router(market_search_router(settings, authenticated, mutation))
+    app.include_router(market_links_router(db_session, authenticated, mutation, market_values))
 
     @app.get("/api/health")
     def health(db: Annotated[Session, Depends(db_session)]):

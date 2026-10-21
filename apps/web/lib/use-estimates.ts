@@ -11,13 +11,21 @@ export function useEstimates(refreshKey: number, onExpired: () => void) {
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     let request: AbortController;
-    async function load() {
+    let poll: number | undefined;
+    async function load(round = 0) {
+      window.clearTimeout(poll);
       request?.abort();
       const controller = new AbortController(); request = controller;
-      setPending(true); setError(false);
+      if (round === 0) setPending(true);
+      setError(false);
       try {
         const result = await api<Estimates>("/estimates", { signal: controller.signal });
-        if (!controller.signal.aborted) setData(result);
+        if (!controller.signal.aborted) {
+          setData(result);
+          if (round < 10 && result.items.some(item => item.pricing_status === "pending")) {
+            poll = window.setTimeout(() => void load(round + 1), 2000);
+          }
+        }
       } catch (failure) {
         if (controller.signal.aborted) return;
         if (failure instanceof ApiError && failure.status === 401) onExpired();
@@ -27,7 +35,7 @@ export function useEstimates(refreshKey: number, onExpired: () => void) {
     const timer = window.setTimeout(() => void load(), 0);
     const focus = () => void load();
     window.addEventListener("focus", focus);
-    return () => { window.clearTimeout(timer); request?.abort(); window.removeEventListener("focus", focus); };
+    return () => { window.clearTimeout(timer); window.clearTimeout(poll); request?.abort(); window.removeEventListener("focus", focus); };
   }, [refreshKey, retry, onExpired]);
   return { data: pending || error ? null : data, pending, error, retry: () => setRetry(value => value + 1) };
 }

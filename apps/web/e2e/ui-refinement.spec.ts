@@ -73,7 +73,7 @@ test("collection search expands filters, retains visible selections, and support
 test("Home methodology and Settings notes disclose details without overwhelming the overview", async ({ page }, testInfo) => {
   await signIn(page);
   const market = page.getByRole("region", { name: "Collection estimates", exact: true });
-  await expect(market.getByText("Recorded sales · no live feed", { exact: true })).toBeVisible();
+  await expect(market.getByText("Collection market evidence", { exact: true })).toBeVisible();
   await expect(market.getByRole("progressbar", { name: "Cards with market estimates", exact: true })).toBeVisible();
   const method = market.locator("details");
   await expect(method).not.toHaveAttribute("open");
