@@ -31,6 +31,8 @@ Configure secrets in Vercel settings, never source control or chat:
 
 Apply migrations deliberately with a separate migration connection and the required application role/schema grants before using a hosted database. Do not run migrations on each request or build. Create the owner account through the existing operator procedure; public registration remains disabled.
 
+The saved research-query update requires migration `0011` **before deploying its API code**. It adds a non-null `market_query` text field, defaulting existing cards to an empty query, and records the new migration revision. It does not change purchase costs, sale evidence, photos or confirmed market matches. For an existing `0010` installation, apply only the `0010` → `0011` upgrade; do not rerun initialization. Verify revision `0011` before promoting the deployment. Run migrations through the operator connection, never the application's restricted role.
+
 ### CardSight for every collector on this installation
 
 Set `CARDSIGHT_API_KEY` in the Vercel project's **Production** environment to the operator's CardSight API key, then deploy again. The key in a local `.env` file is not sent to Vercel by a Git push. Keep the key server-only; do not add a `NEXT_PUBLIC_` copy or ask collectors to configure their own key.

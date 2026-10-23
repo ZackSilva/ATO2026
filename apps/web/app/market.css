@@ -107,3 +107,9 @@
   .card-detail-actions { flex-wrap: wrap; }
 }
 .estimate-dialog { margin: auto; background: var(--bg); }
+
+.estimate-dialog .research-query { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 24px; }
+.estimate-dialog .research-query h3 { font-size: 16px; font-weight: 500; margin: 0 0 8px; }
+.estimate-dialog .research-guide { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.estimate-dialog .research-query-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.estimate-dialog .research-results-count { color: var(--muted); font-size: 13px; margin: 16px 0 8px; }

@@ -13,7 +13,7 @@ export type CardInput = {
   corners: string | null; edges: string | null; surface: string | null;
   serial_number: number | null; purchase_price: string | null; shipping: string | null;
   tax: string | null; other_cost: string | null; currency: string;
-  acquired_on: string | null; seller: string; notes: string; archived: boolean;
+  acquired_on: string | null; seller: string; notes: string; market_query?: string; archived: boolean;
   sold: boolean; sale_price: string | null; sale_fees: string | null; sold_on: string | null;
 };
 

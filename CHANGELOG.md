@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add custom auction research within **Estimate Value**, with an owner-scoped saved query per physical card. Keep research results separate from confirmed estimates and saved comparable evidence; searches run only on explicit submission.
+- Preserve the current estimate, exact-card confirmation and sales graphs. Save query changes with revision checks, retain them during ordinary card edits, and report provider errors without automatic retry loops.
+- Add migration `0011` for the saved-query field. Apply it before deploying this update; no dependency or release-version changes.
+
 ## v0.1.0-beta.1 — October 21, 2026
 
 - Add catalog search to card entry with explicitly chosen, editable identity details. Put **Estimate Value** near the top of the editor and in read-only card details: save the physical copy first, retrieve candidate matches automatically, and require **Use this match** before automatic pricing. Keep **Save card** independent of pricing with an estimate action afterward; rename the Sold comparables pricing section **Estimate Value**. Catalog requests use bounded transient caching and share provider quotas; typing makes no requests.

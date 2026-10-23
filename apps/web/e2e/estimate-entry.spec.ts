@@ -317,3 +317,87 @@ test("provider failure and no exact match keep entered details and save an unpri
   expect(saved.notes).toBe("Keep this draft when lookup fails.");
   expect(saved.purchase_price).toBe("42.50");
 });
+
+test("custom auction research preserves exact estimates and saves only the query across reopening and edits", async ({ page }, info) => {
+  test.setTimeout(60_000);
+  const { editor, fixture } = await openEntry(page, info);
+  await mockMarket(page, false);
+  const subject = `Synthetic research ${info.project.name}`;
+  await editor.getByLabel("Player(s) or subject (required)", { exact: true }).fill(subject);
+  await editor.getByLabel("Purchase price", { exact: true }).fill("42.50");
+  const card = await saveDraft(page, editor, fixture, true);
+  let searches = 0, comparableWrites = 0;
+  page.on("request", request => {
+    if (new URL(request.url()).pathname.endsWith("/comparables") && request.method() !== "GET") comparableWrites++;
+  });
+  await page.route("**/api/market/search", route => {
+    searches++;
+    return route.fulfill({ json: {
+      query: route.request().postDataJSON().query, provider: "cardsight", fetched_at: new Date().toISOString(),
+      returned_count: 1, discarded_count: 0, truncated: false, notice: "Synthetic research fixture.",
+      items: [{ id: "synthetic-research-sale", title: "Different synthetic issue — not estimate evidence", price: "900.00", currency: "USD",
+        sold_on: new Date().toISOString().slice(0, 10), source: "Synthetic browser fixture", source_url: "https://example.invalid/research-sale",
+        image_url: null, condition: "unknown", grader: "", grade: "", parallel: null, matched_card: null }],
+    } });
+  });
+  const estimate = page.getByRole("dialog", { name: "Estimate Value", exact: true });
+  const research = estimate.getByRole("region", { name: "Research auction sales", exact: true });
+  await expect(estimate.locator(".estimate-result strong")).toHaveText("Not enough sales data");
+  await research.getByLabel("Card search", { exact: true }).fill("synthetic auction research");
+  expect(searches).toBe(0);
+  await research.getByRole("button", { name: "Search sales", exact: true }).click();
+  await expect(research.getByText("1 auction sale found", { exact: false })).toBeVisible();
+  await expect(research.locator(".sales-history-point")).toHaveCount(1);
+  await expect(estimate.locator(".estimate-result strong")).toHaveText("Not enough sales data");
+  await expect(research.getByRole("button", { name: "Save as comparable", exact: true })).toHaveCount(0);
+  await research.getByRole("button", { name: "Save research query", exact: true }).click();
+  await expect(research.getByRole("status")).toHaveText(/Research query saved/);
+  // A second save must use the returned revision rather than the original card revision.
+  await research.getByLabel("Card search", { exact: true }).fill("synthetic refined research");
+  await research.getByRole("button", { name: "Save research query", exact: true }).click();
+  await expect(research.getByRole("status")).toHaveText(/Research query saved/);
+  await info.attach("Research chart remains separate from the exact card estimate", { body: await page.screenshot({ path: info.outputPath("auction-research.png"), fullPage: true }), contentType: "image/png" });
+  await estimate.getByRole("button", { name: "Done", exact: true }).click();
+  await page.locator(".save-pricing-notice").getByRole("button", { name: "Estimate Value", exact: true }).click();
+  await expect(estimate.getByLabel("Card search", { exact: true })).toHaveValue("synthetic refined research");
+  expect(searches).toBe(1);
+  await estimate.getByRole("button", { name: "Done", exact: true }).click();
+  await page.getByRole("button", { name: `Edit card for ${subject}`, exact: true }).click();
+  const edit = page.getByRole("dialog", { name: "Edit card", exact: true });
+  await edit.getByLabel("Notes", { exact: true }).fill("Ordinary edit preserves research query.");
+  await edit.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(edit).toBeHidden();
+  const stored = await (await page.request.get(`/api/cards/${card.id}`)).json() as Card;
+  expect(stored.market_query).toBe("synthetic refined research");
+  expect(stored.purchase_price).toBe("42.50");
+  expect(stored.shipping).toBeNull(); expect(stored.tax).toBeNull(); expect(stored.other_cost).toBeNull();
+  expect(comparableWrites).toBe(0);
+});
+
+test("saved auction research performs one explicit request and never retries a provider failure", async ({ page }, info) => {
+  const { editor, fixture } = await openEntry(page, info);
+  await mockMarket(page, false);
+  await editor.getByLabel("Player(s) or subject (required)", { exact: true }).fill(`Synthetic failed research ${info.project.name}`);
+  await saveDraft(page, editor, fixture, true);
+  const estimate = page.getByRole("dialog", { name: "Estimate Value", exact: true });
+  const research = estimate.getByRole("region", { name: "Research auction sales", exact: true });
+  let searches = 0;
+  await page.route("**/api/market/search", route => {
+    searches++;
+    return route.fulfill({ status: 503, json: { detail: "Synthetic auction provider unavailable." } });
+  });
+  await estimate.getByLabel("Card search", { exact: true }).fill("saved synthetic query");
+  await estimate.getByRole("button", { name: "Save research query", exact: true }).click();
+  await expect(research.getByRole("status")).toHaveText(/Research query saved/);
+  await estimate.getByRole("button", { name: "Done", exact: true }).click();
+  await page.locator(".save-pricing-notice").getByRole("button", { name: "Estimate Value", exact: true }).click();
+  await expect(estimate.getByLabel("Card search", { exact: true })).toHaveValue("saved synthetic query");
+  await expect(estimate.locator(".estimate-result strong")).toHaveText("Not enough sales data");
+  expect(searches).toBe(0);
+  await estimate.getByRole("button", { name: "Search sales", exact: true }).click();
+  await expect(research.getByRole("alert")).toHaveText("Synthetic auction provider unavailable.");
+  await page.waitForTimeout(600);
+  expect(searches).toBe(1);
+  await expect(estimate.getByRole("button", { name: "Search sales", exact: true })).toBeEnabled();
+  await info.attach("Explicit failed research request without retry", { body: await page.screenshot({ path: info.outputPath("research-provider-failure.png"), fullPage: true }), contentType: "image/png" });
+});

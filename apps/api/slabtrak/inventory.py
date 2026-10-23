@@ -8,7 +8,7 @@ from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, Response
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from sqlalchemy import func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
@@ -38,9 +38,29 @@ SALE_FIELDS = ("sold", "sale_price", "sale_fees", "sold_on")
 CONFLICT = "This card changed in another session. Reload the card before editing again."
 
 
-class CardInput(BaseModel):
+class MarketQueryInput(BaseModel):
+    """Remember research text without treating search results as verified sale evidence."""
+
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
+    market_query: str = Field(default="", max_length=200)
+
+    @field_validator("market_query")
+    @classmethod
+    def valid_market_query(cls, value):
+        if value and len(value) < 4:
+            raise ValueError("Search must contain at least four characters.")
+        if any(ord(char) < 32 or ord(char) == 127 for char in value):
+            raise ValueError("Search must not contain control characters.")
+        return value
+
+
+class MarketQueryUpdate(MarketQueryInput):
+    market_query: str = Field(max_length=200)
+    revision: int = Field(ge=1)
+
+
+class CardInput(MarketQueryInput):
     subject: str = Field(min_length=1, max_length=200)
     year: int | None = Field(default=None, ge=1800, le=2200)
     sport: str = Field(default="", max_length=100)
@@ -318,6 +338,22 @@ def inventory_router(db_session, authenticated, mutation, photos: PhotoStore) ->
     def get_card(card_id: UUID, db: DB, identity: Identity):
         return output(*owned(db, identity[0].id, card_id))
 
+    @router.put("/{card_id}/market-query", response_model=CardOutput)
+    def update_market_query(
+        card_id: UUID, data: MarketQueryUpdate, db: DB, identity: WriteIdentity
+    ):
+        copy, definition = owned(db, identity[0].id, card_id, lock=True)
+        if copy.revision != data.revision:
+            raise HTTPException(409, CONFLICT)
+        copy.market_query = data.market_query
+        copy.updated_at = datetime.now(UTC)
+        try:
+            db.commit()
+        except StaleDataError:
+            db.rollback()
+            raise HTTPException(409, CONFLICT) from None
+        return output(copy, definition)
+
     @router.get("/{card_id}/photo", response_class=Response)
     def get_photo(
         card_id: UUID, db: DB, identity: Identity, side: Annotated[PhotoSide, Query()] = "front"
@@ -404,6 +440,8 @@ def inventory_router(db_session, authenticated, mutation, photos: PhotoStore) ->
         if copy.revision != data.revision:
             raise HTTPException(409, CONFLICT)
         values = data.model_dump(exclude={"revision"})
+        if "market_query" not in data.model_fields_set:
+            values["market_query"] = copy.market_query
         if "raw_condition" not in data.model_fields_set and data.condition == "raw":
             values["raw_condition"] = copy.raw_condition
         # Older clients do not send sale fields; metadata edits must retain a recorded sale.

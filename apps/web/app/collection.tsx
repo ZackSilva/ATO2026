@@ -170,7 +170,12 @@ export default function Collection({ session, onExpired }: Props) {
     </section>
     {viewing && <CardDetail card={viewing} estimate={estimates.data?.items.find(item => item.card_id === viewing.id)} estimatePending={estimates.pending} estimateUnavailable={estimates.error} active={editing === undefined && !preview && !estimating} onClose={closeView} onEdit={() => setEditing(viewing)} onEstimate={() => setEstimating(viewing)} onPreview={side => setPreview({ card: viewing, side })} onExpired={onExpired} />}
     {editing !== undefined && <CardEditor key={`${editing?.id ?? "new"}-${editorVersion}`} card={editing} onClose={closeEditor} onSave={save} onDelete={remove} onReload={reloadCard} onPhotoChange={changePhoto} />}
-    {estimating && <EstimateValue card={estimating} onClose={() => { setEstimating(null); window.setTimeout(() => { if (document.activeElement === document.body) heading.current?.focus(); }, 0); }} onChange={() => setOverviewVersion(value => value + 1)} onExpired={onExpired} />}
+    {estimating && <EstimateValue card={estimating} onClose={() => { setEstimating(null); window.setTimeout(() => { if (document.activeElement === document.body) heading.current?.focus(); }, 0); }} onChange={() => setOverviewVersion(value => value + 1)} onQuerySaved={saved => {
+      setEstimating(saved);
+      setViewing(current => current?.id === saved.id ? saved : current);
+      setSavedForPricing(current => current?.id === saved.id ? saved : current);
+      setInventory(current => current ? { ...current, items: current.items.map(item => item.id === saved.id ? saved : item) } : current);
+    }} onExpired={onExpired} />}
     {preview && <CardPreview card={preview.card} initialSide={preview.side} onClose={() => setPreview(null)} />}
   </main>;
 }

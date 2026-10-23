@@ -147,6 +147,7 @@ class OwnedCopy(Base):
     acquired_on: Mapped[date | None] = mapped_column(Date)
     seller: Mapped[str] = mapped_column(String(200))
     notes: Mapped[str] = mapped_column(String(2000))
+    market_query: Mapped[str] = mapped_column(String(200), default="", server_default="")
     archived: Mapped[bool] = mapped_column(Boolean)
     sold: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     sale_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
